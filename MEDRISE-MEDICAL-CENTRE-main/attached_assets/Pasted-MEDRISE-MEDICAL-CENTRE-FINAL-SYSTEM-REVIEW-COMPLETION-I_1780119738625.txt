@@ -1,0 +1,465 @@
+MEDRISE MEDICAL CENTRE — FINAL SYSTEM REVIEW & COMPLETION INSTRUCTIONS FOR REPLIT AI
+
+You are working on an existing Hospital Management System project for MedRise Medical Centre.
+
+Your task is NOT to rebuild the system from scratch.
+
+Your task is to:
+
+1. Analyze the entire existing codebase
+2. Detect what modules/features already exist
+3. Detect incomplete modules
+4. Detect missing workflows
+5. Detect broken pages/components
+6. Detect missing database relationships
+7. Detect UI/UX inconsistencies
+8. Detect missing validations/security
+9. Complete and improve the system professionally
+10. Preserve all existing working functionality
+
+IMPORTANT:
+Do NOT delete existing working features unless absolutely necessary.
+Do NOT break current workflows.
+Extend and improve the current architecture professionally.
+
+---
+
+STEP 1 — FULL PROJECT ANALYSIS
+
+First perform a complete project audit.
+
+Analyze:
+
+- Frontend pages
+- Backend APIs
+- Database schema
+- Authentication system
+- Existing modules
+- Existing dashboards
+- Existing workflows
+- Existing navigation
+- Existing tables
+- Existing permissions
+- Existing UI components
+- Existing reports
+- Existing integrations
+
+Generate a clear internal checklist of:
+
+- Completed features
+- Incomplete features
+- Missing features
+- Broken features
+- Duplicate logic
+- Unused components
+- Security risks
+- Performance problems
+
+DO NOT start coding before analysis is complete.
+
+---
+
+STEP 2 — VERIFY CORE HOSPITAL MODULES
+
+Check whether these modules already exist.
+
+If a module exists:
+
+- Improve it professionally
+- Fix bugs
+- Complete missing workflows
+- Improve UI/UX
+- Optimize performance
+
+If missing:
+
+- Build it completely
+
+Verify these modules:
+
+1. Authentication & Authorization
+2. Patient Registration
+3. Queue Management
+4. Triage
+5. Consultation
+6. Electronic Medical Records (EMR)
+7. Laboratory
+8. Radiology
+9. Pharmacy
+10. Billing & Payments
+11. Admissions/Wards
+12. Nursing
+13. Appointments
+14. Inventory
+15. Reports & Analytics
+16. Notifications
+17. Staff Management
+18. Audit Logs
+19. Patient Portal
+20. Emergency Module
+
+---
+
+STEP 3 — VERIFY DATABASE STRUCTURE
+
+Inspect the PostgreSQL database schema carefully.
+
+Check for:
+
+- Missing foreign keys
+- Missing indexes
+- Incorrect relationships
+- Duplicate tables
+- Poor normalization
+- Missing timestamps
+- Missing audit fields
+- Missing constraints
+
+Ensure all major tables contain:
+
+- id (UUID)
+- created_at
+- updated_at
+- deleted_at
+- created_by
+- updated_by
+
+Check existence and relationships for:
+
+- patients
+- visits
+- triage
+- consultations
+- diagnoses
+- prescriptions
+- medications
+- lab_orders
+- lab_results
+- admissions
+- wards
+- beds
+- nursing_notes
+- billing
+- payments
+- appointments
+- users
+- roles
+- permissions
+- inventory
+- suppliers
+- notifications
+- audit_logs
+- attachments
+
+Fix schema inconsistencies safely without data loss.
+
+---
+
+STEP 4 — VERIFY WORKFLOW LOGIC
+
+Ensure the hospital workflow is fully connected.
+
+OUTPATIENT FLOW:
+Registration
+→ Queue
+→ Triage
+→ Consultation
+→ Lab/Imaging
+→ Pharmacy
+→ Billing
+→ Exit
+
+EMERGENCY FLOW:
+Emergency Registration
+→ Emergency Triage
+→ Resuscitation
+→ Consultation
+→ Admission/Referral
+
+INPATIENT FLOW:
+Admission
+→ Bed Allocation
+→ Nursing Care
+→ Medication Administration
+→ Ward Rounds
+→ Discharge
+→ Billing Clearance
+
+Check:
+
+- Broken workflow transitions
+- Missing status updates
+- Duplicate patient visits
+- Queue synchronization issues
+- Incorrect billing triggers
+- Missing notifications
+- Unfinished patient journeys
+
+Fix all workflow gaps professionally.
+
+---
+
+STEP 5 — VERIFY USER ROLES & PERMISSIONS
+
+Check role-based access control.
+
+Verify permissions for:
+
+- Super Admin
+- Admin
+- Doctor
+- Nurse
+- Receptionist
+- Pharmacist
+- Lab Technician
+- Accountant
+- Cashier
+- Radiologist
+
+Ensure each role only accesses allowed modules.
+
+Check for:
+
+- Unauthorized access risks
+- Missing permission guards
+- Broken protected routes
+- Missing middleware validation
+
+---
+
+STEP 6 — VERIFY UI/UX QUALITY
+
+Review the entire UI professionally.
+
+Check:
+
+- Mobile responsiveness
+- Tablet responsiveness
+- Dark mode consistency
+- Sidebar/navigation usability
+- Form usability
+- Loading states
+- Empty states
+- Error handling
+- Button consistency
+- Color consistency
+- Typography consistency
+- Spacing consistency
+
+Hospital workflows must require minimal clicks.
+
+Optimize:
+
+- Speed
+- Simplicity
+- Readability
+- Accessibility
+
+Ensure:
+
+- Fast search
+- Sticky patient header
+- Color-coded alerts
+- Clear status indicators
+- Professional medical design
+
+---
+
+STEP 7 — VERIFY PATIENT SAFETY FEATURES
+
+Check safety-critical logic.
+
+Ensure:
+
+- Drug interaction warnings
+- Allergy alerts
+- Duplicate medication warnings
+- Emergency flags
+- Critical lab result alerts
+- Abnormal vitals alerts
+- Patient identification verification
+
+Patient safety must always take priority.
+
+---
+
+STEP 8 — VERIFY BILLING & FINANCE
+
+Audit all billing logic.
+
+Check:
+
+- Consultation billing
+- Pharmacy billing
+- Lab billing
+- Procedure billing
+- Admission billing
+- Discounts
+- Refunds
+- Insurance handling
+- Receipt generation
+
+Ensure:
+
+- No duplicate billing
+- Accurate totals
+- Correct payment statuses
+- Revenue calculations match transactions
+
+---
+
+STEP 9 — VERIFY PHARMACY & INVENTORY
+
+Check:
+
+- Stock deductions
+- Expiry tracking
+- Batch tracking
+- Low stock alerts
+- Purchase workflows
+- Supplier records
+
+Ensure stock movements are fully traceable.
+
+Prevent negative stock quantities.
+
+---
+
+STEP 10 — VERIFY REPORTING & ANALYTICS
+
+Ensure dashboards and reports work correctly.
+
+Verify:
+
+- Daily patient statistics
+- Revenue reports
+- Drug usage reports
+- Admission statistics
+- Queue statistics
+- Lab statistics
+- Financial summaries
+
+Optimize reports for performance.
+
+---
+
+STEP 11 — VERIFY SYSTEM PERFORMANCE
+
+Optimize the entire application.
+
+Check:
+
+- Slow queries
+- Unnecessary API calls
+- Large component re-renders
+- Memory leaks
+- Unoptimized tables
+- Poor pagination
+- Duplicate requests
+
+Implement:
+
+- Pagination
+- Lazy loading
+- Query optimization
+- Efficient caching
+
+The system must feel fast even with many patients.
+
+---
+
+STEP 12 — VERIFY SECURITY
+
+Perform security audit.
+
+Check:
+
+- SQL injection risks
+- XSS vulnerabilities
+- CSRF risks
+- Insecure APIs
+- Weak authentication
+- Missing input validation
+- Missing rate limiting
+- Missing session expiration
+
+Encrypt sensitive data properly.
+
+Protect medical records professionally.
+
+---
+
+STEP 13 — VERIFY OFFLINE & ERROR RECOVERY
+
+Improve resilience.
+
+Ensure:
+
+- Graceful handling of internet failures
+- Retry mechanisms
+- Unsaved form recovery
+- Draft saving
+- Stable reconnection behavior
+
+The system should remain usable during unstable internet conditions.
+
+---
+
+STEP 14 — CLEANUP & PROFESSIONAL POLISH
+
+Perform final professional cleanup.
+
+Remove:
+
+- Dead code
+- Unused files
+- Duplicate components
+- Console logs
+- Debug code
+- Temporary mock data
+
+Standardize:
+
+- Naming conventions
+- API structure
+- Folder organization
+- Component architecture
+- Form validation patterns
+
+---
+
+STEP 15 — FINAL PROFESSIONALIZATION
+
+Ensure the final MedRise system feels like:
+
+- A real enterprise hospital system
+- Modern
+- Fast
+- Secure
+- Reliable
+- Scalable
+- Professional
+
+The final system must prioritize:
+
+1. Workflow efficiency
+2. Patient safety
+3. Speed
+4. Reliability
+5. Security
+6. Simplicity
+7. Scalability
+
+DO NOT leave placeholder pages, incomplete workflows, or broken components.
+
+Before finalizing:
+
+- Test all workflows
+- Test all dashboards
+- Test all permissions
+- Test all forms
+- Test all reports
+- Test all billing flows
+- Test all patient journeys
+
+Ensure the entire hospital workflow works end-to-end professionally.

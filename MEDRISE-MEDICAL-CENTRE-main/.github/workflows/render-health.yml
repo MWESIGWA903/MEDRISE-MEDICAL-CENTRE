@@ -1,0 +1,111 @@
+name: Render Self-Heal
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  heal-spa-routes:
+    name: Verify & fix Render SPA rewrite rule
+    runs-on: ubuntu-latest
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      STATIC_SERVICE_ID: srv-d8dtiopo3t8c73etbrn0
+    steps:
+      - name: Check and repair /* → /index.html rewrite
+        run: |
+          echo "--- Fetching current routes ---"
+          ROUTES=$(curl -sf -H "Authorization: Bearer $RENDER_API_KEY" \
+            "https://api.render.com/v1/services/$STATIC_SERVICE_ID/routes")
+          echo "Current routes: $ROUTES"
+
+          CORRECT=$(echo "$ROUTES" | python3 -c "
+          import sys, json
+          routes = json.load(sys.stdin)
+          ok = any(
+            r.get('route',r).get('source') == '/*' and
+            r.get('route',r).get('destination') == '/index.html' and
+            r.get('route',r).get('type') == 'rewrite'
+            for r in routes
+          )
+          print('yes' if ok else 'no')
+          ")
+
+          if [ "$CORRECT" = "yes" ]; then
+            echo "✅ SPA rewrite rule is correct — no action needed."
+            exit 0
+          fi
+
+          echo "⚠️  Rewrite rule missing or wrong — repairing..."
+
+          echo "$ROUTES" | python3 -c "
+          import sys, json
+          routes = json.load(sys.stdin)
+          for r in routes:
+            rid = r.get('route',r).get('id','')
+            if rid:
+              print(rid)
+          " | while read RID; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              "https://api.render.com/v1/services/$STATIC_SERVICE_ID/routes/$RID")
+            echo "Deleted route $RID → HTTP $STATUS"
+          done
+
+          RESULT=$(curl -sf -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/$STATIC_SERVICE_ID/routes" \
+            -d '{"type":"rewrite","source":"/*","destination":"/index.html","priority":0}')
+          echo "Created: $RESULT"
+          echo "✅ SPA rewrite rule repaired."
+
+  verify-email-env-vars:
+    name: Verify email env vars are set on API service
+    runs-on: ubuntu-latest
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      API_SERVICE_ID: srv-d8ddqqmk1jcs738t8b60
+    steps:
+      - name: Check required env vars exist
+        run: |
+          VARS=$(curl -sf -H "Authorization: Bearer $RENDER_API_KEY" \
+            "https://api.render.com/v1/services/$API_SERVICE_ID/env-vars")
+
+          echo "$VARS" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          keys = {v.get('envVar',v)['key'] for v in data}
+          # DATABASE_URL is auto-injected by Render's PostgreSQL attachment
+          # and does not appear in the manual env-vars API response — skip it.
+          required = {'EMAIL_USER', 'EMAIL_APP_PASSWORD', 'RESEND_API_KEY'}
+          missing = required - keys
+          if missing:
+            print('Missing env vars on Render API:', missing)
+            sys.exit(1)
+          else:
+            print('All required env vars present:', sorted(required))
+          "
+
+  smoke-test:
+    name: Smoke test live site routes
+    runs-on: ubuntu-latest
+    needs: heal-spa-routes
+    steps:
+      - name: Test SPA routes return HTML
+        run: |
+          SITE="https://medrise-medical-centre.onrender.com"
+          FAILED=0
+          for ROUTE in "" "admin/login" "staff/login" "about" "services" "contact"; do
+            CT=$(curl -sI --max-time 20 "$SITE/$ROUTE" | grep -i "content-type" | head -1)
+            if echo "$CT" | grep -qi "text/html"; then
+              echo "✅ /$ROUTE → $CT"
+            else
+              echo "❌ /$ROUTE → $CT"
+              FAILED=1
+            fi
+          done
+          exit $FAILED

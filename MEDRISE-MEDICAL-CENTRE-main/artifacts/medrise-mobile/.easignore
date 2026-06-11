@@ -1,0 +1,26 @@
+**/node_modules
+**/.expo
+**/.expo-shared
+**/android
+**/ios
+**/dist
+**/.tsbuildinfo
+**/*.log
+**/.git
+
+# Other monorepo artifacts (not needed for mobile build)
+artifacts/medrise/
+artifacts/api-server/
+artifacts/mockup-sandbox/
+
+# All shared libs (mobile has zero @workspace imports — safe to exclude all)
+lib/
+
+# Root config and tooling not needed by EAS
+scripts/
+.github/
+attached_assets/
+.agents/
+.local/
+*.sql
+pnpm-lock.yaml

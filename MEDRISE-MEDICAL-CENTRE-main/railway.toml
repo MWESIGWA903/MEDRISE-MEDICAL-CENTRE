@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm install -g pnpm && pnpm install && pnpm build:api && pnpm build"
+
+[deploy]
+startCommand = "node artifacts/api-server/dist/index.mjs"
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 3

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /patient
+Disallow: /staff
+
+Sitemap: https://medrise-medical-centre.netlify.app/sitemap.xml

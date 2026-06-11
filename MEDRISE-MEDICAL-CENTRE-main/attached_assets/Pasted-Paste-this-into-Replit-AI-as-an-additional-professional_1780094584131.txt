@@ -1,0 +1,434 @@
+Paste this into Replit AI as an additional professional restructuring directive.
+
+MEDRISE MEDICAL CENTRE
+
+CLINICAL WORKFLOW, UI/UX & OPERATIONAL RESTRUCTURING DIRECTIVE
+
+Objective
+
+Professionally restructure the MEDRISE Medical Centre platform to follow real-world hospital workflow standards, improve operational efficiency, strengthen clinical documentation, improve patient flow management, and modernize the user experience.
+
+All changes below should be implemented using scalable, enterprise-grade architecture and modern healthcare system standards.
+
+---
+
+1. PUBLIC WEBSITE ACCESS STRUCTURE
+
+Public Access Requirements
+
+The public should ONLY access:
+
+- Home
+- About Us
+- Services
+- Feedback
+- Contact
+- Appointment Booking
+
+These sections should be publicly accessible without authentication.
+
+---
+
+2. REMOVE REPLIT BRANDING
+
+Required Change
+
+Remove:
+
+- “Built with Replit”
+- Replit branding badges
+- unnecessary Replit UI traces from the public dashboard
+
+The system should appear fully professional and independently branded as MEDRISE Medical Centre.
+
+---
+
+3. FIX LOGIN FLOW
+
+Current Problem
+
+After successful login, the system redirects users to log in again.
+
+Required Fix
+
+Implement:
+
+- proper session persistence
+- secure authentication state management
+- automatic dashboard access after successful login
+- protected routes without repeated login prompts
+
+Users should log in ONCE and remain authenticated securely until logout or session expiry.
+
+---
+
+4. AUTO-SAVE CLINICAL NOTES
+
+Required Feature
+
+All staff notes should auto-save while typing.
+
+Apply Auto-Save To
+
+- triage notes
+- consultation notes
+- nursing notes
+- prescriptions
+- referrals
+- discharge summaries
+- assessments
+
+Requirements:
+
+- debounce auto-save
+- save indicators
+- draft recovery
+- prevent accidental data loss
+
+---
+
+5. PATIENT REGISTRATION & QUEUE MUST BE SEPARATE
+
+Current Problem
+
+Patient registration and adding to queue are mixed together.
+
+Required Workflow
+
+Step 1 — Register Patient
+
+Patient registration should ONLY:
+
+- create patient record
+- generate patient ID
+- capture demographics
+
+Step 2 — Add Patient To Queue
+
+Queue management should:
+
+- select existing registered patient
+- assign queue category
+- assign priority
+- assign department
+- begin clinical workflow
+
+These must be independent workflows.
+
+---
+
+6. PATIENT REGISTRATION IMPROVEMENTS
+
+Age Format
+
+Age must support:
+
+- Years
+- Months
+- Days
+
+Example:
+
+5 years 3 months 12 days
+
+This is critical for paediatrics and neonates.
+
+---
+
+7. ADVANCED PATIENT SEARCH
+
+Current Problem
+
+Staff must scroll manually to find patients.
+
+Required Fix
+
+Implement intelligent patient search.
+
+Search By
+
+- patient name
+- phone number
+- patient ID
+
+Features
+
+- instant search
+- autocomplete
+- fast filtering
+- recent patients
+- searchable dropdown
+
+Apply this throughout the system.
+
+---
+
+8. REMOVE "DESCEND" FROM PRIORITY
+
+Required Change
+
+Remove the “Descend” priority option completely.
+
+Use professional clinical priorities only.
+
+---
+
+9. PROFESSIONAL DEPARTMENTS STRUCTURE
+
+Replace Departments With
+
+- Out Patient Department (OPD)
+- Obstetrics and Gynaecology
+- Surgery
+- Internal Medicine
+- Paediatrics
+- Imaging
+- Laboratory
+- Pharmacy
+- Dental Department
+- ENT
+
+These departments should:
+
+- appear on public dashboard
+- appear in internal workflows
+- support analytics/reporting
+- support queue routing
+
+---
+
+10. REFERRAL IMPROVEMENTS
+
+Required Feature
+
+If a patient is referred:
+
+- require referral reason
+- capture referral destination
+- capture referral notes
+- include urgency level
+
+Referral documents should be editable by doctors.
+
+---
+
+11. ADD PATIENT TO QUEUE IMPROVEMENTS
+
+Queue Search
+
+Implement searchable patient selection.
+
+Staff must be able to:
+
+- type patient name
+- type phone number
+- instantly retrieve registered patient
+
+No scrolling through long lists.
+
+---
+
+12. REMOVE DUPLICATED REGISTRATION FIELDS
+
+Current Problem
+
+Patient registration information duplicates inside queue workflow.
+
+Required Fix
+
+Queue workflow should ONLY reference:
+
+- existing registered patient data
+
+Do NOT duplicate:
+
+- demographics
+- phone number
+- age
+- address
+- gender
+
+Queue should focus only on:
+
+- department
+- priority
+- visit reason
+- queue status
+
+---
+
+13. PROFESSIONAL WAITING AREA TRIAGE SYSTEM
+
+Divide Waiting Area Into
+
+Non-Urgent
+
+Stable patients.
+
+Urgent
+
+Requires timely medical attention.
+
+Emergency
+
+Immediate life-threatening conditions.
+
+These should:
+
+- visually differ
+- support queue prioritization
+- support emergency escalation
+
+---
+
+14. TRIAGE MODULE IMPROVEMENTS
+
+Add Full Triage Assessment Notes
+
+Triage nurses must capture:
+
+Vitals
+
+- BP
+- Pulse
+- Temperature
+- Respiratory Rate
+- Oxygen Saturation
+- Weight
+- Height
+- BMI
+- Blood Sugar
+
+Clinical Assessment
+
+- presenting complaints
+- symptom history
+- pain scale
+- allergy history
+- emergency findings
+
+Management
+
+- emergency interventions
+- medications given
+- emergency tests
+- stabilization measures
+- nursing actions
+
+Notes
+
+- detailed triage assessment notes
+- timestamps
+- nurse identity
+
+---
+
+15. TRIAGE NOTES IN CONSULTATION
+
+Required Clinical Workflow
+
+Doctors should:
+
+- SEE all triage assessments
+- SEE vitals
+- SEE interventions
+- SEE nursing notes
+
+However:
+
+- doctors should NOT edit triage nurse records
+
+Triage documentation must remain immutable for audit integrity.
+
+---
+
+16. DOCTOR CONSULTATION DOCUMENT MANAGEMENT
+
+Doctors Should Be Able To Create & Edit
+
+Documents
+
+- referrals
+- discharge summaries
+- birth certificates
+- death notification forms
+- medical reports
+- sick leave forms
+
+Requirements:
+
+- editable templates
+- digital signatures
+- PDF export
+- printable format
+- audit tracking
+
+---
+
+17. CLINICAL WORKFLOW STANDARDIZATION
+
+Proper Patient Flow
+
+Recommended Workflow
+
+1. Patient Registration
+2. Queue Assignment
+3. Waiting Area
+4. Triage Assessment
+5. Doctor Consultation
+6. Laboratory/Imaging
+7. Pharmacy
+8. Billing
+9. Discharge/Admission/Referral
+
+The system should visually reflect this workflow.
+
+---
+
+18. UI/UX IMPROVEMENTS
+
+Requirements
+
+- modern hospital-grade interface
+- responsive mobile design
+- cleaner tables/forms
+- sticky patient header
+- patient status indicators
+- color-coded priorities
+- improved navigation
+- dashboard analytics widgets
+- loading indicators
+- accessibility compliance
+
+---
+
+19. DATA INTEGRITY & AUDIT
+
+Add Clinical Audit Features
+
+Track:
+
+- who edited records
+- timestamps
+- triage completion
+- consultation completion
+- medication changes
+- document history
+
+Prevent unauthorized editing of clinical records.
+
+---
+
+20. FINAL EXPECTED OUTCOME
+
+The final MEDRISE Medical Centre platform should function like a real-world hospital ERP with:
+
+- professional clinical workflows
+- secure authentication
+- proper patient routing
+- modern healthcare UI/UX
+- advanced triage management
+- structured consultation workflows
+- enterprise-grade operational standards
+
+The platform should resemble modern international healthcare systems used in professional hospitals and medical centers.

@@ -1,0 +1,54 @@
+{
+    "name":  "workspace",
+    "version":  "0.0.0",
+    "packageManager":  "pnpm@10.26.1",
+    "license":  "MIT",
+    "scripts":  {
+                    "dev:api":  "PORT=8080 pnpm --filter @workspace/api-server dev",
+                    "dev:web":  "PORT=8081 pnpm --filter @workspace/medrise dev",
+                    "dev:mobile":  "pnpm --filter @workspace/medrise-mobile dev:local",
+                    "dev:all":  "concurrently --names \"API,WEB\" --prefix-colors \"cyan,green\" --kill-others-on-fail \"pnpm dev:api\" \"pnpm dev:web\"",
+                    "dev":  "pnpm dev:all",
+                    "db:push":  "cd lib/db \u0026\u0026 pnpm push",
+                    "db:push:force":  "cd lib/db \u0026\u0026 pnpm push-force",
+                    "db:studio":  "cd lib/db \u0026\u0026 pnpm exec drizzle-kit studio --config ./drizzle.config.ts",
+                    "build":  "pnpm --filter @workspace/medrise build",
+                    "build:api":  "pnpm --filter @workspace/api-server build",
+                    "build:all":  "pnpm run typecheck \u0026\u0026 pnpm -r --if-present run build",
+                    "lint":  "pnpm exec eslint . --ext .js,.jsx,.ts,.tsx",
+                    "lint:fix":  "pnpm exec eslint . --ext .js,.jsx,.ts,.tsx --fix",
+                    "format":  "pnpm exec prettier --write .",
+                    "format:check":  "pnpm exec prettier --check .",
+                    "typecheck:libs":  "tsc --build",
+                    "typecheck":  "pnpm run typecheck:libs \u0026\u0026 pnpm --filter @workspace/api-server --filter @workspace/medrise --filter ./scripts --if-present run typecheck"
+                },
+    "private":  true,
+    "devDependencies":  {
+                            "@testing-library/jest-dom":  "^6.0.1",
+                            "@testing-library/react":  "^15.0.0",
+                            "@testing-library/user-event":  "^14.6.1",
+                            "@typescript-eslint/eslint-plugin":  "^7.0.0",
+                            "@typescript-eslint/parser":  "^7.0.0",
+                            "@vitejs/plugin-react":  "catalog:",
+                            "eslint":  "^9.39.4",
+                            "eslint-config-prettier":  "^9.0.0",
+                            "eslint-plugin-import":  "^2.30.0",
+                            "eslint-plugin-jsx-a11y":  "^6.10.2",
+                            "eslint-plugin-prettier":  "^5.0.0",
+                            "eslint-plugin-react":  "^7.0.0",
+                            "eslint-plugin-react-hooks":  "^7.1.1",
+                            "prettier":  "^3.8.3",
+                            "typescript":  "~5.9.3",
+                            "vite":  "catalog:",
+                            "vitest":  "^1.6.0"
+                        },
+    "optionalDependencies":  {
+                                 "@esbuild/win32-x64":  "0.27.3",
+                                 "@rollup/rollup-win32-x64-msvc":  "^4.60.4",
+                                 "@tailwindcss/oxide-win32-x64-msvc":  "^4.3.0",
+                                 "lightningcss-win32-x64-msvc":  "^1.32.0"
+                             },
+    "dependencies":  {
+                         "concurrently":  "^10.0.0"
+                     }
+}

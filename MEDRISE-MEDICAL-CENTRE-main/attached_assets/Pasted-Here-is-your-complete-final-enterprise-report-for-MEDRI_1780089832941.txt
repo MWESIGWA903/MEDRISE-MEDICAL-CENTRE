@@ -1,0 +1,741 @@
+Here is your complete final enterprise report for MEDRISE Medical Centre ERP.
+
+MEDRISE MEDICAL CENTRE ERP SYSTEM
+
+FINAL MASTER AI DEVELOPMENT, STABILIZATION & ENTERPRISE STANDARDIZATION DIRECTIVE
+
+PRIMARY PROJECT OBJECTIVE
+
+Analyze, stabilize, secure, standardize, and prepare the MEDRISE Medical Centre ERP project for professional production use as an enterprise-grade medical centre management platform.
+
+The project already contains:
+
+- frontend dashboards
+- backend APIs
+- modular workspaces
+- schema definitions
+- medical workflows
+- audit structures
+- reporting systems
+
+The project must NOT be rebuilt from scratch.
+
+Current project phase:
+
+DATABASE STABILIZATION, BACKEND HARDENING & PRODUCTION PREPARATION
+
+---
+
+CURRENT TECHNOLOGY STACK
+
+Frontend:
+
+- React
+- Vite
+
+Backend:
+
+- Node.js API server
+
+Database:
+
+- Supabase PostgreSQL
+
+ORM:
+
+- Drizzle ORM
+
+Workspace:
+
+- pnpm monorepo
+
+Repository:
+
+- GitHub
+
+Development Environment:
+
+- Replit
+- VS Code
+
+---
+
+CURRENT DATABASE CONFIGURATION
+
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.oftzagrtaiwokagtwlmc.supabase.co:5432/postgres
+
+Current status:
+
+- Supabase project exists
+- schema exists in code
+- actual database tables do NOT exist yet
+
+Current impact:
+
+- login failures
+- backend instability
+- failed CRUD operations
+- unstable APIs
+
+---
+
+DEFAULT MEDICAL DIRECTOR ACCOUNT
+
+Automatically seed the system with the following administrator account after authentication setup and migration deployment.
+
+DEFAULT LOGIN CREDENTIALS
+
+Username:
+
+Hannington
+
+Password:
+
+Hannington123!
+
+Role:
+
+Medical Director / Super Admin
+
+---
+
+REQUIRED ACCOUNT PERMISSIONS
+
+The Medical Director account must have:
+
+- complete system visibility
+- admin dashboard access
+- staff dashboard access
+- user management permissions
+- role assignment permissions
+- audit log access
+- workflow override permissions
+- reporting access
+- configuration access
+
+The account must function as:
+
+PRIMARY SYSTEM ADMINISTRATOR
+
+using:
+
+ONE LOGIN ACCOUNT
+
+without requiring separate admin/staff accounts.
+
+---
+
+SECURITY IMPLEMENTATION REQUIREMENT
+
+During initialization:
+
+- hash passwords securely
+- NEVER store plain-text passwords
+- enforce secure sessions
+- allow password changes after first login
+- protect authentication routes
+
+Recommended hashing:
+
+- bcrypt
+  OR
+- Argon2
+
+---
+
+HIGHEST PRIORITY TASK
+
+DEPLOY THE DATABASE STRUCTURE FIRST
+
+Required order:
+
+1. verify Drizzle configuration
+2. verify schema exports
+3. generate migrations
+4. deploy all tables to Supabase
+5. verify relationships and constraints
+6. seed administrator account
+7. test authentication
+8. stabilize CRUD operations
+
+Everything depends on:
+
+- deployed tables
+- working relationships
+- stable authentication
+
+---
+
+REQUIRED MEDICAL DEPARTMENTS
+
+Support:
+
+- General OPD
+- Internal Medicine
+- Pediatrics
+- Obstetrics & Gynecology
+- Surgery
+- ENT
+- Dental
+- Stroke & Specialized Care
+
+---
+
+PEDIATRIC REQUIREMENT
+
+Pediatrics must support:
+
+- years
+- months
+- days
+
+for:
+
+- neonatal care
+- infant care
+- pediatric assessments
+
+---
+
+REQUIRED STAFF ROLES
+
+Include:
+
+- Medical Director / Super Admin
+- Doctor
+- Nurse
+- Receptionist
+- Pharmacist
+- Lab Technician
+- Billing Officer
+- Records Officer
+
+---
+
+ROLE RESPONSIBILITY RULES
+
+DOCTOR ROLE
+
+Doctors should:
+
+- consult patients
+- diagnose
+- prescribe medication
+- create referrals
+- discharge patients
+- issue medical certificates
+- issue sick leave forms
+
+Doctors must automatically view:
+
+- triage notes
+- vital signs
+- nursing interventions
+
+However:
+
+TRIAGE RECORDS MUST REMAIN READ-ONLY FOR DOCTORS
+
+to preserve:
+
+- nursing accountability
+- audit integrity
+
+---
+
+NURSE ROLE
+
+Nurses should manage:
+
+- triage
+- emergency intake
+- nursing assessments
+- vital signs
+- reassessment workflows
+- emergency interventions
+
+---
+
+RECEPTIONIST ROLE
+
+Receptionists should manage:
+
+- patient registration
+- appointments
+- patient routing
+
+Receptionists should NOT access:
+
+- diagnosis records
+- sensitive clinical notes
+
+---
+
+PHARMACIST ROLE
+
+Pharmacists should manage:
+
+- prescriptions
+- dispensing
+- medication tracking
+
+---
+
+LAB TECHNICIAN ROLE
+
+Lab staff should manage:
+
+- diagnostics
+- specimen tracking
+- laboratory results
+
+---
+
+BILLING ROLE
+
+Billing staff should manage:
+
+- invoices
+- payments
+- financial reporting
+
+---
+
+CORE WORKFLOW STRUCTURE
+
+STEP 1 — PATIENT REGISTRATION
+
+Patient registration must remain:
+
+COMPLETELY INDEPENDENT FROM TRIAGE
+
+Allow:
+
+- direct registration
+- direct appointments
+- direct specialist access
+- direct laboratory access
+- direct pharmacy access
+
+without forcing emergency triage.
+
+---
+
+STEP 2 — TRIAGE WORKFLOW
+
+Support:
+
+- emergency intake
+- queue prioritization
+- escalation
+- reassessment
+- emergency alerts
+
+---
+
+REQUIRED TRIAGE TABLE
+
+Create:
+
+TRIAGE ASSESSMENT & MANAGEMENT TABLE
+
+Store:
+
+- blood pressure
+- pulse rate
+- respiratory rate
+- oxygen saturation
+- temperature
+- pain scale
+- chief complaint
+- nursing assessment
+- interventions performed
+- reassessment notes
+- assigned nurse
+- timestamps
+
+---
+
+TRIAGE PRIORITY RULE
+
+Triage priority must remain editable.
+
+Support:
+
+- escalation
+- de-escalation
+- reassessment
+- emergency reprioritization
+
+because patients may:
+
+- deteriorate later
+- stabilize later
+
+---
+
+STEP 3 — APPOINTMENTS
+
+Support:
+
+- booking
+- scheduling
+- specialist assignment
+- follow-ups
+
+---
+
+STEP 4 — CONSULTATION & EHR
+
+Support:
+
+- diagnosis
+- treatment history
+- investigations
+- consultation notes
+- clinical management
+
+---
+
+CLINICAL NOTE SECURITY RULE
+
+Clinical notes must NOT remain freely editable after submission.
+
+Required:
+
+- append-only updates
+- immutable history
+- audit tracking
+- supervisor override permissions
+
+---
+
+STEP 5 — REFERRALS & DISCHARGE
+
+Doctors should manage:
+
+- referrals
+- discharge forms
+- medical certificates
+- sick leave forms
+
+Track:
+
+- referral reason
+- receiving department
+- timestamps
+- follow-up outcomes
+
+---
+
+STEP 6 — LABORATORY
+
+Support:
+
+- diagnostics
+- specimen tracking
+- result uploads
+
+---
+
+STEP 7 — PHARMACY
+
+Support:
+
+- dispensing
+- medication tracking
+- prescription management
+
+---
+
+STEP 8 — BILLING & FINANCE
+
+Support:
+
+- invoices
+- payments
+- insurance workflows
+- financial reporting
+
+---
+
+STEP 9 — ATTENDANCE & SCHEDULING
+
+Support:
+
+- shift planning
+- attendance tracking
+- workforce scheduling
+
+---
+
+STEP 10 — FEEDBACK SYSTEM
+
+Support:
+
+- complaints
+- reviews
+- ratings
+
+---
+
+STEP 11 — REPORTS & ANALYTICS
+
+Support:
+
+- operational reporting
+- departmental analytics
+- patient statistics
+- financial summaries
+
+Reports should automatically generate:
+
+- weekly reports
+- monthly reports
+- yearly reports
+
+Include:
+
+- patient statistics
+- billing summaries
+- attendance summaries
+- appointment summaries
+- pharmacy summaries
+- laboratory summaries
+
+---
+
+STEP 12 — AUDIT & SECURITY LOGGING
+
+Track:
+
+- diagnosis edits
+- billing changes
+- prescription changes
+- triage updates
+- permission updates
+- referral modifications
+
+Audit logs must store:
+
+- user
+- action
+- timestamp
+- previous value
+- new value
+
+---
+
+AUTO-SAVE REQUIREMENT
+
+All forms must support:
+
+REAL-TIME AUTO-SAVE
+
+Applicable modules:
+
+- triage
+- EHR
+- consultations
+- appointments
+- billing
+- pharmacy
+- laboratory
+
+Purpose:
+
+- prevent data loss
+- improve workflow continuity
+- support emergency environments
+
+---
+
+AUTHENTICATION REQUIREMENTS
+
+Implement:
+
+- Supabase Auth
+  OR
+- JWT authentication
+
+Required:
+
+- password hashing
+- RBAC
+- protected routes
+- secure sessions
+
+---
+
+ENTERPRISE SECURITY REQUIREMENTS
+
+Implement:
+
+- HTTPS
+- encrypted credentials
+- secure sessions
+- row-level security
+- immutable audit history
+
+Sensitive credentials must NEVER be:
+
+- hardcoded
+- exposed publicly
+- committed to GitHub
+
+Protect:
+
+- DATABASE_URL
+- Supabase keys
+- JWT secrets
+- API credentials
+
+---
+
+MONOREPO & ENVIRONMENT STANDARDIZATION
+
+Resolve:
+
+- Linux/Replit conflicts
+- Windows PowerShell incompatibilities
+- pnpm recursive failures
+
+Replace Linux-only commands like:
+
+export NODE_ENV=development
+
+with:
+
+- cross-platform environment handling
+
+Stabilize:
+
+- pnpm workspaces
+- dependency management
+- recursive builds
+- package resolution
+
+---
+
+TESTING & QUALITY ASSURANCE
+
+Implement:
+
+- unit tests
+- API tests
+- integration tests
+- authentication tests
+- workflow tests
+
+Required testing:
+
+- triage
+- EHR
+- appointments
+- billing
+- pharmacy
+- laboratory
+- authentication
+
+---
+
+BACKUP & DISASTER RECOVERY
+
+Implement:
+
+- automated backups
+- restore testing
+- rollback capability
+- disaster recovery planning
+
+---
+
+PRODUCTION PREPARATION STRATEGY
+
+Development environments may include:
+
+- Replit
+- VS Code
+
+Production preparation should support:
+
+- Netlify
+- Vercel
+- Render
+- VPS hosting
+- other compatible deployment environments
+
+The project should remain:
+
+PLATFORM FLEXIBLE
+
+and NOT locked to one deployment provider.
+
+---
+
+SEO & SEARCH ENGINE VISIBILITY
+
+After production preparation:
+
+- generate sitemap.xml
+- configure robots.txt
+- optimize page titles
+- optimize metadata
+- configure Open Graph metadata
+- prepare Google Search Console integration
+- prepare Bing Webmaster Tools integration
+
+Ensure:
+
+- indexed public pages
+- optimized URLs
+- fast page loading
+- structured metadata
+
+---
+
+FINAL SECURITY & PRODUCTION CHECKLIST
+
+Before production launch verify:
+
+- HTTPS enabled
+- environment variables secured
+- authentication functioning
+- RBAC functioning
+- audit logging functioning
+- backups configured
+- production builds stable
+- SEO configured
+- sitemap generated
+
+---
+
+REQUIRED FINAL OUTPUTS
+
+Generate:
+
+1. stabilized frontend
+2. stabilized backend
+3. SQL migrations
+4. deployed database schema
+5. authentication system
+6. RBAC system
+7. testing structure
+8. production configuration
+9. deployment documentation
+10. environment templates
+11. final deployable ZIP package
+
+---
+
+FINAL ENTERPRISE GOAL
+
+Transform MEDRISE Medical Centre into a:
+
+- secure
+- scalable
+- stable
+- enterprise-grade
+- production-ready
+
+medical centre ERP platform suitable for real-world healthcare operations while preserving and stabilizing the current architecture and workflows.

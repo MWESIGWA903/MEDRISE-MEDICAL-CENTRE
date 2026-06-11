@@ -1,0 +1,147 @@
+FINAL PROJECT PRE-DEPLOYMENT ASSESSMENT
+
+Perform a comprehensive pre-deployment assessment of the entire project and generate a detailed report.
+
+ASSESS ALL OF THE FOLLOWING:
+
+1. APPLICATION HEALTH
+- Check for build errors and warnings.
+- Check runtime errors and console errors.
+- Verify all dependencies are installed correctly.
+- Identify unused, duplicate, or conflicting packages.
+- Verify environment variables are configured correctly.
+- Confirm production build completes successfully.
+
+2. WEBSITE FUNCTIONALITY
+- Test all pages and routes.
+- Verify navigation links.
+- Verify buttons and call-to-action elements.
+- Verify forms, submissions, validations, and error handling.
+- Check search functionality if present.
+- Check user flows from homepage to completion.
+
+3. RESPONSIVENESS
+- Test mobile, tablet, laptop, and desktop layouts.
+- Identify broken layouts, overflow issues, and alignment problems.
+- Verify menus and navigation work on mobile devices.
+
+4. USER EXPERIENCE (UX)
+- Identify confusing user flows.
+- Check loading indicators.
+- Verify accessibility of navigation and forms.
+- Suggest improvements for usability.
+
+5. ACCESSIBILITY (WCAG)
+- Check image alt text.
+- Check heading hierarchy.
+- Check color contrast.
+- Check keyboard navigation.
+- Check screen reader compatibility.
+- Identify accessibility violations and recommend fixes.
+
+6. PERFORMANCE AUDIT
+- Analyze page load speed.
+- Identify large assets and images.
+- Detect unnecessary JavaScript and CSS.
+- Recommend optimization opportunities.
+- Check lazy loading implementation.
+- Check caching opportunities.
+
+7. SEO AUDIT
+- Verify page titles.
+- Verify meta descriptions.
+- Verify canonical URLs.
+- Verify Open Graph tags.
+- Verify structured data/schema markup.
+- Verify sitemap.xml.
+- Verify robots.txt.
+- Verify Google indexing readiness.
+
+8. SECURITY REVIEW
+- Check for exposed API keys, secrets, tokens, and credentials.
+- Check authentication and authorization logic.
+- Check input validation.
+- Check XSS vulnerabilities.
+- Check CSRF vulnerabilities.
+- Check dependency vulnerabilities.
+- Verify HTTPS readiness.
+- Verify secure headers implementation.
+
+9. DATABASE REVIEW
+- Verify database connection stability.
+- Check migrations.
+- Check schema consistency.
+- Check indexes and query performance.
+- Identify orphaned or unused tables.
+- Verify backup readiness.
+
+10. DEPLOYMENT READINESS
+- Verify deployment configuration.
+- Verify build commands.
+- Verify start commands.
+- Verify environment variables.
+- Verify domain readiness.
+- Verify SSL readiness.
+- Verify DNS requirements.
+- Verify production logging setup.
+
+11. GOOGLE SEARCH CONSOLE READINESS
+- Verify sitemap.xml accessibility.
+- Verify robots.txt accessibility.
+- Verify canonical URLs.
+- Verify indexing readiness.
+- Identify any blockers to search engine crawling.
+
+12. ANALYTICS & MONITORING
+- Verify analytics integration.
+- Verify error logging.
+- Verify monitoring readiness.
+- Verify uptime monitoring recommendations.
+
+13. CONTENT REVIEW
+- Check spelling and grammar.
+- Check contact information.
+- Check phone numbers.
+- Check email addresses.
+- Check business details consistency.
+- Check copyright and footer information.
+
+14. MEDICAL WEBSITE COMPLIANCE REVIEW
+- Verify contact information visibility.
+- Verify emergency contact information.
+- Verify appointment workflow.
+- Verify privacy policy availability.
+- Verify patient data handling practices.
+- Verify medical disclaimers where applicable.
+
+15. PRODUCTION DEPLOYMENT SIMULATION
+- Simulate production deployment.
+- Identify deployment blockers.
+- Identify critical, major, and minor issues.
+- Rank issues by priority.
+- Provide exact fixes for each issue.
+
+FINAL OUTPUT REQUIREMENTS
+
+Generate a report with:
+
+A. Executive Summary
+B. Deployment Readiness Score (0-100)
+C. Critical Issues
+D. High Priority Issues
+E. Medium Priority Issues
+F. Low Priority Issues
+G. Security Findings
+H. SEO Findings
+I. Performance Findings
+J. Accessibility Findings
+K. Deployment Recommendations
+L. Final Go/No-Go Deployment Decision
+
+If any issue is found, provide:
+- File location
+- Root cause
+- Recommended fix
+- Exact code changes where applicable
+
+Do not skip any checks. Conduct a thorough production-grade assessment and provide a complete deployment readiness report.

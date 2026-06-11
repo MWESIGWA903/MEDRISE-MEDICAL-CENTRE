@@ -1,0 +1,26 @@
+kind = "web"
+previewPath = "/"
+title = "MedRise ERP"
+version = "1.0.0"
+id = "artifacts/medrise"
+router = "prefix"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 8081
+
+[services.development]
+run = "pnpm --filter @workspace/medrise run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/medrise", "run", "build" ]
+serve = "static"
+
+[services.env]
+PORT = "8081"
+BASE_PATH = "/"

@@ -1,0 +1,93 @@
+I need you to investigate and FIX a deployment inconsistency in my MedRise Medical Centre project.
+
+IMPORTANT:
+Do not make random UI changes.
+Do not redesign the website.
+Do not modify staff/admin dashboards.
+Do not change business logic.
+First investigate and produce findings.
+
+PROBLEM
+
+When I deploy directly from Replit, the public website appears exactly as intended with the blue-green MedRise branding.
+
+When I deploy the same project through GitHub and Render, public visitors often see a white-background version instead of the blue-green appearance I expect.
+
+The issue concerns ONLY the public-facing website:
+
+- Home page
+- About page
+- Services page
+- Contact page
+- Appointment page
+- Public navigation and public layout
+
+It does NOT concern:
+
+- Admin dashboard
+- Staff dashboard
+- Patient portal
+- Internal logged-in areas
+
+CURRENT STATUS
+
+- theme.tsx was restored from backup.
+- pnpm build succeeds successfully.
+- No intentional redesign should be performed.
+- The project should remain functionally unchanged.
+
+TASKS
+
+1. Compare the currently running Replit deployment with the GitHub/Render deployment.
+
+2. Determine whether:
+   
+   - Different code versions are being deployed.
+   - Different build outputs are being generated.
+   - Different CSS files are being loaded.
+   - Assets are missing on Render.
+   - Environment variables differ.
+   - BASE_URL or Vite configuration differs.
+   - Static files are not being served correctly.
+   - Browser caching or localStorage causes appearance differences.
+
+3. Inspect:
+   
+   - src/index.css
+   - src/lib/theme.tsx
+   - vite.config.ts
+   - package.json
+   - deployment configuration
+   - build output
+
+4. Produce a report showing:
+   
+   - Root cause.
+   - Evidence.
+   - Files involved.
+   - Exact fix required.
+
+5. Only after identifying the root cause:
+   
+   - Apply the smallest possible fix.
+   - Preserve the existing MedRise branding.
+   - Preserve dashboard functionality.
+   - Preserve authentication and routing.
+
+6. After the fix:
+   
+   - Run pnpm build.
+   - Verify successful build.
+   - Explain exactly what changed and why.
+
+OUTPUT REQUIRED
+
+Provide:
+
+A. Root cause analysis.
+B. Files inspected.
+C. Files changed.
+D. Exact code changes.
+E. Verification that the public website appearance is consistent between Replit deployment and GitHub/Render deployment.
+
+Do not guess. Investigate first and provide evidence before modifying code.

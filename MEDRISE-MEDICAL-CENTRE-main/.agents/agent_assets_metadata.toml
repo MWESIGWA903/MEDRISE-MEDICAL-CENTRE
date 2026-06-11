@@ -1,0 +1,61 @@
+uploads = []
+
+[[generated]]
+id = "ft3vWTS1oWD1_lpO2vBg-"
+uri = "file://artifacts/medrise-mobile/assets/images/icon.png"
+type = "image"
+title = "medrise cross circle icon"
+
+[[outputs]]
+id = "lyKAI9O6CMFurztsFauLE"
+uri = "file://artifacts/medrise-mobile/assets/images/icon.png"
+type = "image"
+title = "App icon (logo mark only)"
+
+[[outputs]]
+id = "vz_jA7cXrLFHVcjNheShX"
+uri = "file://artifacts/medrise-mobile/assets/images/medrise-logo.png"
+type = "image"
+title = "Login header logo (icon + text)"
+
+[[outputs]]
+id = "ZcBryIq4VuvHbsZYJoRI-"
+uri = "file://lib/db/drizzle/medrise_migration.txt"
+type = "text"
+title = "MedRise Database Migration SQL — run this in Supabase"
+
+[[outputs]]
+id = "wO356-NhkOFk0hWXuvvAk"
+uri = "file://MEDRISE_PROJECT_REPORT.md"
+type = "text"
+title = "MedRise Complete Project Report"
+
+[[outputs]]
+id = "rvNMo1AaZYmYj3uvnGTRm"
+uri = "file://MEDRISE_PROJECT.tar.gz"
+type = "unspecified"
+title = "MedRise Full Project Archive (source code)"
+
+[[outputs]]
+id = "EUO3fsVIiZyOCbAFfqoR2"
+uri = "file://MEDRISE_PROJECT_REPORT.txt"
+type = "text"
+title = "MedRise Project Report — Click to Download"
+
+[[outputs]]
+id = "DGoC3oTGsn2a9fuNOZx67"
+uri = "file://MEDRISE_PRE_DEPLOYMENT_ASSESSMENT.txt"
+type = "text"
+title = "MedRise Pre-Deployment Assessment Report"
+
+[[outputs]]
+id = "9u3v81gJP4BFiTLJzdZ1N"
+uri = "file://MEDRISE_MOBILE_ASSESSMENT.txt"
+type = "text"
+title = "MedRise Mobile App Assessment Report"
+
+[[outputs]]
+id = "vNoMJh_J71ypBYzKNmI_T"
+uri = "file://MEDRISE-PROJECT-REFERENCE.md"
+type = "text"
+title = "MedRise Project Reference Guide"

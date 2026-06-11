@@ -1,0 +1,541 @@
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║          MEDRISE MEDICAL CENTRE ERP — PRE-DEPLOYMENT ASSESSMENT REPORT          ║
+║                    Assessment Date: 30 May 2026                                 ║
+║                    Conducted By: Automated Production-Grade Audit               ║
+╚══════════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+A. EXECUTIVE SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MedRise Medical Centre ERP is a full-stack enterprise healthcare platform
+comprising a React 19 frontend (Vite), an Express.js REST API backend, a
+PostgreSQL database (Supabase) with 39 tables, and an Expo React Native mobile
+app. The system covers patient management, appointments, billing, pharmacy,
+laboratory, radiology, theatre, maternity, dental, inpatient care, payroll,
+attendance, and HR — a comprehensive clinical and administrative ERP.
+
+Both production builds complete successfully with no fatal errors. The architecture
+is sound and the feature set is extensive. However, the audit has identified one
+CRITICAL security gap (unauthenticated API routes exposing patient data), several
+HIGH-priority issues, and a number of medium/low findings that must be addressed
+before or immediately after go-live in a production healthcare environment.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+B. DEPLOYMENT READINESS SCORE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  OVERALL SCORE:   62 / 100   — CONDITIONAL PASS                 │
+  │                                                                  │
+  │  Build Health          95/100  ✅                                │
+  │  Security              35/100  ⚠️  (critical auth gaps)         │
+  │  Performance           55/100  ⚠️  (bundle too large)           │
+  │  SEO                   60/100  ⚠️  (meta gaps, stale URLs)      │
+  │  Accessibility         65/100  ⚠️  (no legal pages)             │
+  │  Database              70/100  ⚠️  (missing FK indexes)         │
+  │  Deployment Config     85/100  ✅                                │
+  │  Medical Compliance    45/100  ⚠️  (no Privacy Policy)          │
+  └─────────────────────────────────────────────────────────────────┘
+
+  VERDICT: CONDITIONAL GO — Deployable for internal/pilot use.
+  Full public launch requires fixing CRITICAL and HIGH issues below.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+C. CRITICAL ISSUES  (Must fix before any production launch)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[C-01] UNAUTHENTICATED API ROUTES — Patient Data Fully Exposed
+──────────────────────────────────────────────────────────────
+  File:       artifacts/api-server/src/routes/patients.ts (and ~20 other routes)
+  Root Cause: Session middleware (getSessionFromRequest) is not applied as global
+              middleware. It is only manually called in a handful of routes.
+              Routes like /api/patients, /api/consultations, /api/billing,
+              /api/lab/orders, /api/admissions are fully accessible without any
+              authentication token.
+  Impact:     Any person who knows your API URL can read, write, or delete
+              patient records, lab results, billing invoices, and drug charts.
+              This is a HIPAA/data protection violation.
+  Fix:        Apply an auth middleware globally to all /api routes EXCEPT
+              /api/admin/login, /api/admin/request-reset, /api/healthz.
+
+  EXACT FIX — artifacts/api-server/src/app.ts:
+
+  // Add this middleware function before route registration:
+  function requireAuth(req, res, next) {
+    const session = getSessionFromRequest(req);
+    if (!session) return res.status(401).json({ error: "Unauthorized" });
+    req.session = session;
+    next();
+  }
+
+  // Apply to all API routes:
+  app.use("/api", requireAuth);
+
+  // Then register the public exceptions BEFORE the requireAuth middleware:
+  app.post("/api/admin/login", loginHandler);
+  app.post("/api/admin/request-reset", requestResetHandler);
+  app.get("/healthz", healthHandler);
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+D. HIGH PRIORITY ISSUES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[H-01] NO HTTP SECURITY HEADERS (Helmet missing)
+──────────────────────────────────────────────────
+  File:       artifacts/api-server/src/app.ts
+  Root Cause: The Express app does not use the `helmet` package. This means
+              headers such as Content-Security-Policy, X-Frame-Options,
+              X-Content-Type-Options, and Strict-Transport-Security are absent.
+  Impact:     Clickjacking, MIME-type sniffing, and protocol downgrade attacks
+              are possible.
+  Fix:
+    1. pnpm --filter @workspace/api-server add helmet
+    2. In app.ts, add: import helmet from "helmet"; app.use(helmet());
+
+[H-02] SESSION TOKEN IN LOCALSTORAGE (XSS Vulnerability)
+──────────────────────────────────────────────────────────
+  File:       artifacts/medrise/src/lib/auth.tsx
+  Root Cause: Admin session tokens are stored in localStorage
+              (key: medrise_admin_token). localStorage is accessible to any
+              JavaScript running on the page, making it vulnerable to XSS.
+  Impact:     If any XSS vulnerability exists (or is introduced), an attacker
+              can steal admin tokens and impersonate staff.
+  Recommended Fix (post-launch): Migrate to httpOnly secure cookies for token
+              storage. The server sets the cookie; JavaScript cannot read it.
+  Short-term Fix: Ensure a strict Content-Security-Policy header (via Helmet)
+              is set to block inline script execution, reducing XSS surface.
+
+[H-03] CORS ALLOWS ALL ORIGINS AS FALLBACK
+────────────────────────────────────────────
+  File:       artifacts/api-server/src/app.ts (around line 57)
+  Root Cause: The CORS whitelist check calls callback(null, true) as a fallback
+              even when the origin is not in the whitelist. This effectively
+              allows all origins.
+  Fix:
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));  // ← reject unknown origins
+      }
+    }
+  Also add: ALLOWED_ORIGIN env var to render.yaml pointing to your Netlify URL.
+
+[H-04] MISSING GLOBAL ERROR HANDLING MIDDLEWARE
+─────────────────────────────────────────────────
+  File:       artifacts/api-server/src/app.ts
+  Root Cause: No Express error handler (4-argument function) is registered.
+              Unhandled route errors return default HTML Express responses
+              instead of JSON, which can leak stack traces.
+  Fix: Add at the end of app.ts before export:
+    app.use((err, req, res, next) => {
+      logger.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    });
+
+[H-05] NO PRIVACY POLICY OR MEDICAL DISCLAIMER PAGE
+──────────────────────────────────────────────────────
+  File:       artifacts/medrise/src/pages/ (missing)
+  Root Cause: No /privacy, /terms, or /disclaimer route exists in the app.
+              The footer has no links to legal documents.
+  Impact:     Medical websites handling patient data are legally required to
+              display a Privacy Policy (GDPR, HIPAA, local health data laws).
+              Missing this is a legal and compliance blocker.
+  Fix: Create artifacts/medrise/src/pages/privacy.tsx with a Privacy Policy
+       page. Add route in App.tsx. Link from Footer.tsx.
+
+[H-06] MISSING DATABASE FOREIGN KEY INDEXES
+────────────────────────────────────────────
+  File:       lib/db/src/schema/ (all schema files)
+  Root Cause: No explicit indexes are defined on foreign key columns (patient_id,
+              staff_id, consultation_id, admission_id, etc.) across 39 tables.
+  Impact:     As data grows, JOIN queries across linked tables (e.g., fetching
+              all lab results for a patient) will perform full table scans,
+              causing severe slowdowns.
+  Fix: Add indexes to high-volume FK columns. Example in Drizzle:
+    export const labOrdersPatientIdx = index("lab_orders_patient_id_idx")
+      .on(labOrders.patientId);
+  Priority tables: vital_signs, audit_logs, lab_results, lab_orders,
+  ward_round_notes, nursing_notes, inpatient_drug_chart, appointments.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+E. MEDIUM PRIORITY ISSUES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[M-01] JAVASCRIPT BUNDLE TOO LARGE (Performance)
+──────────────────────────────────────────────────
+  File:       artifacts/medrise/vite.config.ts
+  Issue:      Production JS bundle is 1,751 KB (453 KB gzipped). Vite warns
+              that chunks over 500 KB degrade page load performance.
+  Impact:     Slow initial page load, especially on mobile/low-bandwidth.
+  Fix: Enable route-based code splitting in vite.config.ts:
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ["react", "react-dom"],
+            ui: ["@radix-ui/react-dialog", "@radix-ui/react-select"],
+            charts: ["recharts"],
+            query: ["@tanstack/react-query"],
+          }
+        }
+      }
+    }
+
+[M-02] STALE SITEMAP AND ROBOTS.TXT URLS
+──────────────────────────────────────────
+  File:       artifacts/medrise/public/sitemap.xml
+              artifacts/medrise/public/robots.txt
+  Issue:      sitemap.xml contains https://sprightly-taiyaki-93cfa2.netlify.app/
+              robots.txt Sitemap points to a Replit domain.
+              Both will need updating when a custom domain is set.
+  Fix: Update both files to use the final production domain once it is live.
+
+[M-03] GOOGLE SITE VERIFICATION META TAG EMPTY
+────────────────────────────────────────────────
+  File:       artifacts/medrise/index.html (line 16)
+  Issue:      <meta name="google-site-verification" content="" />
+              The content is blank — this will not verify ownership in Google
+              Search Console.
+  Fix: Log into Google Search Console → Add property → Copy the verification
+       code → paste it as the content value.
+
+[M-04] OPEN GRAPH IMAGE NOT SET
+─────────────────────────────────
+  File:       artifacts/medrise/index.html
+  Issue:      og:image and og:url meta tags are missing. The file
+              public/opengraph.jpg exists but is never referenced.
+  Impact:     Social media shares (WhatsApp, Facebook, Twitter/X) will show
+              no preview image.
+  Fix: Add to index.html:
+    <meta property="og:image" content="https://YOURDOMAIN.com/opengraph.jpg" />
+    <meta property="og:url" content="https://YOURDOMAIN.com/" />
+
+[M-05] SESSION CACHE IN-MEMORY (Multi-instance Issue)
+───────────────────────────────────────────────────────
+  File:       artifacts/api-server/src/lib/session.ts
+  Issue:      Sessions are cached in a JavaScript Map in memory. If Render ever
+              scales to multiple instances, or restarts the server, sessions are
+              lost and all logged-in users are immediately signed out.
+  Fix (short-term): Acceptable for single-instance free tier on Render.
+  Fix (long-term): Store session cache in Redis or in the PostgreSQL sessions
+              table exclusively (already exists — just remove the in-memory Map).
+
+[M-06] RENDER.YAML MISSING ALLOWED_ORIGIN ENV VAR
+───────────────────────────────────────────────────
+  File:       render.yaml
+  Issue:      The CORS configuration reads ALLOWED_ORIGIN but this variable is
+              not declared in render.yaml, so it won't be prompted during deploy.
+  Fix: Add to render.yaml envVars:
+    - key: ALLOWED_ORIGIN
+      sync: false
+  Then set its value to https://sprightly-taiyaki-93cfa2.netlify.app (or your
+  final domain) in the Render dashboard.
+
+[M-07] NO CANONICAL URL TAGS
+──────────────────────────────
+  File:       artifacts/medrise/index.html
+  Issue:      No <link rel="canonical" href="..." /> is present. Without it,
+              search engines may index duplicate URLs (HTTP vs HTTPS, www vs
+              non-www) as separate pages.
+  Fix:
+    <link rel="canonical" href="https://YOURDOMAIN.com/" />
+
+[M-08] NO ANALYTICS INTEGRATION
+─────────────────────────────────
+  File:       artifacts/medrise/src/main.tsx
+  Issue:      A comment says "Google Analytics will be loaded via script in
+              main.tsx" but no GA code is present.
+  Fix: Add Google Analytics 4 (gtag.js) to index.html or use the
+       @analytics/google-analytics package in main.tsx.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+F. LOW PRIORITY ISSUES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[L-01] SOURCEMAP RESOLUTION WARNINGS IN BUILD
+  File: Multiple UI component files (tooltip.tsx, select.tsx, calendar.tsx, etc.)
+  Issue: "Can't resolve original location of error" warnings during build.
+  Impact: Non-blocking — build succeeds. Harder to debug UI components.
+  Fix: These come from Radix UI + shadcn components. No action needed now.
+
+[L-02] NO STRUCTURED DATA / SCHEMA MARKUP
+  File: artifacts/medrise/index.html
+  Issue: No JSON-LD schema markup for the medical business (LocalBusiness,
+         MedicalClinic, or MedicalOrganization schema).
+  Impact: Google may not show rich results (address, phone, hours) in search.
+  Fix: Add <script type="application/ld+json"> with MedicalClinic schema.
+
+[L-03] GOOGLE FONTS RENDER-BLOCKING
+  File: artifacts/medrise/index.html (lines 20-22)
+  Issue: Google Fonts is loaded synchronously from an external CDN. This adds
+         ~50-150ms of render-blocking latency on page load.
+  Fix: Add font-display: swap or use @fontsource/inter npm package instead.
+
+[L-04] LARGE IMAGE IN BUNDLE
+  File: dist/public/assets/ (348.58 KB JPG in the build output)
+  Issue: A large image is being served as part of the JS/asset bundle.
+  Fix: Use WebP format and compress to under 100KB. Consider lazy loading.
+
+[L-05] AUDIT_LOGS TABLE — NO ARCHIVAL STRATEGY
+  File: lib/db/src/schema/auditLogs.ts
+  Issue: Audit logs are append-only and will grow indefinitely. No partitioning
+         or archival/purge strategy exists.
+  Fix: Add a scheduled job to archive logs older than 90 days to cold storage
+       or a separate archive table. Add a created_at index.
+
+[L-06] NO SITEMAP FOR ADMIN/PATIENT PORTAL
+  Issue: The sitemap.xml only lists public pages. This is correct — protected
+         routes should not be indexed. Confirm /admin is in Disallow in robots.txt.
+  Status: ✅ Already disallowed in robots.txt.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+G. SECURITY FINDINGS SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  FINDING                            SEVERITY    STATUS      │
+  │  Unauthenticated API routes         CRITICAL    ❌ Open     │
+  │  No HTTP security headers (Helmet)  HIGH        ❌ Open     │
+  │  CORS allows all origins fallback   HIGH        ❌ Open     │
+  │  Token stored in localStorage       HIGH        ❌ Open     │
+  │  No global error handler            MEDIUM      ❌ Open     │
+  │  Session in-memory cache only       MEDIUM      ⚠️ Accepted │
+  │  Rate limiting (login 10/15min)     ✅ Done                 │
+  │  bcrypt password hashing (cost 12)  ✅ Done                 │
+  │  Zod input validation on routes     ✅ Done                 │
+  │  Password reset token system        ✅ Done                 │
+  │  Audit log trail                    ✅ Done                 │
+  │  No hardcoded secrets in source     ✅ Done                 │
+  │  HTTPS via Netlify/Render           ✅ Automatic            │
+  └─────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+H. SEO FINDINGS SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  CHECK                          STATUS                        │
+  │  Page title                     ✅ "MedRise Medical Centre"   │
+  │  Meta description               ✅ Present                    │
+  │  robots.txt                     ⚠️ Stale Replit URL          │
+  │  sitemap.xml                    ⚠️ Stale Netlify subdomain   │
+  │  robots.txt correctly blocks    ✅ /admin, /patient, /staff   │
+  │  Open Graph title + desc        ✅ Present                    │
+  │  Open Graph image               ❌ Missing (file exists)      │
+  │  Open Graph URL                 ❌ Missing                    │
+  │  Twitter Card                   ✅ Present                    │
+  │  Canonical URL                  ❌ Missing                    │
+  │  Google verification tag        ❌ Empty content=""           │
+  │  Structured data (JSON-LD)      ❌ Missing                    │
+  │  Sitemap linked in index.html   ✅ Present                    │
+  │  Admin portal excluded from SEO ✅ Disallowed in robots.txt   │
+  └──────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I. PERFORMANCE FINDINGS SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  CHECK                          STATUS                        │
+  │  Frontend build succeeds        ✅                            │
+  │  JS bundle size (1.75MB raw)    ⚠️ Over 500KB limit         │
+  │  Gzipped JS (453KB)             ⚠️ Acceptable but large      │
+  │  CSS bundle (158KB / 25KB gz)   ✅ Acceptable                 │
+  │  Large image in bundle (348KB)  ⚠️ Convert to WebP           │
+  │  Route-based code splitting     ❌ Not implemented            │
+  │  Google Fonts (render-blocking) ⚠️ Minor                     │
+  │  API build size (3MB)           ⚠️ Large but OK for Node     │
+  │  API rate limiting              ✅ 300 req/min global         │
+  │  DB connection pooling          ✅ pg.Pool configured         │
+  │  DB foreign key indexes         ❌ Missing on FK columns      │
+  │  Lazy loading (routes/images)   ❌ Not implemented            │
+  │  Pino structured logging        ✅ Configured                 │
+  │  Health check endpoint /healthz ✅ Present                    │
+  └──────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+J. ACCESSIBILITY FINDINGS SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  CHECK                          STATUS                        │
+  │  Alt text on images             ✅ Present (core branding)    │
+  │  ARIA roles on interactive UI   ✅ Spinner, forms, dialogs    │
+  │  aria-invalid on form inputs    ✅ Implemented in form.tsx    │
+  │  aria-describedby on fields     ✅ Implemented                │
+  │  Screen reader sr-only text     ✅ Used for dialog desc       │
+  │  Keyboard navigation            ✅ Radix UI handles this      │
+  │  Responsive design (mobile)     ✅ Tailwind responsive classes │
+  │  Mobile navigation menu         ✅ Hamburger menu present     │
+  │  Color contrast                 ⚠️ Not audited — verify      │
+  │  Heading hierarchy              ⚠️ Not audited — verify      │
+  │  Skip-to-content link           ❌ Not present               │
+  │  Focus indicators               ⚠️ Depends on Tailwind theme │
+  └──────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+K. DEPLOYMENT RECOMMENDATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BACKEND (Render.com — Free Tier)
+─────────────────────────────────
+  Build Command:  npm install -g pnpm && pnpm install &&
+                  pnpm --filter @workspace/api-server run build
+  Start Command:  node artifacts/api-server/dist/index.mjs
+  Node Version:   20 (set in environment)
+  Status:         ✅ render.yaml is correctly configured
+
+  Required Environment Variables (set in Render Dashboard):
+  ┌─────────────────────┬───────────────────────────────────────┐
+  │ Variable            │ Value                                  │
+  ├─────────────────────┼───────────────────────────────────────┤
+  │ NODE_ENV            │ production                             │
+  │ DATABASE_URL        │ (your Supabase connection string)      │
+  │ EMAIL_USER          │ (your Gmail address)                   │
+  │ NOTIFICATION_EMAIL  │ (alerts destination email)             │
+  │ EMAIL_APP_PASSWORD  │ (Gmail app password)                   │
+  │ RESEND_API_KEY      │ (Resend.com API key)                   │
+  │ ALLOWED_ORIGIN      │ https://YOURDOMAIN.netlify.app         │
+  └─────────────────────┴───────────────────────────────────────┘
+
+  ⚠️ RENDER FREE TIER NOTE: The free tier spins down after 15 minutes
+  of inactivity. First request after sleep takes ~30 seconds.
+  Consider a cron job (e.g., cron-job.org) to ping /healthz every 10
+  minutes to keep it warm.
+
+FRONTEND (Netlify — Free Tier)
+────────────────────────────────
+  Build Command:  pnpm install && pnpm --filter @workspace/medrise run build
+  Publish Dir:    artifacts/medrise/dist/public
+  Status:         ✅ netlify.toml is correctly configured
+
+  Required Environment Variable (set in Netlify Dashboard):
+  ┌──────────────────┬──────────────────────────────────────────┐
+  │ Variable         │ Value                                     │
+  ├──────────────────┼──────────────────────────────────────────┤
+  │ VITE_RENDER_URL  │ https://medrise-api.onrender.com          │
+  └──────────────────┴──────────────────────────────────────────┘
+  (Replace with your actual Render service URL after it deploys)
+
+DATABASE (Supabase)
+────────────────────
+  Status: ✅ 39 tables migrated and seeded
+  ⚠️ IMPORTANT: Rotate the Supabase database password if it was ever
+     shared, pasted, or visible in any chat/log. Use the Supabase
+     dashboard → Settings → Database → Reset password.
+
+SSL / HTTPS
+────────────
+  ✅ Netlify: Automatic HTTPS (Let's Encrypt) on all domains
+  ✅ Render:  Automatic HTTPS on .onrender.com subdomains
+  ✅ Supabase: Enforces SSL on database connections
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+L. MEDICAL COMPLIANCE REVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  REQUIREMENT                    STATUS                        │
+  │  Contact information visible    ✅ Footer + Contact page      │
+  │  Emergency contact info         ✅ Present on contact page    │
+  │  Appointment booking workflow   ✅ Fully implemented          │
+  │  Privacy Policy page            ❌ Missing — REQUIRED         │
+  │  Terms & Conditions page        ❌ Missing — Recommended      │
+  │  Medical disclaimer             ❌ Missing — REQUIRED         │
+  │  Patient data access controls   ⚠️ Partial (auth gaps above) │
+  │  Audit trail of data access     ✅ audit_logs table present   │
+  │  Staff role-based permissions   ⚠️ Partial implementation    │
+  │  Secure data transmission       ✅ HTTPS enforced             │
+  └──────────────────────────────────────────────────────────────┘
+
+  LEGAL REQUIREMENT: Before serving real patients, you MUST publish:
+  1. A Privacy Policy explaining what data you collect and how it is used.
+  2. A Medical Disclaimer stating the system is a management tool, not a
+     substitute for professional medical judgment.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+M. GOOGLE SEARCH CONSOLE READINESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✅ sitemap.xml exists and is linked from index.html
+  ✅ robots.txt exists and correctly blocks admin/patient portals
+  ❌ Google verification meta tag is EMPTY — site cannot be verified
+  ❌ sitemap URLs must be updated to production domain before submission
+  ⚠️ Submit sitemap in Search Console after domain is confirmed
+
+  Steps to verify in Google Search Console:
+  1. Go to search.google.com/search-console → Add Property
+  2. Copy the verification code
+  3. Paste into index.html: content="YOUR_CODE_HERE"
+  4. Rebuild and redeploy
+  5. Click Verify in Search Console
+  6. Go to Sitemaps → Submit: https://YOURDOMAIN.com/sitemap.xml
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+N. ANALYTICS & MONITORING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ❌ Google Analytics: Referenced in code but NOT implemented
+  ✅ Pino structured logging: Configured on the API server
+  ✅ Request logging: All API requests logged with method/status/duration
+  ❌ Error monitoring (Sentry): Not configured — recommended for production
+  ❌ Uptime monitoring: Not configured
+
+  Recommendations:
+  - Add Google Analytics 4 to track public website visitors
+  - Set up a free uptime monitor at: uptimerobot.com or betterstack.com
+    (ping https://YOURAPI.onrender.com/healthz every 5 minutes)
+  - Consider adding Sentry.io (free tier) for real-time error alerts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+O. APPLICATION HEALTH SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Frontend Build:  ✅ SUCCESS — 3,764 modules, built in 40s
+  API Build:       ✅ SUCCESS — esbuild bundle in 3.4s
+  Runtime Errors:  ✅ None detected at startup
+  Dependencies:    ✅ All installed correctly via pnpm workspaces
+  TypeScript:      ✅ No fatal type errors blocking builds
+  Zod Validation:  ✅ Applied on all POST/PATCH request bodies
+  WebSocket:       ✅ Running on /ws with token authentication
+  Email Service:   ✅ Resend + Nodemailer configured
+  Cron Jobs:       ✅ Appointment reminder (daily 08:00)
+  Sessions:        ✅ 14-table session system with DB persistence
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+P. FINAL GO / NO-GO DECISION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                                                                   │
+  │   DECISION:  CONDITIONAL GO ✅                                    │
+  │                                                                   │
+  │   Safe for:  Internal pilot / staff testing / demonstration       │
+  │   NOT safe:  Full public launch with real patient data            │
+  │              until CRITICAL and HIGH issues are resolved          │
+  │                                                                   │
+  │   BEFORE REAL PATIENT DATA:                                       │
+  │   1. Fix C-01: Add auth middleware to all API routes              │
+  │   2. Fix H-01: Install Helmet for security headers                │
+  │   3. Fix H-03: Fix CORS to reject unknown origins                 │
+  │   4. Fix H-05: Add Privacy Policy + Medical Disclaimer pages      │
+  │                                                                   │
+  │   WITHIN 30 DAYS OF LAUNCH:                                       │
+  │   5. Fix H-06: Add FK indexes to database                         │
+  │   6. Fix M-01: Split JS bundle for faster page loads              │
+  │   7. Fix M-02/M-03: Update sitemap + Google verification tag      │
+  │   8. Fix M-04: Add og:image for social media sharing              │
+  │   9. Set up uptime monitoring and Google Analytics                │
+  │                                                                   │
+  │   SCORE: 62/100                                                   │
+  │   TARGET FOR FULL PUBLIC LAUNCH: 80/100                           │
+  │                                                                   │
+  └──────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF REPORT
+Report generated: 30 May 2026
+MedRise Medical Centre ERP — Pre-Deployment Assessment
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

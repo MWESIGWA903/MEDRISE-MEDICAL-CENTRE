@@ -1,0 +1,30 @@
+~/workspace$ cd artifacts/medrise-mobile && EXPO_TOKEN=$EXPO_TOKEN ./node_modules/.bin/eas build --platform android --profile preview --non-interactive
+Found eas-cli in your project dependencies.
+It's recommended to use the "cli.version" field in eas.json to enforce the eas-cli version for your project.
+Learn more: https://github.com/expo/eas-cli#enforcing-eas-cli-version-for-your-project
+
+The field "cli.appVersionSource" is not set, but it will be required in the future. Learn more: https://docs.expo.dev/build-reference/app-versions/
+Resolved "preview" environment for the build. Learn more: https://docs.expo.dev/eas/environment-variables/#setting-the-environment-for-your-builds
+No environment variables with visibility "Plain text" and "Sensitive" found for the "preview" environment on EAS.
+Environment variables loaded from the "preview" build profile "env" configuration: EXPO_PUBLIC_DOMAIN.
+
+
+
+The field "cli.appVersionSource" is not set, but it will be required in the future. Learn more: https://docs.expo.dev/build-reference/app-versions/
+✔ Using remote Android credentials (Expo server)
+✔ Using Keystore from configuration: Build Credentials OLcVWa4l1p (default)
+
+Compressing project files and uploading to EAS Build. Learn more: https://expo.fyi/eas-build-archive
+✔ Compressed project files 8s (167 MB)
+Your project archive is 167 MB. You can reduce its size and the time it takes to upload by excluding files that are unnecessary for the build process in .easignore file. Learn more: https://expo.fyi/eas-build-archive
+✔ Uploaded to EAS 1s
+✔ Computed project fingerprint
+
+See logs: https://expo.dev/accounts/hannington/projects/medrise-mobile/builds/a62e9a09-8ea6-46f6-afcd-0339b2e71974
+
+Waiting for build to complete. You can press Ctrl+C to exit.
+✖ Build failed
+
+🤖 Android build failed:
+Unknown error. See logs of the Parse custom build config build phase for more information.
+~/.../artifacts/medrise-mobile$ cd artifacts/medrise-mobile && EXPO_TOKEN=$EXPO_TOKEN ./node_modules/.bin/eas build --platform android --profile preview --non-interactive

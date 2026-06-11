@@ -1,0 +1,86 @@
+POST-DEPLOYMENT TASKS FOR MEDRISE MEDICAL CENTRE
+
+Review the entire project and perform a complete production-readiness audit.
+
+1. Security
+
+- Scan the codebase for security vulnerabilities.
+- Remove exposed API keys, secrets, passwords, and tokens.
+- Move all secrets to environment variables.
+- Enable secure HTTP headers.
+- Verify authentication and authorization mechanisms.
+- Check for SQL injection, XSS, CSRF, and file upload vulnerabilities.
+- Create a security report with recommendations.
+
+2. Google Integration
+
+- Configure Google Search Console.
+- Generate and verify sitemap.xml.
+- Generate and verify robots.txt.
+- Verify domain ownership where required.
+- Optimize SEO metadata, Open Graph tags, and structured data.
+
+3. Google Business Profile
+
+- Provide instructions for connecting the website to Google Business Profile.
+- Ensure business information is consistent across the website.
+- Add schema markup for a medical facility.
+
+4. Email Setup
+
+- Verify all email forms are functioning.
+- Configure transactional email delivery.
+- Ensure contact forms send notifications correctly.
+- Add spam protection and rate limiting.
+- Test email delivery and error handling.
+
+5. Performance
+
+- Run a performance audit.
+- Optimize images, scripts, and stylesheets.
+- Improve page loading speed.
+- Enable caching where appropriate.
+- Identify bottlenecks and recommend improvements.
+
+6. Deployment Verification
+
+- Verify all pages load correctly.
+- Verify routing works.
+- Check for broken links.
+- Check mobile responsiveness.
+- Confirm HTTPS is working correctly.
+
+7. Database and Backups
+
+- Verify database connectivity.
+- Check database security.
+- Create a backup strategy.
+- Document recovery procedures.
+
+8. Monitoring
+
+- Configure error logging.
+- Configure uptime monitoring.
+- Configure analytics and traffic monitoring.
+- Generate a maintenance checklist.
+
+9. Compliance
+
+- Review privacy policy requirements.
+- Review cookie consent requirements.
+- Review healthcare-related data handling practices.
+- Identify compliance gaps.
+
+10. Documentation
+
+- Generate technical documentation.
+- Generate administrator documentation.
+- Generate deployment documentation.
+- Generate maintenance procedures.
+
+At the end, create:
+
+- A list of critical issues.
+- A list of recommended improvements.
+- A step-by-step action plan ranked by priority.
+- A production readiness score from 0–100%.

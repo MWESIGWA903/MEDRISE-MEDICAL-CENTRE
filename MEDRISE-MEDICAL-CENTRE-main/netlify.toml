@@ -1,0 +1,12 @@
+[build]
+  base      = "."
+  command   = "npx pnpm@10 install --no-frozen-lockfile && npx pnpm@10 --filter @workspace/medrise run build"
+  publish   = "artifacts/medrise/dist/public"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

@@ -1,0 +1,60 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'artifacts/medrise-mobile/**'
+
+jobs:
+  build-android:
+    name: Build Android APK (no EAS)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: artifacts/medrise-mobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup Java 17 (required for Gradle)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Generate Android native project via Expo Prebuild
+        run: npx expo prebuild --platform android --clean --no-install
+        env:
+          EXPO_PUBLIC_DOMAIN: https://medrise-api-v8iz.onrender.com
+
+      - name: Re-install dependencies after prebuild (picks up any package.json changes)
+        run: npm install --legacy-peer-deps
+
+      - name: Make Gradle wrapper executable
+        working-directory: artifacts/medrise-mobile/android
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        working-directory: artifacts/medrise-mobile/android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=512m"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MedRise-Android-v${{ github.run_number }}
+          path: artifacts/medrise-mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+          if-no-files-found: error

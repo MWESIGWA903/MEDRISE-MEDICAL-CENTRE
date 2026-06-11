@@ -1,0 +1,4 @@
+medrise-project.tar.gz filter=lfs diff=lfs merge=lfs -text
+zipFile.zip filter=lfs diff=lfs merge=lfs -text
+MEDRISE_PROJECT.tar.gz filter=lfs diff=lfs merge=lfs -text
+MEDRISE_SOURCE.tar.gz filter=lfs diff=lfs merge=lfs -text

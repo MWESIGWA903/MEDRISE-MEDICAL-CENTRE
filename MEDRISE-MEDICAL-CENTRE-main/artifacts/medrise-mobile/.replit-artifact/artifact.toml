@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/medrise-mobile/"
+title = "MedRise Mobile"
+version = "1.0.0"
+id = "artifacts/medrise-mobile"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/medrise-mobile/" ]
+localPort = 20537
+
+[services.development]
+run = "pnpm run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/medrise-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/medrise-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "20537"
+BASE_PATH = "/medrise-mobile/"

@@ -1,0 +1,18 @@
+name: Keep Render API Alive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render API health check
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://medrise-api-v8iz.onrender.com/api/healthz)
+          echo "Render API responded with HTTP $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Warning: API returned $STATUS"
+          fi

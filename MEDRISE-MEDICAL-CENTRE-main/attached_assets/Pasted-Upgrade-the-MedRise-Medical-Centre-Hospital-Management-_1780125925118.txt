@@ -1,0 +1,347 @@
+Upgrade the MedRise Medical Centre Hospital Management System to include professional Uganda Ministry of Health (MOH) and WHO-compliant clinical treatment protocols, ward workflows, nursing documentation, maternal care guidelines, and surgical safety systems.
+
+FIRST TASK — SYSTEM AUDIT
+
+1. Scan the entire MedRise project.
+2. Identify:
+   - Existing modules
+   - Existing forms
+   - Existing ward systems
+   - Existing patient workflows
+   - Existing nursing features
+   - Existing ANC/maternity features
+   - Existing theater/surgery features
+   - Existing consultation features
+   - Existing EMR structures
+3. Produce:
+   - Missing features report
+   - Incomplete workflows report
+   - Duplicate systems report
+   - Broken pages/components report
+4. Upgrade only what is missing or incomplete.
+5. Preserve existing working functionality.
+
+==================================================
+CLINICAL PROTOCOLS & GUIDELINES MODULE
+
+Create a centralized “Clinical Protocols & Guidelines” module.
+
+Requirements:
+
+- Searchable protocol library
+- Categorized by department
+- Offline accessible
+- Printable PDF support
+- Version control
+- Last updated date
+- MOH Uganda references
+- WHO references
+- Clinical approval workflow
+- Read-only mode for staff
+- Admin editing permissions
+
+Categories:
+
+- Emergency protocols
+- Maternal protocols
+- Pediatric protocols
+- Surgical protocols
+- Infection prevention guidelines
+- Nursing protocols
+- Pharmacy guidelines
+- Laboratory SOPs
+- ANC guidelines
+- Neonatal care guidelines
+- HIV/TB guidelines
+- Malaria management
+- Hypertension/Diabetes guidelines
+
+==================================================
+MATERNITY / ANC SYSTEM
+
+Upgrade maternity and ANC system to Uganda Essential Maternal and Neonatal Clinical Guidelines standards.
+
+Include:
+
+1. ANC Card System
+2. Digital ANC visits
+3. Gravidity/parity tracking
+4. EDD calculations
+5. Danger signs checklist
+6. Risk assessment
+7. Blood pressure monitoring
+8. Weight monitoring
+9. Fetal heart rate
+10. Fundal height tracking
+11. ANC laboratory investigations
+12. HIV/TB/Malaria screening
+13. Iron/Folic supplementation tracking
+14. Tetanus vaccination tracking
+15. PMTCT workflows
+16. Birth preparedness plans
+17. Ultrasound records
+18. Referral tracking
+19. High-risk pregnancy alerts
+20. WHO ANC schedule reminders
+
+Generate:
+
+- Printable ANC card
+- Maternal summary sheet
+- Labor summary
+- Delivery notes
+- Discharge summary
+
+==================================================
+LABOR & DELIVERY MODULE
+
+Create professional labor ward workflows.
+
+Include:
+
+1. Labor admission form
+2. Partograph
+3. Cervical dilation charting
+4. Contraction monitoring
+5. Maternal vital signs
+6. Fetal monitoring
+7. Delivery notes
+8. Active management of third stage of labor
+9. Postpartum hemorrhage protocol
+10. Eclampsia protocol
+11. Neonatal resuscitation checklist
+12. Birth outcome documentation
+13. APGAR scoring
+14. Neonatal assessments
+15. Referral/escalation alerts
+16. Emergency C-section escalation
+17. Maternal danger sign alerts
+
+==================================================
+THEATER / SURGERY MODULE
+
+Implement WHO Surgical Safety Checklist workflows.
+
+Include:
+
+1. Pre-op checklist
+2. Patient identification verification
+3. Consent verification
+4. Allergy verification
+5. Site marking
+6. Instrument count
+7. Sponge count
+8. Antibiotic timing
+9. Anesthesia safety checks
+10. Team briefing
+11. Intraoperative notes
+12. Post-op recovery notes
+13. Complication reporting
+14. Post-op observations
+15. Recovery room charting
+16. Surgical discharge summary
+
+Add:
+
+- Surgery scheduling
+- Theater utilization dashboard
+- Surgical audit reports
+
+==================================================
+WARD MANAGEMENT SYSTEM
+
+Upgrade inpatient ward system.
+
+Create separate ward workflows:
+
+- Medical ward
+- Surgical ward
+- Pediatric ward
+- Maternity ward
+- ICU/HDU
+- Isolation ward
+- Emergency ward
+
+Each ward should support:
+
+1. Bed allocation
+2. Ward rounds
+3. Nursing notes
+4. Shift handover
+5. Treatment charts
+6. Medication administration record (MAR)
+7. Intake/output charts
+8. Fluid balance charts
+9. Observation charts
+10. Vital signs charts
+11. Pain scoring
+12. Escalation alerts
+13. Discharge planning
+14. Ward transfer workflows
+
+==================================================
+TREATMENT CHART SYSTEM
+
+Create professional digital treatment charts.
+
+Features:
+
+- Medication orders
+- Administration times
+- Nurse signatures
+- Doctor signatures
+- PRN medications
+- IV fluid orders
+- Antibiotic tracking
+- Allergy alerts
+- Missed dose alerts
+- Drug interaction alerts
+- Controlled drug logs
+
+Support:
+
+- Printable treatment sheets
+- Electronic signatures
+- Audit tracking
+
+==================================================
+NURSING SYSTEM
+
+Create comprehensive nursing workflows.
+
+Include:
+
+1. Nursing assessments
+2. Nursing care plans
+3. Shift reports
+4. Bedside handover
+5. Nursing observations
+6. Pressure sore assessment
+7. Fall risk assessment
+8. Pain assessment
+9. Catheter care chart
+10. Wound care chart
+11. Oxygen therapy chart
+12. Feeding charts
+13. Isolation precautions
+14. Escalation protocols
+
+==================================================
+PEDIATRIC & IMMUNIZATION SYSTEM
+
+Include:
+
+1. Child growth charts
+2. Vaccination schedules
+3. Immunization reminders
+4. Nutrition assessment
+5. Development milestones
+6. Under-5 protocols
+7. Pediatric dosing calculator
+8. Neonatal monitoring
+
+==================================================
+EMERGENCY & TRIAGE PROTOCOLS
+
+Upgrade triage workflows using WHO emergency triage standards.
+
+Include:
+
+1. Triage color coding
+2. Emergency severity index
+3. Sepsis screening
+4. Stroke alerts
+5. Trauma protocols
+6. Cardiac emergency protocols
+7. Rapid response alerts
+8. Resuscitation documentation
+9. Emergency medication workflows
+
+==================================================
+INFECTION PREVENTION & CONTROL
+
+Add IPC system:
+
+- Isolation precautions
+- PPE checklists
+- Hand hygiene audits
+- Sterilization logs
+- Infection surveillance
+- Hospital acquired infection reports
+- Waste disposal tracking
+
+==================================================
+PHARMACY & MEDICATION SAFETY
+
+Upgrade medication safety.
+
+Add:
+
+- High-risk medication alerts
+- Drug interaction engine
+- Pregnancy safety warnings
+- Pediatric dosing checks
+- Expiry monitoring
+- Antibiotic stewardship tracking
+- Controlled drugs register
+
+==================================================
+REPORTS & DASHBOARDS
+
+Create dashboards for:
+
+- Maternal outcomes
+- Surgical outcomes
+- Ward occupancy
+- Infection rates
+- Mortality reports
+- Medication errors
+- Emergency response times
+- ANC attendance
+- Delivery statistics
+- Theater utilization
+
+==================================================
+UGANDA & WHO COMPLIANCE
+
+Ensure workflows align with:
+
+- Uganda Ministry of Health standards
+- WHO patient safety standards
+- Essential Maternal & Neonatal Clinical Guidelines Uganda
+- WHO Surgical Safety Checklist
+- Uganda ANC protocols
+- Uganda immunization schedule
+- Infection prevention standards
+
+==================================================
+TECHNICAL REQUIREMENTS
+
+1. Use modular scalable architecture
+2. Maintain responsive UI
+3. Preserve existing data
+4. Avoid breaking current workflows
+5. Add database migrations safely
+6. Add audit logging
+7. Add role-based permissions
+8. Support offline-first functionality
+9. Optimize for low-resource environments
+10. Ensure mobile usability
+11. Ensure fast loading performance
+
+==================================================
+FINAL TASKS
+
+1. Generate updated database schema
+2. Generate missing tables
+3. Create migration scripts
+4. Generate seed clinical templates
+5. Create printable clinical forms
+6. Create PDF export support
+7. Add test data
+8. Run validation tests
+9. Fix broken components/pages
+10. Produce final implementation report
+11. Produce module completion checklist
+12. Produce deployment readiness report
+13. Produce Uganda-compliance readiness report

@@ -1,0 +1,99 @@
+1. Current admin and staff login URLs/routes
+
+
+2. Exact private URL/path where Admin dashboard is now accessed after removing it from public access
+
+
+3. Exact private URL/path where Staff dashboard is now accessed after removing it from public access
+
+
+4. How admin/staff portals are protected from public users and search engines
+
+
+5. Default admin credentials and how to change passwords safely
+
+
+6. Where all patient data is stored (database type and location)
+
+
+7. How to back up the full MedRise database and restore it
+
+
+8. GitHub repository status and whether all changes are pushed successfully
+
+
+9. List of completed features vs pending features
+
+
+10. How role-based access is configured (Admin, Doctor, Nurse, Receptionist, Lab, Pharmacy, Cashier)
+
+
+11. Which files/folders contain the authentication and dashboard code
+
+
+12. Whether public pages and staff portals are fully separated and protected
+
+
+13. How session management works so users do not log in repeatedly
+
+
+14. Whether autosave for clinical notes is fully implemented
+
+
+15. Whether patient registration and queue system are now independent workflows
+
+
+16. How triage notes flow into doctor consultation and which fields are locked/non-editable
+
+
+17. Which departments are fully implemented already
+
+
+18. Whether Ministry of Health Uganda and WHO clinical templates/protocols have been added
+
+
+19. Status of imaging/radiology module and report templates
+
+
+20. Status of labour ward monitoring charts and maternity tools
+
+
+21. Whether referral, discharge, birth certificate, and death notification templates are editable/exportable
+
+
+22. Status of search system for patients by name and phone number
+
+
+23. Whether audit logs track all staff activities and edits
+
+
+24. Whether real-time notifications/WebSocket system is fully functional
+
+
+25. Whether the system is mobile responsive for phones and tablets
+
+
+26. Whether online payment systems are integrated (Visa, Mastercard, Mobile Money)
+
+
+27. Which payment providers are recommended for Uganda integration
+
+
+28. Whether SMS/email notifications are working
+
+
+29. Whether there are automated tests and security protections implemented
+
+
+30. Whether rate limiting, account lockout, and password reset flows are enabled
+
+
+31. Deployment status — where the production version will be hosted
+
+
+32. Domain and SSL/HTTPS setup status
+
+
+33. Exact next recommended development phase before deployment to real users
+
+How do I get access to my medrise medical app

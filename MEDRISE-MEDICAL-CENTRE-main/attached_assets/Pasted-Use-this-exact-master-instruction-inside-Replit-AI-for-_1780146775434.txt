@@ -1,0 +1,370 @@
+Use this exact master instruction inside Replit AI for your MedRise Medical Centre before finalizing or closing the project.
+
+Perform a COMPLETE PROFESSIONAL FINAL AUDIT of the entire MedRise Medical Centre Hospital Management System project and generate a FULL PDF-READY PROJECT REPORT containing EVERYTHING the Medical Director, Owner, Administrators, Developers, and Future Management Team need to know before deployment, scaling, maintenance, or closing the project.
+
+IMPORTANT:
+This is NOT a simple code scan.
+This is a FULL ENTERPRISE HOSPITAL SYSTEM REVIEW, ANALYSIS, VALIDATION, DOCUMENTATION, AND PROFESSIONALIZATION TASK.
+
+==================================================
+PRIMARY OBJECTIVES
+
+1. Analyze the ENTIRE existing project
+2. Detect what is fully completed
+3. Detect incomplete modules
+4. Detect broken workflows
+5. Detect missing clinical features
+6. Detect database problems
+7. Detect security vulnerabilities
+8. Detect UI/UX issues
+9. Detect performance bottlenecks
+10. Detect missing Uganda MOH/WHO workflows
+11. Detect deployment risks
+12. Generate COMPLETE PROFESSIONAL DOCUMENTATION
+13. Generate FULL PDF-READY REPORTS
+14. Generate FINAL RECOMMENDATIONS
+15. Generate DEPLOYMENT READINESS STATUS
+
+==================================================
+STEP 1 — FULL PROJECT AUDIT
+
+Perform complete analysis of:
+
+- Frontend
+- Backend
+- Database
+- APIs
+- Authentication
+- Dashboards
+- Clinical workflows
+- Billing workflows
+- Pharmacy workflows
+- Laboratory workflows
+- Maternity workflows
+- Theater workflows
+- Ward workflows
+- Queue systems
+- Notifications
+- Reports
+- Security systems
+- Deployment setup
+
+Generate:
+
+- Existing features report
+- Missing features report
+- Broken components report
+- Duplicate systems report
+- Incomplete workflows report
+
+==================================================
+STEP 2 — GENERATE FULL MODULE REPORT
+
+For EVERY module found in the system, generate:
+
+1. Module name
+2. Purpose
+3. Current status
+4. Features completed
+5. Missing features
+6. Database tables used
+7. APIs used
+8. User roles involved
+9. Workflow explanation
+10. UI/UX evaluation
+11. Security evaluation
+12. Performance evaluation
+13. Scalability evaluation
+14. Recommended improvements
+
+Modules to analyze:
+
+- Authentication
+- Registration
+- Queue
+- Triage
+- Consultation
+- EMR/EHR
+- Pharmacy
+- Laboratory
+- Radiology
+- Billing
+- Admissions
+- Nursing
+- Maternity
+- ANC
+- Pediatrics
+- Theater/Surgery
+- Inventory
+- Reports
+- Notifications
+- Staff Management
+- Patient Portal
+- Emergency Department
+- Infection Prevention
+- Audit Logs
+- Telemedicine
+- AI Features
+
+==================================================
+STEP 3 — DATABASE AUDIT
+
+Analyze the PostgreSQL database professionally.
+
+Generate:
+
+1. Full database schema report
+2. ERD-style relationship documentation
+3. Foreign key analysis
+4. Missing indexes report
+5. Duplicate table detection
+6. Performance bottleneck analysis
+7. Data integrity analysis
+8. Security analysis
+9. Backup readiness evaluation
+10. Migration history analysis
+
+Document all important tables:
+
+- patients
+- visits
+- triage
+- consultations
+- diagnoses
+- prescriptions
+- medications
+- lab_orders
+- lab_results
+- admissions
+- wards
+- beds
+- nursing_notes
+- treatment_charts
+- billing
+- payments
+- inventory
+- appointments
+- users
+- roles
+- permissions
+- audit_logs
+- notifications
+- attachments
+
+==================================================
+STEP 4 — CLINICAL WORKFLOW AUDIT
+
+Verify all hospital workflows professionally.
+
+Analyze:
+
+1. Outpatient workflow
+2. Emergency workflow
+3. Inpatient workflow
+4. ANC workflow
+5. Labor workflow
+6. Theater workflow
+7. Pharmacy workflow
+8. Laboratory workflow
+9. Billing workflow
+10. Referral workflow
+
+Detect:
+
+- Workflow gaps
+- Dead ends
+- Duplicate processes
+- Missing validations
+- Unsafe clinical workflows
+- Delayed billing triggers
+- Missing alerts
+
+==================================================
+STEP 5 — UGANDA MOH & WHO COMPLIANCE AUDIT
+
+Verify alignment with:
+
+- Uganda Ministry of Health standards
+- WHO patient safety standards
+- Uganda Essential Maternal & Neonatal Clinical Guidelines
+- WHO Surgical Safety Checklist
+- Uganda ANC guidelines
+- Uganda immunization guidelines
+- Infection prevention standards
+
+Generate:
+
+- Compliance report
+- Missing compliance features
+- Recommended improvements
+- Clinical safety evaluation
+
+==================================================
+STEP 6 — SECURITY AUDIT
+
+Perform full security analysis.
+
+Check:
+
+- Authentication
+- Authorization
+- Password security
+- Session management
+- API security
+- SQL injection risks
+- XSS vulnerabilities
+- CSRF vulnerabilities
+- Access control weaknesses
+- Audit logging
+- Encryption
+- Secrets management
+
+Generate:
+
+- Security report
+- Critical vulnerabilities
+- Recommended fixes
+- Risk level analysis
+
+==================================================
+STEP 7 — PERFORMANCE AUDIT
+
+Analyze:
+
+- Slow pages
+- Large queries
+- API inefficiencies
+- React rendering issues
+- Duplicate requests
+- Memory leaks
+- Large components
+- Caching opportunities
+- Pagination issues
+
+Generate:
+
+- Performance report
+- Optimization recommendations
+- Scalability evaluation
+
+==================================================
+STEP 8 — UI/UX PROFESSIONAL REVIEW
+
+Review:
+
+- Mobile responsiveness
+- Tablet usability
+- Dark mode consistency
+- Accessibility
+- Workflow speed
+- Navigation
+- Error handling
+- Form usability
+- Clinical usability
+
+Generate:
+
+- UI/UX report
+- Workflow efficiency evaluation
+- Professional design recommendations
+
+==================================================
+STEP 9 — OWNER & MEDICAL DIRECTOR REPORT
+
+Generate a SPECIAL EXECUTIVE REPORT for MedRise ownership and medical leadership.
+
+Include:
+
+1. Overall project status
+2. Production readiness level
+3. Current risks
+4. Clinical safety status
+5. Revenue management evaluation
+6. Staff workflow evaluation
+7. Data protection evaluation
+8. Scalability evaluation
+9. Legal/privacy considerations
+10. Operational readiness
+11. Future expansion readiness
+12. Recommended next priorities
+
+==================================================
+STEP 10 — DEPLOYMENT READINESS REPORT
+
+Generate:
+
+- Hosting readiness
+- Environment variables checklist
+- Secrets checklist
+- Backup checklist
+- SSL/domain readiness
+- Replit deployment readiness
+- Production deployment checklist
+- Monitoring recommendations
+- Disaster recovery plan
+
+==================================================
+STEP 11 — REQUIRED FINAL PDF REPORTS
+
+Generate ALL reports in PROFESSIONAL PDF-READY MARKDOWN FORMAT.
+
+Generate:
+
+1. Full Technical Documentation
+2. Owner/Medical Director Executive Report
+3. Clinical Workflow Documentation
+4. Database Documentation
+5. Uganda MOH/WHO Compliance Report
+6. Security Audit Report
+7. Performance Audit Report
+8. Deployment Readiness Report
+9. Module Completion Report
+10. Final Recommendations Report
+
+IMPORTANT:
+
+- Include table of contents
+- Include professional headings
+- Include summaries
+- Include recommendations
+- Include system screenshots references where possible
+- Include completion percentages
+- Include readiness scoring
+- Include risk levels
+- Include future roadmap
+
+==================================================
+STEP 12 — EXPORT REQUIREMENTS
+
+Prepare ALL documentation for:
+
+- PDF export
+- Google Docs export
+- Microsoft Word export
+- Long-term archival
+- Team handover
+- Investor presentation
+- Hospital operational reference
+
+Ensure formatting is:
+
+- Professional
+- Enterprise-grade
+- Print-ready
+- Cleanly structured
+
+==================================================
+FINAL REQUIREMENT
+
+The final output must make MedRise Medical Centre appear as:
+
+- A professional enterprise hospital system
+- Clinically safe
+- Technically scalable
+- Operationally organized
+- Professionally documented
+- Ready for future growth
+
+DO NOT skip any module, workflow, or audit section.
+
+Generate the MOST COMPLETE professional hospital system report possible.

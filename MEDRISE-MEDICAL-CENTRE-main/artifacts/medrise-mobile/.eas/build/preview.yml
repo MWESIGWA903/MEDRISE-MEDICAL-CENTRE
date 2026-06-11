@@ -1,0 +1,19 @@
+build:
+  name: MedRise Preview APK
+  steps:
+    - eas/checkout
+    - run:
+        name: Install dependencies
+        command: |
+          REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+          echo "Workspace root: $REPO_ROOT"
+          cd "$REPO_ROOT"
+          pnpm install --frozen-lockfile
+    - run:
+        name: Expose pnpm lockfile for prebuild detection
+        command: |
+          REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+          cp "$REPO_ROOT/pnpm-lock.yaml" pnpm-lock.yaml
+          echo "pnpm-lock.yaml now in project dir - expo prebuild will use pnpm"
+    - eas/prebuild
+    - eas/android/build
