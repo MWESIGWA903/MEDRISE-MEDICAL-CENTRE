@@ -3,7 +3,7 @@
   "compilerOptions": {
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
-    "baseUrl": ".",
+    : ".",
     "strict": true,
     "paths": {
       "@/*": [

@@ -8,9 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { useListPatients, useAuth, customFetch } from "@workspace/api-client-react";
+import { useListPatients } from "@workspace/api-client-react";
 import { PatientCombobox } from "@/components/PatientCombobox";
 import { Plus, Loader2, Trash2, Edit2, Search, ChevronLeft, FileText, Smile, X, Check } from "lucide-react";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const TOKEN = () => localStorage.getItem("medrise_admin_token") ?? "";
+const authH = () => ({ Authorization: `Bearer ${TOKEN()}`, "Content-Type": "application/json" });
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -63,41 +67,34 @@ const TOOTH_LABELS: Record<string, string> = {
 // ── Hooks ──────────────────────────────────────────────────────────────────────
 
 function useStats() {
-  const { adminToken } = useAuth();
-  return useQuery<Stats>({ queryKey: ["dental", "stats"], enabled: !!adminToken, queryFn: async () => customFetch<Stats>("/api/dental/stats"), refetchInterval: 30000 });
+  return useQuery<Stats>({ queryKey: ["dental", "stats"], queryFn: async () => (await fetch(`${BASE}/api/dental/stats`, { headers: { Authorization: `Bearer ${TOKEN()}` } })).json(), refetchInterval: 30000 });
 }
 function useDentalRecords(patientId?: number | null) {
-  const { adminToken } = useAuth();
   const q = patientId ? `?patientId=${patientId}` : "";
-  return useQuery<DentalRecord[]>({ queryKey: ["dental", "records", patientId], enabled: !!adminToken, queryFn: async () => customFetch<DentalRecord[]>(`/api/dental/records${q}`), refetchInterval: 30000 });
+  return useQuery<DentalRecord[]>({ queryKey: ["dental", "records", patientId], queryFn: async () => (await fetch(`${BASE}/api/dental/records${q}`, { headers: { Authorization: `Bearer ${TOKEN()}` } })).json(), refetchInterval: 30000 });
 }
 function useProcedures(dentalRecordId?: number | null) {
-  const { adminToken } = useAuth();
   return useQuery<DentalProcedure[]>({
     queryKey: ["dental", "procedures", dentalRecordId],
-    enabled: !!adminToken && !!dentalRecordId,
-    queryFn: async () => customFetch<DentalProcedure[]>(`/api/dental/procedures?dentalRecordId=${dentalRecordId}`),
+    enabled: !!dentalRecordId,
+    queryFn: async () => (await fetch(`${BASE}/api/dental/procedures?dentalRecordId=${dentalRecordId}`, { headers: { Authorization: `Bearer ${TOKEN()}` } })).json(),
   });
 }
 function useCreateRecord() {
-  const { adminToken } = useAuth();
   const qc = useQueryClient();
-  return useMutation({ mutationFn: async (d: Record<string, unknown>) => customFetch<unknown>("/api/dental/records", { method: "POST", body: JSON.stringify(d) }), onSuccess: () => qc.invalidateQueries({ queryKey: ["dental"] }) });
+  return useMutation({ mutationFn: async (d: Record<string, unknown>) => { const r = await fetch(`${BASE}/api/dental/records`, { method: "POST", headers: authH(), body: JSON.stringify(d) }); if (!r.ok) throw new Error(await r.text()); return r.json(); }, onSuccess: () => qc.invalidateQueries({ queryKey: ["dental"] }) });
 }
 function useDeleteRecord() {
-  const { adminToken } = useAuth();
   const qc = useQueryClient();
-  return useMutation({ mutationFn: async (id: number) => customFetch<unknown>(`/api/dental/records/${id}`, { method: "DELETE" }), onSuccess: () => qc.invalidateQueries({ queryKey: ["dental"] }) });
+  return useMutation({ mutationFn: async (id: number) => fetch(`${BASE}/api/dental/records/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${TOKEN()}` } }), onSuccess: () => qc.invalidateQueries({ queryKey: ["dental"] }) });
 }
 function useCreateProcedure() {
-  const { adminToken } = useAuth();
   const qc = useQueryClient();
-  return useMutation({ mutationFn: async (d: Record<string, unknown>) => customFetch<unknown>("/api/dental/procedures", { method: "POST", body: JSON.stringify(d) }), onSuccess: () => qc.invalidateQueries({ queryKey: ["dental"] }) });
+  return useMutation({ mutationFn: async (d: Record<string, unknown>) => { const r = await fetch(`${BASE}/api/dental/procedures`, { method: "POST", headers: authH(), body: JSON.stringify(d) }); if (!r.ok) throw new Error(await r.text()); return r.json(); }, onSuccess: () => qc.invalidateQueries({ queryKey: ["dental"] }) });
 }
 function useDeleteProcedure() {
-  const { adminToken } = useAuth();
   const qc = useQueryClient();
-  return useMutation({ mutationFn: async (id: number) => customFetch<unknown>(`/api/dental/procedures/${id}`, { method: "DELETE" }), onSuccess: () => qc.invalidateQueries({ queryKey: ["dental"] }) });
+  return useMutation({ mutationFn: async (id: number) => fetch(`${BASE}/api/dental/procedures/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${TOKEN()}` } }), onSuccess: () => qc.invalidateQueries({ queryKey: ["dental"] }) });
 }
 
 // ── Tooth Chart Component ───────────────────────────────────────────────────────

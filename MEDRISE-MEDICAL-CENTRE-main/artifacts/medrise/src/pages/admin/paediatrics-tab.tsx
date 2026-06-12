@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { useListPatients, useCreatePatient, useAuth, customFetch } from "@workspace/api-client-react";
+import {useListPatients,useCreatePatient,} from "@workspace/api-client-react";
 import { PatientCombobox } from "@/components/PatientCombobox";
 import { Baby, Plus, Loader2, Trash2, CheckCircle2, AlertTriangle, Syringe, TrendingUp, Search, ChevronLeft, User, UserPlus } from "lucide-react";
 
@@ -59,36 +59,36 @@ const NUTR_STATUS_STYLE: Record<string, string> = {
 // ── Hooks ──────────────────────────────────────────────────────────────────────
 
 function useStats() {
-  const { adminToken } = useAuth();
+  
   return useQuery<Stats>({ queryKey: ["paeds", "stats"], enabled: !!adminToken, queryFn: async () => customFetch<Stats>("/api/paediatrics/stats"), refetchInterval: 30000 });
 }
 function useGrowth(patientId?: number | null) {
-  const { adminToken } = useAuth();
+  
   const q = patientId ? `?patientId=${patientId}` : "";
   return useQuery<GrowthRecord[]>({ queryKey: ["paeds", "growth", patientId], enabled: !!adminToken, queryFn: async () => customFetch<GrowthRecord[]>(`/api/paediatrics/growth${q}`), refetchInterval: 30000 });
 }
 function useImmunizations(patientId?: number | null) {
-  const { adminToken } = useAuth();
+  
   const q = patientId ? `?patientId=${patientId}` : "";
   return useQuery<ImmunizationRecord[]>({ queryKey: ["paeds", "immunizations", patientId], enabled: !!adminToken, queryFn: async () => customFetch<ImmunizationRecord[]>(`/api/paediatrics/immunizations${q}`), refetchInterval: 30000 });
 }
 function useCreateGrowth() {
-  const { adminToken } = useAuth();
+  
   const qc = useQueryClient();
   return useMutation({ mutationFn: async (d: Record<string, unknown>) => customFetch<unknown>("/api/paediatrics/growth", { method: "POST", body: JSON.stringify(d) }), onSuccess: () => qc.invalidateQueries({ queryKey: ["paeds"] }) });
 }
 function useDeleteGrowth() {
-  const { adminToken } = useAuth();
+  
   const qc = useQueryClient();
   return useMutation({ mutationFn: async (id: number) => customFetch<unknown>(`/api/paediatrics/growth/${id}`, { method: "DELETE" }), onSuccess: () => qc.invalidateQueries({ queryKey: ["paeds"] }) });
 }
 function useCreateImmunization() {
-  const { adminToken } = useAuth();
+  
   const qc = useQueryClient();
   return useMutation({ mutationFn: async (d: Record<string, unknown>) => customFetch<unknown>("/api/paediatrics/immunizations", { method: "POST", body: JSON.stringify(d) }), onSuccess: () => qc.invalidateQueries({ queryKey: ["paeds"] }) });
 }
 function useDeleteImmunization() {
-  const { adminToken } = useAuth();
+  
   const qc = useQueryClient();
   return useMutation({ mutationFn: async (id: number) => customFetch<unknown>(`/api/paediatrics/immunizations/${id}`, { method: "DELETE" }), onSuccess: () => qc.invalidateQueries({ queryKey: ["paeds"] }) });
 }
