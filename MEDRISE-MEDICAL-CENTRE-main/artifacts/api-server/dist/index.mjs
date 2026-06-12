@@ -86767,11 +86767,8 @@ router2.get("/appointments", async (req, res) => {
 router2.post("/appointments", async (req, res) => {
   const parsed = CreateAppointmentBody.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: parsed.error.message });
+    return;
   }
   const [appointment] = await db.insert(appointmentsTable).values({
     patientName: parsed.data.patientName,
@@ -86843,19 +86840,14 @@ router2.get("/appointments/:id", async (req, res) => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = GetAppointmentParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: params.error.message });
+    return;
   }
   const [appointment] = await db.select().from(appointmentsTable).where(eq(appointmentsTable.id, params.data.id));
   if (!appointment) {
-    res.status(404).json({
-  success: false,
-  message: "Appointment not found"
-});
-return;
+    res.status(404).json({ error: "Appointment not found" });
+    return;
+  }
   res.json(
     GetAppointmentResponse.parse({
       ...appointment,
@@ -86867,27 +86859,18 @@ router2.patch("/appointments/:id", async (req, res) => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = UpdateAppointmentStatusParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: params.error.message });
+    return;
   }
   const body = UpdateAppointmentStatusBody.safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: body.error.message });
+    return;
   }
   const [appointment] = await db.update(appointmentsTable).set({ status: body.data.status }).where(eq(appointmentsTable.id, params.data.id)).returning();
   if (!appointment) {
-    res.status(404).json({
-  success: false,
-  message: "Appointment not found"
-});
-return;
+    res.status(404).json({ error: "Appointment not found" });
+    return;
   }
   if ((body.data.status === "confirmed" || body.data.status === "cancelled") && appointment.email) {
     void sendAppointmentStatusUpdateToPatient({
@@ -86912,19 +86895,13 @@ router2.delete("/appointments/:id", async (req, res) => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = DeleteAppointmentParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: params.error.message });
+    return;
   }
   const [appointment] = await db.delete(appointmentsTable).where(eq(appointmentsTable.id, params.data.id)).returning();
   if (!appointment) {
-    res.status(404).json({
-  success: false,
-  message: "Appointment not found"
-});
-return;
+    res.status(404).json({ error: "Appointment not found" });
+    return;
   }
   res.sendStatus(204);
 });
@@ -88671,11 +88648,8 @@ async function recordLoginHistory(adminId, username, success2, ipAddress, userAg
 router3.post("/admin/login", async (req, res) => {
   const parsed = AdminLoginBody.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: parsed.error.message });
+    return;
   }
   const { username, password } = parsed.data;
   const ip = getClientIp(req);
@@ -88683,34 +88657,20 @@ return;
   const [admin] = await db.select().from(adminsTable).where(eq(adminsTable.username, username));
   if (!admin) {
     await recordLoginHistory(null, username, false, ip, ua, "Account not found");
-    res.status(401).json({
-  success: false,
-  message: "Invalid username or password"
-});
-return;
-}
-
-if (admin.isActive === false) {
-  await recordLoginHistory(admin.id, username, false, ip, ua, "Account inactive");
-
-  res.status(403).json({
-    success: false,
-    message: "Account is inactive. Contact your administrator."
-  });
-  return;
-}
-
-if (admin.lockedUntil && admin.lockedUntil > new Date()) {
-  const mins = Math.ceil((admin.lockedUntil.getTime() - Date.now()) / 6e4);
-
-  await recordLoginHistory(admin.id, username, false, ip, ua, "Account locked");
-
-  res.status(423).json({
-    success: false,
-    message: `Account locked. Try again in ${mins} minute${mins !== 1 ? "s" : ""}.`
-  });
-  return;
-}
+    res.status(401).json({ error: "Invalid username or password" });
+    return;
+  }
+  if (admin.isActive === false) {
+    await recordLoginHistory(admin.id, username, false, ip, ua, "Account inactive");
+    res.status(403).json({ error: "Account is inactive. Contact your administrator." });
+    return;
+  }
+  if (admin.lockedUntil && admin.lockedUntil > /* @__PURE__ */ new Date()) {
+    const mins = Math.ceil((admin.lockedUntil.getTime() - Date.now()) / 6e4);
+    await recordLoginHistory(admin.id, username, false, ip, ua, "Account locked");
+    res.status(423).json({ error: `Account locked. Try again in ${mins} minute${mins !== 1 ? "s" : ""}.` });
+    return;
+  }
   const passwordValid = await bcryptjs_default.compare(password, admin.password);
   if (!passwordValid) {
     const newAttempts = (admin.failedLoginAttempts ?? 0) + 1;
@@ -88720,12 +88680,9 @@ if (admin.lockedUntil && admin.lockedUntil > new Date()) {
     await recordLoginHistory(admin.id, username, false, ip, ua, "Wrong password");
     const remaining = MAX_FAILED - newAttempts;
     res.status(401).json({
-  success: false,
-  message: shouldLock
-    ? `Too many failed attempts. Account locked for ${LOCKOUT_MINUTES} minutes.`
-    : `Invalid username or password.${remaining > 0 ? ` ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining before lockout.` : ""}`
-});
-return;
+      error: shouldLock ? `Too many failed attempts. Account locked for ${LOCKOUT_MINUTES} minutes.` : `Invalid username or password.${remaining > 0 ? ` ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining before lockout.` : ""}`
+    });
+    return;
   }
   await db.update(adminsTable).set({ failedLoginAttempts: 0, lockedUntil: null, lastLoginAt: /* @__PURE__ */ new Date() }).where(eq(adminsTable.id, admin.id));
   await recordLoginHistory(admin.id, username, true, ip, ua);
@@ -88742,46 +88699,31 @@ router3.post("/admin/logout", async (req, res) => {
 router3.get("/admin/me", async (req, res) => {
   const session = req.adminSession ?? getSessionFromRequest(req);
   if (!session) {
-    res.status(401).json({
-  success: false,
-  message: "Not authenticated"
-});
-return;
+    res.status(401).json({ error: "Not authenticated" });
+    return;
   }
   res.json(GetAdminMeResponse.parse(session));
 });
 router3.post("/admin/change-password", async (req, res) => {
   const session = req.adminSession ?? getSessionFromRequest(req);
   if (!session) {
-    res.status(401).json({
-  success: false,
-  message: "Not authenticated"
-});
+    res.status(401).json({ error: "Not authenticated" });
     return;
   }
   const parsed = ChangePasswordBody.safeParse(req.body);
   if (!parsed.success) {
-    res.status(401).json({
-  success: false,
-  message: "Not authenticated"
-});
-return;
+    res.status(400).json({ error: parsed.error.message });
+    return;
   }
   const [admin] = await db.select().from(adminsTable).where(eq(adminsTable.id, session.id));
   if (!admin) {
-    res.status(404).json({
-  success: false,
-  message: "Account not found"
-});
+    res.status(404).json({ error: "Account not found" });
     return;
   }
   const currentValid = await bcryptjs_default.compare(parsed.data.currentPassword, admin.password);
   if (!currentValid) {
-    res.status(400).json({
-  success: false,
-  message: "Current password is incorrect"
-});
-return;
+    res.status(400).json({ error: "Current password is incorrect" });
+    return;
   }
   const hashed = await bcryptjs_default.hash(parsed.data.newPassword, 12);
   await db.update(adminsTable).set({ password: hashed, mustChangePassword: false }).where(eq(adminsTable.id, session.id));
@@ -88836,11 +88778,8 @@ router4.get("/patients", async (req, res) => {
 router4.post("/patients", async (req, res) => {
   const parsed = CreatePatientBody.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: parsed.error.message });
+    return;
   }
   const [patient] = await db.insert(patientsTable).values({
     fullName: parsed.data.fullName,
@@ -88887,18 +88826,12 @@ router4.get("/patients/:id", async (req, res) => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = GetPatientParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: params.error.message });
+    return;
   }
   const [patient] = await db.select().from(patientsTable).where(eq(patientsTable.id, params.data.id));
   if (!patient) {
-    res.status(404).json({
-  success: false,
-  message: "Patient not found"
-});
+    res.status(404).json({ error: "Patient not found" });
     return;
   }
   res.json(GetPatientResponse.parse(mapPatient(patient)));
@@ -88907,27 +88840,18 @@ router4.patch("/patients/:id", async (req, res) => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = UpdatePatientParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: params.error.message });
+    return;
   }
   const body = UpdatePatientBody.safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({
-  success: false,
-  message: body.error.message
-});
+    res.status(400).json({ error: body.error.message });
     return;
   }
   const [patient] = await db.update(patientsTable).set({ ...body.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(patientsTable.id, params.data.id)).returning();
   if (!patient) {
-    res.status(404).json({
-  success: false,
-  message: "Patient not found"
-});
-return;
+    res.status(404).json({ error: "Patient not found" });
+    return;
   }
   logAudit(req, "update_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {
   });
@@ -88937,28 +88861,18 @@ router4.delete("/patients/:id", async (req, res) => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = DeletePatientParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: params.error.message
-});
-return;
+    res.status(400).json({ error: params.error.message });
     return;
   }
   const [patient] = await db.delete(patientsTable).where(eq(patientsTable.id, params.data.id)).returning();
   if (!patient) {
-    res.status(404).json({
-  success: false,
-  message: "Patient not found"
-});
-return;
+    res.status(404).json({ error: "Patient not found" });
+    return;
   }
   logAudit(req, "delete_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {
   });
-  res.status(404).json({
-  success: false,
-  message: "Patient not found"
+  res.sendStatus(204);
 });
-return;
 var patients_default = router4;
 
 // src/routes/staff.ts
@@ -88985,33 +88899,21 @@ router5.get("/staff", async (req, res) => {
 router5.post("/staff", async (req, res) => {
   const session = await getSessionFromRequestAsync(req);
   if (!session) {
-    res.status(401).json({
-  success: false,
-  message: "Not authenticated"
-});
-return;
+    res.status(401).json({ error: "Not authenticated" });
+    return;
   }
   if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({
-  success: false,
-  message: "Forbidden: only admin, owner, or medical_director can create staff accounts"
-});
+    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can create staff accounts" });
     return;
   }
   const parsed = CreateStaffBody.safeParse(req.body);
   if (!parsed.success) {
-   res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: parsed.error.message });
+    return;
   }
   const existing = await db.select().from(adminsTable).where(eq(adminsTable.username, parsed.data.username));
   if (existing.length > 0) {
-    res.status(409).json({
-  success: false,
-  message: "Username already exists"
-});
+    res.status(409).json({ error: "Username already exists" });
     return;
   }
   const [staff] = await db.insert(adminsTable).values({
@@ -89028,34 +88930,22 @@ return;
 router5.patch("/staff/:id", async (req, res) => {
   const session = await getSessionFromRequestAsync(req);
   if (!session) {
-    res.status(401).json({
-  success: false,
-  message: "Not authenticated"
-});
+    res.status(401).json({ error: "Not authenticated" });
     return;
   }
   if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({
-  success: false,
-  message: "Forbidden: only admin, owner, or medical_director can edit staff accounts"
-});
-return;
+    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can edit staff accounts" });
+    return;
   }
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = UpdateStaffParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: params.error.message
-});
+    res.status(400).json({ error: params.error.message });
     return;
   }
   const body = UpdateStaffBody.safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({
-  success: false,
-  message: body.error.message
-});
+    res.status(400).json({ error: body.error.message });
     return;
   }
   const updateData = {};
@@ -89067,10 +88957,7 @@ return;
   if (body.data.email !== void 0) updateData.email = body.data.email;
   const [staff] = await db.update(adminsTable).set(updateData).where(eq(adminsTable.id, params.data.id)).returning();
   if (!staff) {
-    res.status(404).json({
-  success: false,
-  message: "Staff not found"
-});
+    res.status(404).json({ error: "Staff not found" });
     return;
   }
   res.json(mapStaff(staff));
@@ -89078,35 +88965,23 @@ return;
 router5.delete("/staff/:id", async (req, res) => {
   const session = await getSessionFromRequestAsync(req);
   if (!session) {
-    res.status(401).json({
-  success: false,
-  message: "Not authenticated"
-});
+    res.status(401).json({ error: "Not authenticated" });
     return;
   }
   if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({
-  success: false,
-  message: "Forbidden: only admin, owner, or medical_director can delete staff accounts"
-});
+    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can delete staff accounts" });
     return;
   }
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = DeleteStaffParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: params.error.message
-});
+    res.status(400).json({ error: params.error.message });
     return;
   }
   const [deleted] = await db.delete(adminsTable).where(eq(adminsTable.id, params.data.id)).returning();
   if (!deleted) {
-    res.status(404).json({
-  success: false,
-  message: "Staff not found"
-});
-return;
+    res.status(404).json({ error: "Staff not found" });
+    return;
   }
   res.sendStatus(204);
 });
@@ -89163,10 +89038,7 @@ router6.get("/attendance", async (req, res) => {
 router6.post("/attendance", async (req, res) => {
   const parsed = RecordAttendanceBody.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
+    res.status(400).json({ error: parsed.error.message });
     return;
   }
   const { staffId, date: date6, shift, status, checkIn, checkOut, notes } = parsed.data;
@@ -89243,26 +89115,17 @@ router6.patch("/attendance/:id", async (req, res) => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = UpdateAttendanceParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: params.error.message
-});
-return;
+    res.status(400).json({ error: params.error.message });
+    return;
   }
   const body = UpdateAttendanceBody.safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({
-  success: false,
-  message: body.error.message
-});
+    res.status(400).json({ error: body.error.message });
     return;
   }
   const [record2] = await db.update(attendanceTable).set({ ...body.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(attendanceTable.id, params.data.id)).returning();
   if (!record2) {
-    res.status(404).json({
-  success: false,
-  message: "Record not found"
-});
+    res.status(404).json({ error: "Record not found" });
     return;
   }
   const [withStaff] = await db.select({
@@ -89287,18 +89150,12 @@ router6.delete("/attendance/:id", async (req, res) => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = DeleteAttendanceParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
-    res.status(400).json({
-  success: false,
-  message: params.error.message
-});
+    res.status(400).json({ error: params.error.message });
     return;
   }
   const [deleted] = await db.delete(attendanceTable).where(eq(attendanceTable.id, params.data.id)).returning();
   if (!deleted) {
-    res.status(404).json({
-  success: false,
-  message: "Record not found"
-});
+    res.status(404).json({ error: "Record not found" });
     return;
   }
   res.sendStatus(204);
@@ -89342,10 +89199,7 @@ router7.get("/consultations", async (req, res) => {
 router7.post("/consultations", async (req, res) => {
   const parsed = ConsultationInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
+    res.status(400).json({ error: parsed.error.message });
     return;
   }
   const [row] = await db.insert(consultationsTable).values({
@@ -89368,10 +89222,7 @@ router7.get("/consultations/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [row] = await db.select().from(consultationsTable).where(eq(consultationsTable.id, id));
   if (!row) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
+    res.status(404).json({ error: "Not found" });
     return;
   }
   res.json(await mapConsultation(row));
@@ -89380,18 +89231,12 @@ router7.patch("/consultations/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const parsed = ConsultationInputSchema.partial().safeParse(req.body);
   if (!parsed.success) {
-   res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
-return;
+    res.status(400).json({ error: parsed.error.message });
+    return;
   }
   const [row] = await db.update(consultationsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(consultationsTable.id, id)).returning();
   if (!row) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
+    res.status(404).json({ error: "Not found" });
     return;
   }
   logAudit(req, "update_consultation", { entityType: "consultation", entityId: row.id, details: parsed.data.diagnosis ?? "" }).catch(() => {
@@ -89402,10 +89247,7 @@ router7.delete("/consultations/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [row] = await db.delete(consultationsTable).where(eq(consultationsTable.id, id)).returning();
   if (!row) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
+    res.status(404).json({ error: "Not found" });
     return;
   }
   logAudit(req, "delete_consultation", { entityType: "consultation", entityId: row.id }).catch(() => {
@@ -89444,10 +89286,7 @@ router8.get("/vitals", async (req, res) => {
 router8.post("/vitals", async (req, res) => {
   const parsed = VitalsInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
+    res.status(400).json({ error: parsed.error.message });
     return;
   }
   const [row] = await db.insert(vitalSignsTable).values({
@@ -89468,10 +89307,7 @@ router8.delete("/vitals/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [row] = await db.delete(vitalSignsTable).where(eq(vitalSignsTable.id, id)).returning();
   if (!row) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
+    res.status(404).json({ error: "Not found" });
     return;
   }
   res.sendStatus(204);
@@ -89527,10 +89363,7 @@ router9.get("/billing", async (req, res) => {
 router9.post("/billing", async (req, res) => {
   const parsed = InvoiceInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
+    res.status(400).json({ error: parsed.error.message });
     return;
   }
   const total = parsed.data.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
@@ -89570,11 +89403,8 @@ router9.get("/billing/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [inv] = await db.select().from(invoicesTable).where(eq(invoicesTable.id, id));
   if (!inv) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
-return;
+    res.status(404).json({ error: "Not found" });
+    return;
   }
   res.json(await mapInvoice(inv));
 });
@@ -89582,10 +89412,7 @@ router9.patch("/billing/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const parsed = InvoiceUpdateSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
+    res.status(400).json({ error: parsed.error.message });
     return;
   }
   const updateData = { updatedAt: /* @__PURE__ */ new Date() };
@@ -89595,14 +89422,12 @@ router9.patch("/billing/:id", async (req, res) => {
   if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
   const [inv] = await db.update(invoicesTable).set(updateData).where(eq(invoicesTable.id, id)).returning();
   if (!inv) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
+    res.status(404).json({ error: "Not found" });
     return;
   }
   if (parsed.data.status === "paid" || parsed.data.paidAmount !== void 0) {
     logAudit(req, "record_payment", { entityType: "invoice", entityId: inv.id, details: `${inv.invoiceNumber} \u2014 ${parsed.data.paymentMethod ?? "cash"} \u2014 UGX ${parsed.data.paidAmount ?? inv.paidAmount}` }).catch(() => {
+    });
   }
   res.json(await mapInvoice(inv));
 });
@@ -89614,11 +89439,8 @@ router9.post("/billing/append-items", async (req, res) => {
   });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: params.error.message
-});
-return;
+    res.status(400).json({ error: parsed.error.message });
+    return;
   }
   const { patientId, items, department } = parsed.data;
   const prefix = department ? `[${department}] ` : "";
@@ -89651,11 +89473,8 @@ router9.delete("/billing/:id", async (req, res) => {
   await db.delete(invoiceItemsTable).where(eq(invoiceItemsTable.invoiceId, id));
   const [inv] = await db.delete(invoicesTable).where(eq(invoicesTable.id, id)).returning();
   if (!inv) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
-return;
+    res.status(404).json({ error: "Not found" });
+    return;
   }
   logAudit(req, "delete_invoice", { entityType: "invoice", entityId: inv.id, details: inv.invoiceNumber }).catch(() => {
   });
@@ -89706,10 +89525,7 @@ router10.get("/pharmacy/stock", async (req, res) => {
 router10.post("/pharmacy/stock", async (req, res) => {
   const parsed = StockInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
+    res.status(400).json({ error: parsed.error.message });
     return;
   }
   const [row] = await db.insert(pharmacyStockTable).values({
@@ -89732,10 +89548,7 @@ router10.patch("/pharmacy/stock/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const parsed = StockInputSchema.partial().safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
+    res.status(400).json({ error: parsed.error.message });
     return;
   }
   const updateData = { updatedAt: /* @__PURE__ */ new Date() };
@@ -89752,10 +89565,7 @@ router10.patch("/pharmacy/stock/:id", async (req, res) => {
   const [before] = await db.select().from(pharmacyStockTable).where(eq(pharmacyStockTable.id, id));
   const [row] = await db.update(pharmacyStockTable).set(updateData).where(eq(pharmacyStockTable.id, id)).returning();
   if (!row) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
+    res.status(404).json({ error: "Not found" });
     return;
   }
   logAudit(req, "update_drug_stock", { entityType: "pharmacy_stock", entityId: row.id, details: row.drugName }).catch(() => {
@@ -89778,11 +89588,8 @@ router10.delete("/pharmacy/stock/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [row] = await db.delete(pharmacyStockTable).where(eq(pharmacyStockTable.id, id)).returning();
   if (!row) {
-    res.status(404).json({
-  success: false,
-  message: "Not found"
-});
-return;
+    res.status(404).json({ error: "Not found" });
+    return;
   }
   logAudit(req, "delete_drug_stock", { entityType: "pharmacy_stock", entityId: row.id, details: row.drugName }).catch(() => {
   });
@@ -89791,10 +89598,7 @@ return;
 router10.post("/pharmacy/dispense", async (req, res) => {
   const parsed = DispenseInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({
-  success: false,
-  message: parsed.error.message
-});
+    res.status(400).json({ error: parsed.error.message });
     return;
   }
   const [stock] = await db.select().from(pharmacyStockTable).where(eq(pharmacyStockTable.id, parsed.data.stockId));

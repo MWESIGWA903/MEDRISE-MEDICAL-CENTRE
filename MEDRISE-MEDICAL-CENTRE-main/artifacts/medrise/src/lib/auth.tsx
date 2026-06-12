@@ -1,14 +1,10 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  useAdminLogout,
-  useGetAdminMe,
-  getGetAdminMeQueryKey,
-} from "@workspace/api-client-react";
-import type { GetAdminMeQueryResult } from "@workspace/api-client-react";
+import { useQueryClient } from '@tanstack/react-query';
+import { useAdminLogout, useGetAdminMe, getGetAdminMeQueryKey } from '@workspace/api-client-react';
+import type { GetAdminMeQueryResult } from '@workspace/api-client-react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const ADMIN_TOKEN_KEY = "medrise_admin_token";
-const PATIENT_SESSION_KEY = "medrise_patient";
+const ADMIN_TOKEN_KEY = 'medrise_admin_token';
+const PATIENT_SESSION_KEY = 'medrise_patient';
 const AUTH_TIMEOUT_MS = 10_000;
 
 export type PatientSession = {
@@ -35,12 +31,12 @@ export interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 function getStoredAdminToken(): string | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
   return window.localStorage.getItem(ADMIN_TOKEN_KEY);
 }
 
 function getStoredPatientSession(): PatientSession | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
   const raw = window.sessionStorage.getItem(PATIENT_SESSION_KEY);
   if (!raw) return null;
 
@@ -52,7 +48,7 @@ function getStoredPatientSession(): PatientSession | null {
 }
 
 function persistAdminToken(token: string | null) {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
   if (token) {
     window.localStorage.setItem(ADMIN_TOKEN_KEY, token);
   } else {
@@ -61,7 +57,7 @@ function persistAdminToken(token: string | null) {
 }
 
 function persistPatientSession(session: PatientSession | null) {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
   if (session) {
     window.sessionStorage.setItem(PATIENT_SESSION_KEY, JSON.stringify(session));
   } else {
@@ -72,10 +68,14 @@ function persistPatientSession(session: PatientSession | null) {
 export function AuthProvider({ children }: React.PropsWithChildren<{}>) {
   const queryClient = useQueryClient();
   const [adminToken, setAdminTokenState] = useState<string | null>(() => getStoredAdminToken());
-  const { data, isLoading, error } = useGetAdminMe({ query: { enabled: !!adminToken, retry: false } as any });
+  const { data, isLoading, error } = useGetAdminMe({
+    query: { enabled: !!adminToken, retry: false } as any,
+  });
   const logoutMutation = useAdminLogout();
 
-  const [patientSession, setPatientSessionState] = useState<PatientSession | null>(() => getStoredPatientSession());
+  const [patientSession, setPatientSessionState] = useState<PatientSession | null>(() =>
+    getStoredPatientSession(),
+  );
 
   const [timedOut, setTimedOut] = useState(false);
 
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: React.PropsWithChildren<{}>) {
   }, [adminToken, queryClient]);
 
   const setAdminToken = (token: string | null) => {
-    persistAdminToken(token);   // write to localStorage synchronously so the next fetch has it immediately
+    persistAdminToken(token); // write to localStorage synchronously so the next fetch has it immediately
     setAdminTokenState(token);
   };
 
@@ -116,9 +116,7 @@ export function AuthProvider({ children }: React.PropsWithChildren<{}>) {
   };
 
   const effectiveLoading = isLoading && !timedOut;
-  const effectiveError: unknown = timedOut && !data
-    ? new Error("AUTH_TIMEOUT")
-    : error;
+  const effectiveError: unknown = timedOut && !data ? new Error('AUTH_TIMEOUT') : error;
 
   const value = useMemo(
     () => ({

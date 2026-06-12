@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Bell,
   Calendar,
@@ -10,32 +9,34 @@ import {
   Clock,
   Users,
   AlertTriangle,
-} from "lucide-react";
-import { useNotifications, type PushNotification } from "@/lib/notifications";
+} from 'lucide-react';
+import React, { useState } from 'react';
+
+import { useNotifications, type PushNotification } from '@/lib/notifications';
 
 function getIconForType(type: string, severity: string) {
-  if (type === "queue") return Users;
-  if (type === "lab_order") return FlaskConical;
-  if (type === "pharmacy_stock") return Pill;
-  if (type === "appointment") return Calendar;
+  if (type === 'queue') return Users;
+  if (type === 'lab_order') return FlaskConical;
+  if (type === 'pharmacy_stock') return Pill;
+  if (type === 'appointment') return Calendar;
   return Bell;
 }
 
 function getColorsForSeverity(severity: string): { color: string; bgColor: string } {
   switch (severity) {
-    case "urgent":
-      return { color: "text-red-600", bgColor: "bg-red-50" };
-    case "warning":
-      return { color: "text-yellow-600", bgColor: "bg-yellow-50" };
+    case 'urgent':
+      return { color: 'text-red-600', bgColor: 'bg-red-50' };
+    case 'warning':
+      return { color: 'text-yellow-600', bgColor: 'bg-yellow-50' };
     default:
-      return { color: "text-blue-600", bgColor: "bg-blue-50" };
+      return { color: 'text-blue-600', bgColor: 'bg-blue-50' };
   }
 }
 
 function formatAge(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
+  if (mins < 1) return 'just now';
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
@@ -55,10 +56,10 @@ export function NotificationBell() {
         className="relative p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
         aria-label="Notifications"
       >
-        <Bell className={`h-5 w-5 ${count > 0 ? "text-gray-700" : ""}`} />
+        <Bell className={`h-5 w-5 ${count > 0 ? 'text-gray-700' : ''}`} />
         {count > 0 && (
           <span className="absolute -top-0.5 -right-0.5 h-4.5 w-4.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none px-1">
-            {count > 9 ? "9+" : count}
+            {count > 9 ? '9+' : count}
           </span>
         )}
       </button>

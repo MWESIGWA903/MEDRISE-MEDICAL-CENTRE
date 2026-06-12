@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
-import { useTheme } from "@/lib/theme";
+import React, { useEffect } from 'react';
+
+import { useTheme } from '@/lib/theme';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
@@ -7,18 +8,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let meta = document.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
     if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("name", "robots");
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
       document.head.appendChild(meta);
     }
-    meta.setAttribute("content", "noindex,nofollow");
+    meta.setAttribute('content', 'noindex,nofollow');
     return () => {
-      meta?.setAttribute("content", "index,follow");
+      meta?.setAttribute('content', 'index,follow');
     };
   }, []);
 
   return (
-    <div className={`min-h-screen bg-background text-foreground${theme === "dark" ? " dark" : ""}`}>
+    <div className={`min-h-screen bg-background text-foreground${theme === 'dark' ? ' dark' : ''}`}>
       {children}
     </div>
   );

@@ -1,13 +1,7 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { useAuth } from "./auth";
-import { apiBase } from "./apiBase";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+
+import { apiBase } from './apiBase';
+import { useAuth } from './auth';
 
 export interface PushNotification {
   id: number;
@@ -33,12 +27,14 @@ const WS_RECONNECT_DELAY_MS = 3000;
 const WS_MAX_RECONNECT_ATTEMPTS = 10;
 
 function buildWsUrl(token: string): string {
-  const renderUrl = (import.meta.env.VITE_RENDER_URL as string | undefined) ?? (import.meta.env.VITE_API_URL as string | undefined);
+  const renderUrl =
+    (import.meta.env.VITE_RENDER_URL as string | undefined) ??
+    (import.meta.env.VITE_API_URL as string | undefined);
   if (renderUrl) {
-    const wsBase = renderUrl.replace(/^https:/, "wss:").replace(/^http:/, "ws:");
+    const wsBase = renderUrl.replace(/^https:/, 'wss:').replace(/^http:/, 'ws:');
     return `${wsBase}/ws?token=${encodeURIComponent(token)}`;
   }
-  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.host;
   return `${protocol}//${host}/ws?token=${encodeURIComponent(token)}`;
 }
@@ -59,54 +55,48 @@ export function NotificationsProvider({ children }: React.PropsWithChildren<{}>)
       if (!res.ok) return;
       const data: PushNotification[] = await res.json();
       setNotifications(data.filter((n) => !n.dismissed));
-    } catch {
-    }
+    } catch {}
   }, []);
 
-  const connect = useCallback(
-    (token: string) => {
-      if (!mountedRef.current) return;
-      if (wsRef.current && wsRef.current.readyState < WebSocket.CLOSING) {
-        wsRef.current.close();
-      }
+  const connect = useCallback((token: string) => {
+    if (!mountedRef.current) return;
+    if (wsRef.current && wsRef.current.readyState < WebSocket.CLOSING) {
+      wsRef.current.close();
+    }
 
-      const ws = new WebSocket(buildWsUrl(token));
-      wsRef.current = ws;
+    const ws = new WebSocket(buildWsUrl(token));
+    wsRef.current = ws;
 
-      ws.onopen = () => {
-        reconnectAttemptsRef.current = 0;
-      };
+    ws.onopen = () => {
+      reconnectAttemptsRef.current = 0;
+    };
 
-      ws.onmessage = (event) => {
-        try {
-          const msg = JSON.parse(event.data as string) as {
-            event: string;
-            data: PushNotification;
-          };
-          if (msg.event === "notification") {
-            setNotifications((prev) => {
-              if (prev.some((n) => n.id === msg.data.id)) return prev;
-              return [msg.data, ...prev];
-            });
-          }
-        } catch {
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data as string) as {
+          event: string;
+          data: PushNotification;
+        };
+        if (msg.event === 'notification') {
+          setNotifications((prev) => {
+            if (prev.some((n) => n.id === msg.data.id)) return prev;
+            return [msg.data, ...prev];
+          });
         }
-      };
+      } catch {}
+    };
 
-      ws.onclose = () => {
-        if (!mountedRef.current || !token) return;
-        if (reconnectAttemptsRef.current >= WS_MAX_RECONNECT_ATTEMPTS) return;
-        reconnectAttemptsRef.current += 1;
-        reconnectTimerRef.current = setTimeout(() => {
-          if (mountedRef.current) connect(token);
-        }, WS_RECONNECT_DELAY_MS);
-      };
+    ws.onclose = () => {
+      if (!mountedRef.current || !token) return;
+      if (reconnectAttemptsRef.current >= WS_MAX_RECONNECT_ATTEMPTS) return;
+      reconnectAttemptsRef.current += 1;
+      reconnectTimerRef.current = setTimeout(() => {
+        if (mountedRef.current) connect(token);
+      }, WS_RECONNECT_DELAY_MS);
+    };
 
-      ws.onerror = () => {
-      };
-    },
-    [],
-  );
+    ws.onerror = () => {};
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -134,11 +124,10 @@ export function NotificationsProvider({ children }: React.PropsWithChildren<{}>)
       if (!adminToken) return;
       try {
         await fetch(`/api/notifications/${id}/dismiss`, {
-          method: "POST",
+          method: 'POST',
           headers: { Authorization: `Bearer ${adminToken}` },
         });
-      } catch {
-      }
+      } catch {}
     },
     [adminToken],
   );
@@ -150,7 +139,7 @@ export function NotificationsProvider({ children }: React.PropsWithChildren<{}>)
     await Promise.all(
       ids.map((id) =>
         fetch(`/api/notifications/${id}/dismiss`, {
-          method: "POST",
+          method: 'POST',
           headers: { Authorization: `Bearer ${adminToken}` },
         }).catch(() => {}),
       ),
@@ -160,9 +149,7 @@ export function NotificationsProvider({ children }: React.PropsWithChildren<{}>)
   const undismissedCount = notifications.length;
 
   return (
-    <NotificationsContext.Provider
-      value={{ notifications, dismiss, dismissAll, undismissedCount }}
-    >
+    <NotificationsContext.Provider value={{ notifications, dismiss, dismissAll, undismissedCount }}>
       {children}
     </NotificationsContext.Provider>
   );

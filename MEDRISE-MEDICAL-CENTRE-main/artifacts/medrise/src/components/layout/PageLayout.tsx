@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
-import { Layout } from "./Layout";
+import React, { useEffect } from 'react';
+
+import { Layout } from './Layout';
 
 type PageLayoutProps = {
   title?: string;
@@ -13,8 +14,8 @@ export function PageLayout({ title, description, children }: PageLayoutProps) {
     if (description) {
       let el = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
       if (!el) {
-        el = document.createElement("meta");
-        el.name = "description";
+        el = document.createElement('meta');
+        el.name = 'description';
         document.head.appendChild(el);
       }
       el.content = description;

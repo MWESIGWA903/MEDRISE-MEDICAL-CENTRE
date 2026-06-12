@@ -29,7 +29,10 @@ module.exports = {
       version: 'detect',
     },
     'import/resolver': {
-      typescript: {},
+      typescript: {
+        alwaysTryTypes: true,
+        project: './tsconfig.base.json',
+      },
     },
   },
   rules: {

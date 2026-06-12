@@ -1,7 +1,8 @@
-import { ReactNode } from "react";
-import { Redirect } from "wouter";
-import { useAuth } from "@/lib/auth";
-import { Spinner } from "@/components/ui/spinner";
+import { ReactNode } from 'react';
+import { Redirect } from 'wouter';
+
+import { Spinner } from '@/components/ui/spinner';
+import { useAuth } from '@/lib/auth';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -37,7 +38,7 @@ export function ProtectedRoute({
     return <Redirect to={redirectTo} />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(adminUser.role ?? "")) {
+  if (allowedRoles && !allowedRoles.includes(adminUser.role ?? '')) {
     return <Redirect to={redirectTo} />;
   }
 

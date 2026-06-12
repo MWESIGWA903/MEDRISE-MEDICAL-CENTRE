@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = "light" | "dark";
+type Theme = 'light' | 'dark';
 
 interface ThemeContextValue {
   theme: Theme;
@@ -9,7 +9,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "light",
+  theme: 'light',
   toggleTheme: () => {},
   setTheme: () => {},
 });
@@ -17,15 +17,15 @@ const ThemeContext = createContext<ThemeContextValue>({
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
-      const stored = localStorage.getItem("medrise_theme");
-      if (stored === "dark" || stored === "light") return stored;
+      const stored = localStorage.getItem('medrise_theme');
+      if (stored === 'dark' || stored === 'light') return stored;
     } catch (_) {}
-    return "light";
+    return 'light';
   });
 
   useEffect(() => {
     try {
-      localStorage.setItem("medrise_theme", theme);
+      localStorage.setItem('medrise_theme', theme);
     } catch (_) {}
     // NOTE: .dark is NOT added to document.documentElement here.
     // Dark mode is scoped inside AdminLayout / StaffLayout containers only,
@@ -33,7 +33,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const setTheme = (t: Theme) => setThemeState(t);
-  const toggleTheme = () => setThemeState(prev => (prev === "light" ? "dark" : "light"));
+  const toggleTheme = () => setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'));
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { MessageCircle, Phone, X } from "lucide-react";
-import { CONTACT_INFO } from "@/lib/constants";
+import { MessageCircle, Phone, X } from 'lucide-react';
+import React, { useState } from 'react';
 
-const MTN_PHONE = "+256770775268";
-const AIRTEL_PHONE = "256751527730";
-const WHATSAPP_MSG = "Hello, I need assistance from MedRise Medical Centre.";
+import { CONTACT_INFO } from '@/lib/constants';
+
+const MTN_PHONE = '+256770775268';
+const AIRTEL_PHONE = '256751527730';
+const WHATSAPP_MSG = 'Hello, I need assistance from MedRise Medical Centre.';
 
 export function WhatsAppButton() {
   const [open, setOpen] = useState(false);
@@ -40,10 +41,10 @@ export function WhatsAppButton() {
 
       {/* Toggle Button */}
       <button
-        onClick={() => setOpen(v => !v)}
-        aria-label={open ? "Close contact menu" : "Contact us"}
+        onClick={() => setOpen((v) => !v)}
+        aria-label={open ? 'Close contact menu' : 'Contact us'}
         className={`h-14 w-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-          open ? "bg-gray-800 text-white" : "bg-[#25D366] text-white animate-pulse-slow"
+          open ? 'bg-gray-800 text-white' : 'bg-[#25D366] text-white animate-pulse-slow'
         }`}
       >
         {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-7 w-7" />}

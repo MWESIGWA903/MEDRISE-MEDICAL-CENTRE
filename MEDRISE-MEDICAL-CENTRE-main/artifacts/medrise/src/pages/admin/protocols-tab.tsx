@@ -1,31 +1,45 @@
-import React, { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Printer, Search, ChevronLeft, BookOpen, AlertTriangle, Heart, Baby, Scissors, Smile, Stethoscope, Pill, Zap } from "lucide-react";
+import {
+  Printer,
+  Search,
+  ChevronLeft,
+  BookOpen,
+  AlertTriangle,
+  Heart,
+  Baby,
+  Scissors,
+  Smile,
+  Stethoscope,
+  Pill,
+  Zap,
+} from 'lucide-react';
+import React, { useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 // ── Protocol data ─────────────────────────────────────────────────────────────
 
 type Protocol = { id: string; title: string; dept: string; category: string; content: string };
 
 const DEPTS = [
-  { id: "all", label: "All Departments", icon: BookOpen },
-  { id: "internal", label: "Internal Medicine", icon: Stethoscope },
-  { id: "surgery", label: "Surgery", icon: Scissors },
-  { id: "emergency", label: "Emergency", icon: Zap },
-  { id: "paediatrics", label: "Paediatrics", icon: Baby },
-  { id: "maternity", label: "Maternity / OB-GYN", icon: Heart },
-  { id: "pharmacy", label: "Pharmacy / Medicines", icon: Pill },
+  { id: 'all', label: 'All Departments', icon: BookOpen },
+  { id: 'internal', label: 'Internal Medicine', icon: Stethoscope },
+  { id: 'surgery', label: 'Surgery', icon: Scissors },
+  { id: 'emergency', label: 'Emergency', icon: Zap },
+  { id: 'paediatrics', label: 'Paediatrics', icon: Baby },
+  { id: 'maternity', label: 'Maternity / OB-GYN', icon: Heart },
+  { id: 'pharmacy', label: 'Pharmacy / Medicines', icon: Pill },
 ];
 
 const PROTOCOLS: Protocol[] = [
   // ─── INTERNAL MEDICINE ─────────────────────────────────────────────────────
   {
-    id: "malaria-uncomplicated",
-    title: "Uncomplicated Malaria Treatment",
-    dept: "internal",
-    category: "Infectious Disease",
+    id: 'malaria-uncomplicated',
+    title: 'Uncomplicated Malaria Treatment',
+    dept: 'internal',
+    category: 'Infectious Disease',
     content: `
 <h2>Uncomplicated Malaria — Treatment Protocol</h2>
 <p><em>For confirmed P. falciparum or mixed species. RDT or microscopy positive.</em></p>
@@ -64,13 +78,13 @@ const PROTOCOLS: Protocol[] = [
   <li>Blood film/RDT Day 3 if persisting symptoms</li>
   <li>Consider severe malaria if vomiting, prostration, high parasitaemia</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "malaria-severe",
-    title: "Severe Malaria Management",
-    dept: "internal",
-    category: "Infectious Disease",
+    id: 'malaria-severe',
+    title: 'Severe Malaria Management',
+    dept: 'internal',
+    category: 'Infectious Disease',
     content: `
 <h2>Severe Malaria — Management Protocol</h2>
 <p><em>Criteria: impaired consciousness, convulsions, severe anaemia (Hb &lt;7), prostration, hypoglycaemia, respiratory distress, haemoglobinuria, hyperparasitaemia (&gt;5%).</em></p>
@@ -109,13 +123,13 @@ const PROTOCOLS: Protocol[] = [
   <li>Urine output target: ≥0.5 mL/kg/hr in adults, ≥1 mL/kg/hr in children</li>
   <li>Avoid excessive IV fluids — risk of pulmonary oedema</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "typhoid",
-    title: "Typhoid Fever (Enteric Fever)",
-    dept: "internal",
-    category: "Infectious Disease",
+    id: 'typhoid',
+    title: 'Typhoid Fever (Enteric Fever)',
+    dept: 'internal',
+    category: 'Infectious Disease',
     content: `
 <h2>Typhoid Fever — Treatment Protocol</h2>
 <p><em>Salmonella typhi / paratyphi infection. Confirmed by culture or clinical diagnosis.</em></p>
@@ -149,13 +163,13 @@ const PROTOCOLS: Protocol[] = [
   <li>Complete full antibiotic course as outpatient</li>
   <li>Food handlers: stool cultures ×3 negative before return to work</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "hypertension",
-    title: "Hypertension Management",
-    dept: "internal",
-    category: "Cardiovascular",
+    id: 'hypertension',
+    title: 'Hypertension Management',
+    dept: 'internal',
+    category: 'Cardiovascular',
     content: `
 <h2>Hypertension — Management Protocol</h2>
 
@@ -200,13 +214,13 @@ const PROTOCOLS: Protocol[] = [
   <li>ECG (LVH assessment)</li>
   <li>Lifestyle: low-salt diet, weight reduction, quit smoking, limit alcohol, exercise</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "diabetes",
-    title: "Type 2 Diabetes Management",
-    dept: "internal",
-    category: "Endocrine",
+    id: 'diabetes',
+    title: 'Type 2 Diabetes Management',
+    dept: 'internal',
+    category: 'Endocrine',
     content: `
 <h2>Type 2 Diabetes — Inpatient Management Protocol</h2>
 
@@ -257,13 +271,13 @@ const PROTOCOLS: Protocol[] = [
   <li>Recheck RBS in 15 minutes; repeat if still &lt;4.0</li>
   <li>Identify and treat cause; adjust insulin doses</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "pneumonia",
-    title: "Community-Acquired Pneumonia (CAP)",
-    dept: "internal",
-    category: "Respiratory",
+    id: 'pneumonia',
+    title: 'Community-Acquired Pneumonia (CAP)',
+    dept: 'internal',
+    category: 'Respiratory',
     content: `
 <h2>Community-Acquired Pneumonia — Treatment Protocol</h2>
 
@@ -306,13 +320,13 @@ const PROTOCOLS: Protocol[] = [
   <li>CXR at 6 weeks (to confirm resolution, exclude malignancy)</li>
   <li>Discharge when: afebrile 24h, RR &lt;24, SpO₂ &gt;94% on room air, eating/drinking</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "sepsis",
-    title: "Sepsis / Septic Shock Protocol",
-    dept: "internal",
-    category: "Critical Care",
+    id: 'sepsis',
+    title: 'Sepsis / Septic Shock Protocol',
+    dept: 'internal',
+    category: 'Critical Care',
     content: `
 <h2>Sepsis — Hour-1 Bundle (Surviving Sepsis Campaign)</h2>
 <p><em>Suspected infection + ≥2 qSOFA: RR ≥22/min, altered mentation, SBP ≤100 mmHg</em></p>
@@ -354,13 +368,13 @@ const PROTOCOLS: Protocol[] = [
   <li>Stress ulcer prophylaxis: Omeprazole 40mg IV OD</li>
   <li>Glucose control: target 6–10 mmol/L</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "anemia",
-    title: "Anaemia Management",
-    dept: "internal",
-    category: "Haematology",
+    id: 'anemia',
+    title: 'Anaemia Management',
+    dept: 'internal',
+    category: 'Haematology',
     content: `
 <h2>Anaemia — Assessment and Management Protocol</h2>
 
@@ -407,15 +421,15 @@ const PROTOCOLS: Protocol[] = [
   <li>Check Hb 1h and 6h post-transfusion</li>
   <li>Document each unit: start time, end time, reaction check at 15 min</li>
 </ul>
-    `
+    `,
   },
 
   // ─── SURGERY ────────────────────────────────────────────────────────────────
   {
-    id: "preop-checklist",
-    title: "Pre-operative Assessment Checklist",
-    dept: "surgery",
-    category: "Perioperative",
+    id: 'preop-checklist',
+    title: 'Pre-operative Assessment Checklist',
+    dept: 'surgery',
+    category: 'Perioperative',
     content: `
 <h2>Pre-operative Assessment & Checklist</h2>
 
@@ -461,13 +475,13 @@ const PROTOCOLS: Protocol[] = [
   <li>Difficult airway / aspiration risk identified</li>
   <li>Blood loss risk: &gt;500 mL blood/products available</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "postop-care",
-    title: "Post-operative Care Protocol",
-    dept: "surgery",
-    category: "Perioperative",
+    id: 'postop-care',
+    title: 'Post-operative Care Protocol',
+    dept: 'surgery',
+    category: 'Perioperative',
     content: `
 <h2>Post-operative Care Protocol</h2>
 
@@ -508,15 +522,15 @@ const PROTOCOLS: Protocol[] = [
   <li>BP &lt;90/60 or tachycardia &gt;100 not explained by pain/fever</li>
   <li>Falling urine output (&lt;0.5 mL/kg/hr for 2 consecutive hours)</li>
 </ul>
-    `
+    `,
   },
 
   // ─── EMERGENCY ──────────────────────────────────────────────────────────────
   {
-    id: "bls-cpr",
-    title: "Basic Life Support / CPR Protocol",
-    dept: "emergency",
-    category: "Resuscitation",
+    id: 'bls-cpr',
+    title: 'Basic Life Support / CPR Protocol',
+    dept: 'emergency',
+    category: 'Resuscitation',
     content: `
 <h2>Basic Life Support — Adult CPR Protocol (2020 Guidelines)</h2>
 
@@ -564,13 +578,13 @@ const PROTOCOLS: Protocol[] = [
     </ul>
   </li>
 </ul>
-    `
+    `,
   },
   {
-    id: "eclampsia",
-    title: "Eclampsia / Severe Pre-eclampsia",
-    dept: "emergency",
-    category: "Obstetric Emergency",
+    id: 'eclampsia',
+    title: 'Eclampsia / Severe Pre-eclampsia',
+    dept: 'emergency',
+    category: 'Obstetric Emergency',
     content: `
 <h2>Eclampsia — Emergency Management Protocol</h2>
 <p><em>Eclampsia: seizures in a pregnant/postpartum woman with pre-eclampsia</em></p>
@@ -620,13 +634,13 @@ const PROTOCOLS: Protocol[] = [
   <li>Continue antihypertensives</li>
   <li>Monitor BP Q4H for 48h</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "shock",
-    title: "Shock Management Protocol",
-    dept: "emergency",
-    category: "Critical Care",
+    id: 'shock',
+    title: 'Shock Management Protocol',
+    dept: 'emergency',
+    category: 'Critical Care',
     content: `
 <h2>Shock — Recognition and Management Protocol</h2>
 <p><em>Shock: inadequate tissue perfusion. SBP &lt;90 mmHg or MAP &lt;65 mmHg + signs of hypoperfusion.</em></p>
@@ -658,15 +672,15 @@ const PROTOCOLS: Protocol[] = [
   <li><strong>Anaphylaxis:</strong> Adrenaline 0.5mg IM (anterolateral thigh); antihistamines; hydrocortisone 200mg IV; fluids</li>
   <li><strong>Tension pneumothorax:</strong> Immediate needle decompression (2nd ICS, MCL) → chest drain</li>
 </ul>
-    `
+    `,
   },
 
   // ─── PAEDIATRICS ────────────────────────────────────────────────────────────
   {
-    id: "imci",
-    title: "IMCI — Integrated Management of Childhood Illness",
-    dept: "paediatrics",
-    category: "General Paediatrics",
+    id: 'imci',
+    title: 'IMCI — Integrated Management of Childhood Illness',
+    dept: 'paediatrics',
+    category: 'General Paediatrics',
     content: `
 <h2>IMCI — Integrated Management of Childhood Illness</h2>
 <p><em>For children 2 months to 5 years. Assess all sick children systematically.</em></p>
@@ -712,13 +726,13 @@ const PROTOCOLS: Protocol[] = [
   <li>Antibiotics: Amoxicillin 15mg/kg oral BD × 7 days</li>
   <li>Vitamin A, Folic acid, Multivitamins</li>
 </ul>
-    `
+    `,
   },
   {
-    id: "neonatal-care",
-    title: "Neonatal Care Protocol",
-    dept: "paediatrics",
-    category: "Neonatology",
+    id: 'neonatal-care',
+    title: 'Neonatal Care Protocol',
+    dept: 'paediatrics',
+    category: 'Neonatology',
     content: `
 <h2>Neonatal Care Protocol — Newborn (0–28 days)</h2>
 
@@ -765,15 +779,15 @@ const PROTOCOLS: Protocol[] = [
   <li>Jaundice within 24h of birth or extending to palms/soles</li>
   <li>Seizures or abnormal movements</li>
 </ul>
-    `
+    `,
   },
 
   // ─── MATERNITY ──────────────────────────────────────────────────────────────
   {
-    id: "pph",
-    title: "Postpartum Haemorrhage (PPH) Management",
-    dept: "maternity",
-    category: "Obstetric Emergency",
+    id: 'pph',
+    title: 'Postpartum Haemorrhage (PPH) Management',
+    dept: 'maternity',
+    category: 'Obstetric Emergency',
     content: `
 <h2>Postpartum Haemorrhage — Management Protocol</h2>
 <p><em>PPH: blood loss ≥500 mL after vaginal delivery or ≥1000 mL after C/S within 24h of delivery</em></p>
@@ -810,15 +824,15 @@ const PROTOCOLS: Protocol[] = [
   <li>Uterine artery ligation</li>
   <li>Subtotal/total hysterectomy (life-saving)</li>
 </ul>
-    `
+    `,
   },
 
   // ─── PHARMACY ───────────────────────────────────────────────────────────────
   {
-    id: "antibiotic-stewardship",
-    title: "Antibiotic Stewardship Guidelines",
-    dept: "pharmacy",
-    category: "Antimicrobials",
+    id: 'antibiotic-stewardship',
+    title: 'Antibiotic Stewardship Guidelines',
+    dept: 'pharmacy',
+    category: 'Antimicrobials',
     content: `
 <h2>Antibiotic Stewardship — Prescribing Guidelines</h2>
 
@@ -860,15 +874,15 @@ const PROTOCOLS: Protocol[] = [
   <li><strong>Metronidazole:</strong> Avoid alcohol; avoid &gt;10 days (peripheral neuropathy)</li>
   <li><strong>Fluoroquinolones:</strong> Avoid in children &lt;18, pregnancy, tendinopathy risk</li>
 </ul>
-    `
+    `,
   },
 ];
 
 // ── Print protocol ─────────────────────────────────────────────────────────────
 
 function printProtocol(p: Protocol) {
-  const deptLabel = DEPTS.find(d => d.id === p.dept)?.label ?? p.dept;
-  const w = window.open("", "_blank");
+  const deptLabel = DEPTS.find((d) => d.id === p.dept)?.label ?? p.dept;
+  const w = window.open('', '_blank');
   if (!w) return;
   w.document.write(`<!DOCTYPE html><html><head><title>${p.title}</title><style>
     body{font-family:Arial,sans-serif;font-size:12px;color:#000;margin:24px;max-width:900px}
@@ -901,13 +915,15 @@ function printProtocol(p: Protocol) {
 // ── Main Tab ───────────────────────────────────────────────────────────────────
 
 export default function ProtocolsTab() {
-  const [dept, setDept] = useState("all");
-  const [search, setSearch] = useState("");
+  const [dept, setDept] = useState('all');
+  const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Protocol | null>(null);
 
-  const filtered = PROTOCOLS.filter(p => {
-    const matchesDept = dept === "all" || p.dept === dept;
-    const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase());
+  const filtered = PROTOCOLS.filter((p) => {
+    const matchesDept = dept === 'all' || p.dept === dept;
+    const matchesSearch =
+      p.title.toLowerCase().includes(search.toLowerCase()) ||
+      p.category.toLowerCase().includes(search.toLowerCase());
     return matchesDept && matchesSearch;
   });
 
@@ -915,17 +931,50 @@ export default function ProtocolsTab() {
     return (
       <div className="p-4 max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={() => setSelected(null)} className="gap-1"><ChevronLeft className="w-4 h-4" /> Back</Button>
+          <Button variant="ghost" size="sm" onClick={() => setSelected(null)} className="gap-1">
+            <ChevronLeft className="w-4 h-4" /> Back
+          </Button>
           <div className="flex-1">
             <h2 className="text-lg font-bold text-[#003087]">{selected.title}</h2>
-            <p className="text-xs text-gray-500">{DEPTS.find(d => d.id === selected.dept)?.label} • {selected.category}</p>
+            <p className="text-xs text-gray-500">
+              {DEPTS.find((d) => d.id === selected.dept)?.label} • {selected.category}
+            </p>
           </div>
-          <Button className="bg-[#003087] hover:bg-[#002060] gap-2" onClick={() => printProtocol(selected)}><Printer className="w-4 h-4" /> Print / Download PDF</Button>
+          <Button
+            className="bg-[#003087] hover:bg-[#002060] gap-2"
+            onClick={() => printProtocol(selected)}
+          >
+            <Printer className="w-4 h-4" /> Print / Download PDF
+          </Button>
         </div>
         <Card className="p-6">
-          <div className="prose prose-sm max-w-none"
-            style={{ fontSize: "13px", lineHeight: "1.6" }}
-            dangerouslySetInnerHTML={{ __html: selected.content.replace(/<h2>/g, '<h2 style="color:#003087;font-size:16px;font-weight:bold;border-bottom:2px solid #003087;padding-bottom:4px;margin-top:16px">').replace(/<h3>/g, '<h3 style="color:#1a3a6b;font-size:13px;font-weight:bold;margin-top:14px;border-left:4px solid #003087;padding-left:8px">').replace(/<table>/g, '<table style="width:100%;border-collapse:collapse;margin:8px 0">').replace(/<th>/g, '<th style="background:#e8efff;border:1px solid #aab;padding:6px 10px;text-align:left;font-size:12px">').replace(/<td>/g, '<td style="border:1px solid #ddd;padding:6px 10px;font-size:12px">') }} />
+          <div
+            className="prose prose-sm max-w-none"
+            style={{ fontSize: '13px', lineHeight: '1.6' }}
+            dangerouslySetInnerHTML={{
+              __html: selected.content
+                .replace(
+                  /<h2>/g,
+                  '<h2 style="color:#003087;font-size:16px;font-weight:bold;border-bottom:2px solid #003087;padding-bottom:4px;margin-top:16px">',
+                )
+                .replace(
+                  /<h3>/g,
+                  '<h3 style="color:#1a3a6b;font-size:13px;font-weight:bold;margin-top:14px;border-left:4px solid #003087;padding-left:8px">',
+                )
+                .replace(
+                  /<table>/g,
+                  '<table style="width:100%;border-collapse:collapse;margin:8px 0">',
+                )
+                .replace(
+                  /<th>/g,
+                  '<th style="background:#e8efff;border:1px solid #aab;padding:6px 10px;text-align:left;font-size:12px">',
+                )
+                .replace(
+                  /<td>/g,
+                  '<td style="border:1px solid #ddd;padding:6px 10px;font-size:12px">',
+                ),
+            }}
+          />
         </Card>
       </div>
     );
@@ -934,21 +983,33 @@ export default function ProtocolsTab() {
   return (
     <div className="p-4 space-y-4">
       <div>
-        <h1 className="text-xl font-bold text-[#003087] flex items-center gap-2"><BookOpen className="w-5 h-5" /> Clinical Protocols & Guidelines</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Evidence-based treatment protocols — printable as PDF for each department</p>
+        <h1 className="text-xl font-bold text-[#003087] flex items-center gap-2">
+          <BookOpen className="w-5 h-5" /> Clinical Protocols & Guidelines
+        </h1>
+        <p className="text-sm text-gray-500 mt-0.5">
+          Evidence-based treatment protocols — printable as PDF for each department
+        </p>
       </div>
 
       {/* Department filters */}
       <div className="flex flex-wrap gap-2">
-        {DEPTS.map(d => {
+        {DEPTS.map((d) => {
           const Icon = d.icon;
-          const count = d.id === "all" ? PROTOCOLS.length : PROTOCOLS.filter(p => p.dept === d.id).length;
+          const count =
+            d.id === 'all' ? PROTOCOLS.length : PROTOCOLS.filter((p) => p.dept === d.id).length;
           return (
-            <button key={d.id} onClick={() => setDept(d.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm transition-all ${dept === d.id ? "bg-[#003087] text-white border-[#003087]" : "bg-white text-gray-700 border-gray-200 hover:border-[#003087] hover:text-[#003087]"}`}>
+            <button
+              key={d.id}
+              onClick={() => setDept(d.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm transition-all ${dept === d.id ? 'bg-[#003087] text-white border-[#003087]' : 'bg-white text-gray-700 border-gray-200 hover:border-[#003087] hover:text-[#003087]'}`}
+            >
               <Icon className="w-3.5 h-3.5" />
               {d.label}
-              <span className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${dept === d.id ? "bg-white/20" : "bg-gray-100"}`}>{count}</span>
+              <span
+                className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${dept === d.id ? 'bg-white/20' : 'bg-gray-100'}`}
+              >
+                {count}
+              </span>
             </button>
           );
         })}
@@ -956,27 +1017,48 @@ export default function ProtocolsTab() {
 
       <div className="relative">
         <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-        <Input placeholder="Search protocols…" className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+        <Input
+          placeholder="Search protocols…"
+          className="pl-9"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-        {filtered.map(p => {
-          const deptInfo = DEPTS.find(d => d.id === p.dept);
+        {filtered.map((p) => {
+          const deptInfo = DEPTS.find((d) => d.id === p.dept);
           const Icon = deptInfo?.icon ?? BookOpen;
           return (
-            <Card key={p.id} className="p-4 cursor-pointer hover:shadow-md hover:border-[#003087]/30 transition-all group" onClick={() => setSelected(p)}>
+            <Card
+              key={p.id}
+              className="p-4 cursor-pointer hover:shadow-md hover:border-[#003087]/30 transition-all group"
+              onClick={() => setSelected(p)}
+            >
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#003087]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#003087]/20 transition-colors">
                   <Icon className="w-4.5 h-4.5 text-[#003087]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm text-[#003087] group-hover:underline">{p.title}</h3>
+                  <h3 className="font-semibold text-sm text-[#003087] group-hover:underline">
+                    {p.title}
+                  </h3>
                   <p className="text-xs text-gray-500 mt-0.5">{deptInfo?.label}</p>
-                  <Badge className="mt-1.5 bg-gray-50 text-gray-600 border border-gray-200 text-xs">{p.category}</Badge>
+                  <Badge className="mt-1.5 bg-gray-50 text-gray-600 border border-gray-200 text-xs">
+                    {p.category}
+                  </Badge>
                 </div>
               </div>
               <div className="flex justify-end mt-3">
-                <Button size="sm" variant="outline" className="h-7 text-xs gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => { e.stopPropagation(); printProtocol(p); }}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    printProtocol(p);
+                  }}
+                >
                   <Printer className="w-3 h-3" /> Print
                 </Button>
               </div>

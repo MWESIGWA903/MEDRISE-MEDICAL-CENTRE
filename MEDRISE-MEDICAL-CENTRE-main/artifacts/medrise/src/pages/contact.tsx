@@ -1,8 +1,9 @@
-import React from 'react';
-import { Layout } from '@/components/layout/Layout';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
-import { CONTACT_INFO } from '@/lib/constants';
+import React from 'react';
+
+import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
+import { CONTACT_INFO } from '@/lib/constants';
 
 export default function Contact() {
   return (
