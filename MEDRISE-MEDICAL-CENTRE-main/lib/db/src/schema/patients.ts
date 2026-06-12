@@ -33,5 +33,5 @@ export const insertPatientSchema = createInsertSchema(patientsTable).omit({
   updatedAt: true,
 });
 
-export type InsertPatient = z.infer<typeof insertPatientSchema>;
+export type InsertPatient = typeof patientsTable.$inferInsert;
 export type Patient = typeof patientsTable.$inferSelect;

@@ -23,5 +23,5 @@ export const insertAttendanceSchema = createInsertSchema(attendanceTable).omit({
   updatedAt: true,
 });
 
-export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
+export type InsertAttendance = typeof attendanceTable.$inferInsert;
 export type Attendance = typeof attendanceTable.$inferSelect;

@@ -5,6 +5,7 @@ services:
     plan: free
     region: oregon
     rootDir: .
+    packageManager: pnpm
     buildCommand: echo "Using pre-built bundle"
     startCommand: node --enable-source-maps ./artifacts/api-server/dist/index.mjs
     healthCheckPath: /api/healthz

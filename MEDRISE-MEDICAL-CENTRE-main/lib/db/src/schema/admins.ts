@@ -23,5 +23,5 @@ export const adminsTable = pgTable("admins", {
 
 export const insertAdminSchema = createInsertSchema(adminsTable).omit({ id: true });
 
-export type InsertAdmin = z.infer<typeof insertAdminSchema>;
+export type InsertAdmin = typeof adminsTable.$inferInsert;
 export type Admin = typeof adminsTable.$inferSelect;

@@ -39,5 +39,5 @@ export const insertTriageSchema = createInsertSchema(triageTable).omit({
   updatedAt: true,
 });
 
-export type InsertTriage = z.infer<typeof insertTriageSchema>;
+export type InsertTriage = typeof triageTable.$inferInsert;
 export type Triage = typeof triageTable.$inferSelect;

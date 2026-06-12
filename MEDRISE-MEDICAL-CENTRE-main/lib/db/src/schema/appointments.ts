@@ -23,5 +23,5 @@ export const insertAppointmentSchema = createInsertSchema(appointmentsTable).omi
   createdAt: true,
 });
 
-export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
+export type InsertAppointment = typeof appointmentsTable.$inferInsert;
 export type Appointment = typeof appointmentsTable.$inferSelect;

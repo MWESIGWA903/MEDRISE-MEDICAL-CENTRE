@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import {useListPatients,useCreatePatient,} from "@workspace/api-client-react";
+import { useListPatients, useCreatePatient, customFetch, type Patient } from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
 import { PatientCombobox } from "@/components/PatientCombobox";
 import { Baby, Plus, Loader2, Trash2, CheckCircle2, AlertTriangle, Syringe, TrendingUp, Search, ChevronLeft, User, UserPlus } from "lucide-react";
 
@@ -60,17 +61,17 @@ const NUTR_STATUS_STYLE: Record<string, string> = {
 
 function useStats() {
   
-  return useQuery<Stats>({ queryKey: ["paeds", "stats"], enabled: !!adminToken, queryFn: async () => customFetch<Stats>("/api/paediatrics/stats"), refetchInterval: 30000 });
+  return useQuery<Stats>({ queryKey: ["paeds", "stats"], enabled: !!TOKEN(), queryFn: async () => customFetch<Stats>("/api/paediatrics/stats"), refetchInterval: 30000 });
 }
 function useGrowth(patientId?: number | null) {
   
   const q = patientId ? `?patientId=${patientId}` : "";
-  return useQuery<GrowthRecord[]>({ queryKey: ["paeds", "growth", patientId], enabled: !!adminToken, queryFn: async () => customFetch<GrowthRecord[]>(`/api/paediatrics/growth${q}`), refetchInterval: 30000 });
+  return useQuery<GrowthRecord[]>({ queryKey: ["paeds", "growth", patientId], enabled: !!TOKEN(), queryFn: async () => customFetch<GrowthRecord[]>(`/api/paediatrics/growth${q}`), refetchInterval: 30000 });
 }
 function useImmunizations(patientId?: number | null) {
   
   const q = patientId ? `?patientId=${patientId}` : "";
-  return useQuery<ImmunizationRecord[]>({ queryKey: ["paeds", "immunizations", patientId], enabled: !!adminToken, queryFn: async () => customFetch<ImmunizationRecord[]>(`/api/paediatrics/immunizations${q}`), refetchInterval: 30000 });
+  return useQuery<ImmunizationRecord[]>({ queryKey: ["paeds", "immunizations", patientId], enabled: !!TOKEN(), queryFn: async () => customFetch<ImmunizationRecord[]>(`/api/paediatrics/immunizations${q}`), refetchInterval: 30000 });
 }
 function useCreateGrowth() {
   
@@ -418,7 +419,7 @@ export default function PaediatricsTab() {
   const { data: patients = [] } = useListPatients();
   const createPatient = useCreatePatient();
 
-  const filteredPatients = patients.filter(p =>
+  const filteredPatients = patients.filter((p: Patient) =>
     p.fullName.toLowerCase().includes(patientSearch.toLowerCase()) ||
     (p.phone ?? "").includes(patientSearch)
   );
@@ -524,7 +525,7 @@ export default function PaediatricsTab() {
           <div className="border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
             {filteredPatients.length === 0 ? (
               <div className="p-4 text-center text-sm text-gray-500">No patients found</div>
-            ) : filteredPatients.slice(0, 20).map(p => (
+            ) : filteredPatients.slice(0, 20).map((p: Patient) => (
               <button key={p.id} className="w-full flex items-center gap-3 p-3 hover:bg-blue-50 border-b last:border-0 text-left transition-colors" onClick={() => { setSelectedPatient({ id: p.id, name: p.fullName }); setPatientSearch(""); }}>
                 <div className="w-8 h-8 rounded-full bg-[#003087]/10 flex items-center justify-center flex-shrink-0">
                   <User className="w-4 h-4 text-[#003087]" />
