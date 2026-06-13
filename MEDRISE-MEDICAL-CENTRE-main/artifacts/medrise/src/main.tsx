@@ -6,6 +6,7 @@ import './index.css';
 import { setAuthTokenGetter, setBaseUrl } from '@workspace/api-client-react';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { HelmetProvider } from 'react-helmet-async';
 
 declare global {
   interface Window {
@@ -53,7 +54,9 @@ if ('serviceWorker' in navigator) {
 }
 
 createRoot(document.getElementById('root')!).render(
-  <ErrorBoundary>
-    <App />
-  </ErrorBoundary>,
+  <HelmetProvider>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  </HelmetProvider>,
 );
