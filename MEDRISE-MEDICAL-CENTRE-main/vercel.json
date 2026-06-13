@@ -1,14 +1,8 @@
 {
   "version": 2,
-  "installCommand": "pnpm install --no-frozen-lockfile",
   "buildCommand": "pnpm --filter @workspace/medrise build",
-  "builds": [
-    {
-      "src": "artifacts/medrise/package.json",
-      "use": "@vercel/static-build",
-       "config": {
-        "distDir": "dist/public"
-      }
-    }
-  ]
+  "outputDirectory": "artifacts/medrise/dist/public",
+  "installCommand": "corepack enable && pnpm install --no-frozen-lockfile",
+  "framework": null,
+  "devCommand": null
 }
