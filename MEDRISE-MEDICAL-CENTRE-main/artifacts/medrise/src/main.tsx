@@ -14,14 +14,13 @@ declare global {
   }
 }
 
-// Set API base URL with proper fallback chain
+// Set API base URL from environment variables only (NO HARDCODED URLS)
 const _apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_RENDER_URL;
-if (_apiUrl) {
-  setBaseUrl(_apiUrl);
-} else {
-  // Fallback to production Render backend URL
-  setBaseUrl('https://medrise-api-v8iz.onrender.com');
+if (!_apiUrl) {
+  console.error('VITE_API_URL or VITE_RENDER_URL environment variable must be set');
+  throw new Error('API base URL not configured. Please set VITE_API_URL or VITE_RENDER_URL environment variable.');
 }
+setBaseUrl(_apiUrl);
 // Attach auth token to all API client requests
 setAuthTokenGetter(() => localStorage.getItem('medrise_admin_token'));
 

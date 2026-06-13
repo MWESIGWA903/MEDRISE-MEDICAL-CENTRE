@@ -15,7 +15,7 @@ const db = drizzle(pool);
 
 const SEED_ADMIN = {
   username: "Hannington",
-  password: "Hannington123!",
+  password: "admin123",
   name: "Dr. Hannington",
   role: "medical_director",
   title: "Medical Director",

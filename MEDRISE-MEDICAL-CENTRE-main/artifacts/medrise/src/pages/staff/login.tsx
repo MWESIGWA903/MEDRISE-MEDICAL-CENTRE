@@ -128,10 +128,10 @@ export default function StaffLogin() {
   const onResetRequest = async (values: z.infer<typeof resetRequestSchema>) => {
     setResetPending(true);
     try {
-      const apiUrl =
-        import.meta.env.VITE_API_URL ||
-        import.meta.env.VITE_RENDER_URL ||
-        'https://medrise-api-v8iz.onrender.com';
+      const apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_RENDER_URL;
+      if (!apiUrl) {
+        throw new Error('API base URL not configured. Please set VITE_API_URL or VITE_RENDER_URL environment variable.');
+      }
       const res = await fetch(`${apiUrl}/api/admin/password-reset/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -158,10 +158,10 @@ export default function StaffLogin() {
   const onResetConfirm = async (values: z.infer<typeof resetConfirmSchema>) => {
     setResetPending(true);
     try {
-      const apiUrl =
-        import.meta.env.VITE_API_URL ||
-        import.meta.env.VITE_RENDER_URL ||
-        'https://medrise-api-v8iz.onrender.com';
+      const apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_RENDER_URL;
+      if (!apiUrl) {
+        throw new Error('API base URL not configured. Please set VITE_API_URL or VITE_RENDER_URL environment variable.');
+      }
       const res = await fetch(`${apiUrl}/api/admin/password-reset/confirm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
