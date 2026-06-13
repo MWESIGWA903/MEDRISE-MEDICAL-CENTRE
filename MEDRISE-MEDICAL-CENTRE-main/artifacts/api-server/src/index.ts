@@ -65,6 +65,31 @@ async function start() {
     if (err) { logger.error({ err }, "Error listening on port"); process.exit(1); }
     logger.info({ port }, "Server listening");
   });
+
+  // Graceful shutdown handlers
+  const shutdown = async (signal: string) => {
+    logger.info({ signal }, "Shutdown signal received");
+    
+    // Stop accepting new connections
+    server.close(() => {
+      logger.info("HTTP server closed");
+    });
+
+    // Give existing connections time to close gracefully
+    setTimeout(() => {
+      logger.info("Forcing shutdown after timeout");
+      process.exit(0);
+    }, 10000);
+
+    // Exit gracefully after server closes
+    server.on('close', () => {
+      logger.info("Graceful shutdown complete");
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 start().catch((err) => { logger.error({ err }, "Startup failed"); process.exit(1); });
