@@ -1,11 +1,22 @@
 import { Shield, Target, Heart } from 'lucide-react';
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 import { Layout } from '@/components/layout/Layout';
 
 export default function About() {
   return (
     <Layout>
+      <Helmet>
+        <title>About Us | MedRise Medical Centre</title>
+        <meta name="description" content="Learn about MedRise Medical Centre in Matugga, Wakiso District. Our mission, vision, and core values of compassion, excellence, integrity, and respect." />
+        <link rel="canonical" href="https://medrise-medical-centre-medrise.vercel.app/about" />
+        <meta property="og:title" content="About Us | MedRise Medical Centre" />
+        <meta property="og:description" content="Learn about MedRise Medical Centre in Matugga, Wakiso District. Our mission, vision, and core values." />
+        <meta property="og:url" content="https://medrise-medical-centre-medrise.vercel.app/about" />
+        <meta name="twitter:title" content="About Us | MedRise Medical Centre" />
+        <meta name="twitter:description" content="Learn about MedRise Medical Centre in Matugga, Wakiso District. Our mission, vision, and core values." />
+      </Helmet>
       {/* Page Header */}
       <section className="bg-primary/5 py-16 border-b border-primary/10">
         <div className="container mx-auto px-4 text-center">

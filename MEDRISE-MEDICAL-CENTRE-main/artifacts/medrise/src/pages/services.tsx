@@ -12,6 +12,7 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 import { Layout } from '@/components/layout/Layout';
 import { DEPARTMENTS } from '@/lib/constants';
@@ -108,6 +109,16 @@ const COLOR_MAP: Record<string, { bg: string; text: string; border: string; badg
 export default function Services() {
   return (
     <Layout>
+      <Helmet>
+        <title>Our Services | MedRise Medical Centre</title>
+        <meta name="description" content="MedRise Medical Centre offers comprehensive healthcare services including general medicine, maternity, laboratory, pharmacy, dental, and specialist care. Open 24/7 in Matugga, Wakiso District." />
+        <link rel="canonical" href="https://medrise-medical-centre-medrise.vercel.app/services" />
+        <meta property="og:title" content="Our Services | MedRise Medical Centre" />
+        <meta property="og:description" content="Comprehensive healthcare services including general medicine, maternity, laboratory, pharmacy, dental, and specialist care." />
+        <meta property="og:url" content="https://medrise-medical-centre-medrise.vercel.app/services" />
+        <meta name="twitter:title" content="Our Services | MedRise Medical Centre" />
+        <meta name="twitter:description" content="Comprehensive healthcare services including general medicine, maternity, laboratory, pharmacy, dental, and specialist care." />
+      </Helmet>
       {/* Page Header */}
       <section className="bg-primary/5 py-16 border-b border-primary/10">
         <div className="container mx-auto px-4 text-center">

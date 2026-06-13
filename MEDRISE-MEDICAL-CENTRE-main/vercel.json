@@ -1,14 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "pnpm --filter @workspace/medrise build",
+  "buildCommand": "pnpm --filter @workspace/medrise build:ssg",
   "outputDirectory": "artifacts/medrise/dist/public",
   "installCommand": "corepack enable && pnpm install --no-frozen-lockfile",
   "framework": null,
-  "devCommand": null,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  "devCommand": null
 }

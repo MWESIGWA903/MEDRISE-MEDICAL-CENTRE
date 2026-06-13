@@ -1,5 +1,6 @@
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +9,16 @@ import { CONTACT_INFO } from '@/lib/constants';
 export default function Contact() {
   return (
     <Layout>
+      <Helmet>
+        <title>Contact Us | MedRise Medical Centre</title>
+        <meta name="description" content="Contact MedRise Medical Centre in Matugga, Wakiso District. Call +256 770 775268 or +256 751 527730. Email medrisemedicalcentre@gmail.com. Open 24/7 for emergencies." />
+        <link rel="canonical" href="https://medrise-medical-centre-medrise.vercel.app/contact" />
+        <meta property="og:title" content="Contact Us | MedRise Medical Centre" />
+        <meta property="og:description" content="Contact MedRise Medical Centre in Matugga, Wakiso District. Open 24/7 for emergencies." />
+        <meta property="og:url" content="https://medrise-medical-centre-medrise.vercel.app/contact" />
+        <meta name="twitter:title" content="Contact Us | MedRise Medical Centre" />
+        <meta name="twitter:description" content="Contact MedRise Medical Centre in Matugga, Wakiso District. Open 24/7 for emergencies." />
+      </Helmet>
       <section className="bg-primary/5 py-16 border-b border-primary/10">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold text-primary mb-4">Contact Us</h1>

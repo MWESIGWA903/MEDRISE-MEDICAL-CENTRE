@@ -1,6 +1,7 @@
 import { useSubmitFeedback } from '@workspace/api-client-react';
 import { Star, CheckCircle2, MessageSquareHeart } from 'lucide-react';
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,16 @@ export default function FeedbackPage() {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Share Your Experience | MedRise Medical Centre</title>
+        <meta name="description" content="Share your feedback about MedRise Medical Centre. Your experience helps us improve our healthcare services in Matugga, Wakiso District." />
+        <link rel="canonical" href="https://medrise-medical-centre-medrise.vercel.app/feedback" />
+        <meta property="og:title" content="Share Your Experience | MedRise Medical Centre" />
+        <meta property="og:description" content="Share your feedback about MedRise Medical Centre. Your experience helps us improve our healthcare services." />
+        <meta property="og:url" content="https://medrise-medical-centre-medrise.vercel.app/feedback" />
+        <meta name="twitter:title" content="Share Your Experience | MedRise Medical Centre" />
+        <meta name="twitter:description" content="Share your feedback about MedRise Medical Centre. Your experience helps us improve our healthcare services." />
+      </Helmet>
       <section className="bg-primary/5 py-16 border-b border-primary/10">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">

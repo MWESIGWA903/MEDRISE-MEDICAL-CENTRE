@@ -5,6 +5,7 @@ import { CalendarIcon, Loader2 } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { Helmet } from 'react-helmet-async';
 
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -135,6 +136,16 @@ export default function Appointment() {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Book an Appointment | MedRise Medical Centre</title>
+        <meta name="description" content="Schedule your appointment at MedRise Medical Centre in Matugga, Wakiso District. Book online for general medicine, maternity, laboratory, pharmacy, dental, and specialist care." />
+        <link rel="canonical" href="https://medrise-medical-centre-medrise.vercel.app/appointment" />
+        <meta property="og:title" content="Book an Appointment | MedRise Medical Centre" />
+        <meta property="og:description" content="Schedule your appointment at MedRise Medical Centre. Book online for comprehensive healthcare services." />
+        <meta property="og:url" content="https://medrise-medical-centre-medrise.vercel.app/appointment" />
+        <meta name="twitter:title" content="Book an Appointment | MedRise Medical Centre" />
+        <meta name="twitter:description" content="Schedule your appointment at MedRise Medical Centre. Book online for comprehensive healthcare services." />
+      </Helmet>
       <section className="bg-primary/5 py-16 border-b border-primary/10">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold text-primary mb-4">Book an Appointment</h1>
