@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /patient
 Disallow: /staff
 
-Sitemap: https://medrise-medical-centre.netlify.app/sitemap.xml
+Sitemap: https://medrise-medical-centre-medrise.vercel.app/sitemap.xml

@@ -1,15 +1,22 @@
-import React from 'react';
-
-import { Layout } from '@/components/layout/Layout';
+import { Helmet } from 'react-helmet-async';
 
 export default function PrivacyPage() {
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
-        <h1 className="text-3xl font-bold text-primary mb-2">
-          Privacy Policy &amp; Medical Disclaimer
-        </h1>
-        <p className="text-muted-foreground mb-10 text-sm">Last updated: May 2026</p>
+    <>
+      <Helmet>
+        <title>Privacy Policy | MedRise Medical Centre</title>
+        <meta name="description" content="Privacy Policy and Medical Disclaimer for MedRise Medical Centre. Learn how we protect your personal and medical information." />
+      </Helmet>
+      
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div className="bg-blue-900 px-6 py-8">
+              <h1 className="text-3xl font-bold text-white">Privacy Policy & Medical Disclaimer</h1>
+              <p className="text-blue-200 mt-2">Last Updated: June 13, 2026</p>
+            </div>
+            
+            <div className="px-6 py-8 prose prose-blue max-w-none">
 
         {/* Privacy Policy */}
         <section className="mb-12">
@@ -130,18 +137,23 @@ export default function PrivacyPage() {
               <h3 className="text-lg font-semibold mb-2">9. Contact Us</h3>
               <p>
                 For any privacy-related queries or to exercise your rights, contact us at:
-                <br />
-                <strong>MedRise Medical Centre</strong>
-                <br />
-                Lwadda A, Matugga, Wakiso District, Uganda
-                <br />
-                Email: info@medrise.ug
-                <br />
-                Phone: Available on our{' '}
-                <a href="/contact" className="text-primary underline">
-                  Contact page
-                </a>
               </p>
+              <div className="bg-gray-50 p-4 rounded-lg mt-2">
+                <p className="text-gray-700 mb-2">
+                  <strong>MedRise Medical Centre</strong><br />
+                  Lwadda A, Matugga<br />
+                  Wakiso District, Uganda
+                </p>
+                <p className="text-gray-700 mb-2">
+                  <strong>Email:</strong> medrisemedicalcentre@gmail.com
+                </p>
+                <p className="text-gray-700 mb-2">
+                  <strong>Phone:</strong> +256 770 775268 | +256 751 527730
+                </p>
+                <p className="text-gray-700">
+                  <strong>WhatsApp:</strong> https://wa.me/256751527730
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -216,16 +228,10 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div className="border-t pt-6 text-sm text-muted-foreground">
-          <p>
-            If you have any questions about this policy, please{' '}
-            <a href="/contact" className="text-primary underline">
-              contact us
-            </a>
-            .
-          </p>
+            </div>
+          </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

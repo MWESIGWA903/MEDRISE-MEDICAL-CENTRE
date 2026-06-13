@@ -23,6 +23,7 @@ import PrivacyPage from '@/pages/privacy';
 import Services from '@/pages/services';
 import StaffDashboard from '@/pages/staff/dashboard';
 import StaffLogin from '@/pages/staff/login';
+import Terms from '@/pages/terms';
 
 const ADMIN_ROLES = ['admin', 'owner', 'medical_director'];
 const STAFF_ROLES = [
@@ -60,6 +61,7 @@ function Router() {
       <Route path="/appointment" component={Appointment} />
       <Route path="/feedback" component={FeedbackPage} />
       <Route path="/privacy" component={PrivacyPage} />
+      <Route path="/terms" component={Terms} />
 
       {/* ─── Admin Portal ────────────────────────────────────────── */}
       <Route path="/admin/login">
