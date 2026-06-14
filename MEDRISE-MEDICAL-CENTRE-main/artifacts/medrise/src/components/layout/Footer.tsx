@@ -77,6 +77,14 @@ export function Footer() {
                   Privacy Policy
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-primary-foreground/80 hover:text-white transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -138,6 +146,10 @@ export function Footer() {
           <div className="flex gap-4 mt-2 md:mt-0">
             <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
+            </Link>
+            <span>|</span>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms of Service
             </Link>
             <span>|</span>
             <Link href="/privacy#disclaimer" className="hover:text-white transition-colors">
