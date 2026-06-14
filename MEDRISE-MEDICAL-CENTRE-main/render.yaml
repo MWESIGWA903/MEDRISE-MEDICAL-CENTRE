@@ -4,10 +4,10 @@ services:
     runtime: node
     plan: free
     region: oregon
-    rootDir: .
+    rootDir: artifacts/api-server
     packageManager: pnpm
     buildCommand: echo "Using pre-built bundle"
-    startCommand: node --enable-source-maps ./artifacts/api-server/dist/index.mjs
+    startCommand: node --enable-source-maps ./dist/index.mjs
     healthCheckPath: /api/healthz
     envVars:
       - key: NODE_ENV
