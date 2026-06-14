@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     region: oregon
-    rootDir: artifacts/api-server
+    rootDir: MEDRISE-MEDICAL-CENTRE-main/artifacts/api-server
     packageManager: pnpm
     buildCommand: pnpm build
     startCommand: node --enable-source-maps ./dist/index.mjs
