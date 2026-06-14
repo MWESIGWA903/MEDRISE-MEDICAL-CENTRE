@@ -34,13 +34,6 @@ import { cn } from '@/lib/utils';
 
 const DOCTORS = [
   'Dr. Mwesigwa Hannington',
-  'Dr. Nalwoga Aisha',
-  'Dr. Kizito Emmanuel',
-  'Dr. Namukasa Sarah',
-  'Dr. Ssebuufu Richard',
-  'Dr. Nakiganda Grace',
-  'Midwife Nakato Joan',
-  'Nurse Ssebuliba Peter',
 ];
 
 const formSchema = z.object({

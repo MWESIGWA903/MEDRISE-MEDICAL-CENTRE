@@ -19,7 +19,7 @@ async function clearDemoStaff() {
     console.log(`  - [${a.id}] ${a.username} (${a.role}) — ${a.name}`);
   }
 
-  const KEEP_USERNAMES = ["Hannington"];
+  const KEEP_USERNAMES = ["Hannington", "mwesigwahannington85@gmail.com"];
 
   const toDelete = all.filter(a => !KEEP_USERNAMES.includes(a.username));
   if (toDelete.length === 0) {

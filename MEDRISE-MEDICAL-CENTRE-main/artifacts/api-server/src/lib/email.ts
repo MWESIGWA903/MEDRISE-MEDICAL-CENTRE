@@ -56,20 +56,51 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
   // ── Try Resend first (no IP blocking from cloud servers) ──────────────────
   const resend = createResendClient();
   if (resend) {
-    try {
-      const { data, error } = await resend.emails.send({
-        from: RESEND_FROM,
-        to: [to],
-        subject,
-        html,
-      });
-      if (!error) {
-        logger.info({ to, id: data?.id, transport: "resend" }, `Email sent: ${subject}`);
-        return;
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        const { data, error } = await resend.emails.send({
+          from: RESEND_FROM,
+          to: [to],
+          subject,
+          html,
+        });
+        
+        if (!error) {
+          logger.info({ to, id: data?.id, transport: "resend" }, `Email sent: ${subject}`);
+          return;
+        }
+        
+        // Check for rate limit error (429) or permission denied
+        if (error.statusCode === 429) {
+          retryCount++;
+          if (retryCount < maxRetries) {
+            const delayMs = Math.pow(2, retryCount) * 1000; // Exponential backoff: 2s, 4s, 8s
+            logger.warn({ to, retryCount, delayMs }, "Resend: Rate limit hit, retrying...");
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+            continue;
+          }
+        }
+        
+        logger.error({ error, to }, "Resend: API error — falling back to Gmail SMTP");
+        break; // Exit retry loop and try Gmail
+      } catch (err: any) {
+        // Check for permission denied or high demand model errors
+        const errorMessage = err?.message || String(err);
+        if (errorMessage.includes('permission') || errorMessage.includes('high demand') || errorMessage.includes('rate limit')) {
+          retryCount++;
+          if (retryCount < maxRetries) {
+            const delayMs = Math.pow(2, retryCount) * 1000;
+            logger.warn({ to, retryCount, delayMs, error: errorMessage }, "Resend: Rate/permission error, retrying...");
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+            continue;
+          }
+        }
+        logger.error({ err, to }, "Resend: exception — falling back to Gmail SMTP");
+        break;
       }
-      logger.error({ error, to }, "Resend: API error — falling back to Gmail SMTP");
-    } catch (err) {
-      logger.error({ err, to }, "Resend: exception — falling back to Gmail SMTP");
     }
   }
 

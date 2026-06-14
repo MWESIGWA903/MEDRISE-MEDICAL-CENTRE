@@ -27,7 +27,7 @@ function mapStaff(a: typeof adminsTable.$inferSelect) {
 }
 
 router.get("/staff", async (req, res): Promise<void> => {
-  const rows = await db.select().from(adminsTable).orderBy(adminsTable.name);
+  const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
   res.json(ListStaffResponse.parse(rows.map(mapStaff)));
 });
 
