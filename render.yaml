@@ -5,7 +5,6 @@ services:
     plan: free
     region: oregon
     rootDir: MEDRISE-MEDICAL-CENTRE-main/artifacts/api-server
-    packageManager: pnpm
     buildCommand: pnpm build
     startCommand: node --enable-source-maps ./dist/index.mjs
     healthCheckPath: /api/healthz
