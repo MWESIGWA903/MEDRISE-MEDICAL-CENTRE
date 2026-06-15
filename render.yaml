@@ -4,9 +4,9 @@ services:
     runtime: node
     plan: free
     region: oregon
-    rootDir: MEDRISE-MEDICAL-CENTRE-main/artifacts/api-server
-    buildCommand: pnpm build
-    startCommand: node --enable-source-maps ./dist/index.mjs
+    rootDir: .
+    buildCommand: pnpm --filter @workspace/api-server run build
+    startCommand: node --enable-source-maps ./MEDRISE-MEDICAL-CENTRE-main/artifacts/api-server/dist/index.mjs
     healthCheckPath: /api/healthz
     envVars:
       - key: NODE_ENV
