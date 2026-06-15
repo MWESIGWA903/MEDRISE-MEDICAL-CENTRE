@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, like, or, and, desc, asc, sql } from "drizzle-orm";
 import { db, appointmentsTable } from "@workspace/db";
 import {
   CreateAppointmentBody,
@@ -22,10 +22,41 @@ import { createAndBroadcast } from "../lib/notificationHelper";
 const router: IRouter = Router();
 
 router.get("/appointments", async (req, res): Promise<void> => {
-  const appointments = await db
-    .select()
-    .from(appointmentsTable)
-    .orderBy(appointmentsTable.createdAt);
+  const { search, status, sort } = req.query;
+  
+  let query = db.select().from(appointmentsTable);
+  
+  // Search by patient name, phone, email, or service (department)
+  if (search && typeof search === "string") {
+    const searchTerm = `%${search}%`;
+    query = query.where(
+      or(
+        like(appointmentsTable.patientName, searchTerm),
+        like(appointmentsTable.phone, searchTerm),
+        like(appointmentsTable.email, searchTerm),
+        like(appointmentsTable.service, searchTerm)
+      )
+    );
+  }
+  
+  // Filter by status
+  if (status && typeof status === "string") {
+    query = query.where(eq(appointmentsTable.status, status));
+  }
+  
+  // Sort options
+  if (sort === "newest") {
+    query = query.orderBy(desc(appointmentsTable.createdAt));
+  } else if (sort === "oldest") {
+    query = query.orderBy(asc(appointmentsTable.createdAt));
+  } else if (sort === "date") {
+    query = query.orderBy(asc(appointmentsTable.preferredDate));
+  } else {
+    // Default: newest first
+    query = query.orderBy(desc(appointmentsTable.createdAt));
+  }
+
+  const appointments = await query;
 
   const mapped = appointments.map((a) => ({
     ...a,
@@ -103,6 +134,8 @@ router.get("/appointments/stats/summary", async (req, res): Promise<void> => {
   const total = rows.length;
   const pending = rows.filter((r) => r.status === "pending").length;
   const confirmed = rows.filter((r) => r.status === "confirmed").length;
+  const assigned = rows.filter((r) => r.status === "assigned").length;
+  const rescheduled = rows.filter((r) => r.status === "rescheduled").length;
   const cancelled = rows.filter((r) => r.status === "cancelled").length;
   const completed = rows.filter((r) => r.status === "completed").length;
 
@@ -120,6 +153,8 @@ router.get("/appointments/stats/summary", async (req, res): Promise<void> => {
       total,
       pending,
       confirmed,
+      assigned,
+      rescheduled,
       cancelled,
       completed,
       todayCount,
@@ -198,6 +233,236 @@ router.patch("/appointments/:id", async (req, res): Promise<void> => {
 
   res.json(
     UpdateAppointmentStatusResponse.parse({
+      ...appointment,
+      createdAt: appointment.createdAt.toISOString(),
+    })
+  );
+});
+
+router.patch("/appointments/:id/assign", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const params = UpdateAppointmentStatusParams.safeParse({ id: parseInt(raw, 10) });
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const { staffId } = req.body;
+  if (!staffId || typeof staffId !== "number") {
+    res.status(400).json({ error: "staffId is required and must be a number" });
+    return;
+  }
+
+  const [appointment] = await db
+    .update(appointmentsTable)
+    .set({ 
+      assignedStaffId: staffId,
+      assignedAt: new Date(),
+      status: "assigned"
+    })
+    .where(eq(appointmentsTable.id, params.data.id))
+    .returning();
+
+  if (!appointment) {
+    res.status(404).json({ error: "Appointment not found" });
+    return;
+  }
+
+  res.json(
+    GetAppointmentResponse.parse({
+      ...appointment,
+      createdAt: appointment.createdAt.toISOString(),
+    })
+  );
+});
+
+router.patch("/appointments/:id/reschedule", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const params = UpdateAppointmentStatusParams.safeParse({ id: parseInt(raw, 10) });
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const { preferredDate, preferredTime, reason } = req.body;
+  if (!preferredDate || !preferredTime) {
+    res.status(400).json({ error: "preferredDate and preferredTime are required" });
+    return;
+  }
+
+  // Get current appointment to save original date/time
+  const [currentAppointment] = await db
+    .select()
+    .from(appointmentsTable)
+    .where(eq(appointmentsTable.id, params.data.id));
+
+  if (!currentAppointment) {
+    res.status(404).json({ error: "Appointment not found" });
+    return;
+  }
+
+  // Save original date/time as JSON
+  const rescheduledFrom = JSON.stringify({
+    preferredDate: currentAppointment.preferredDate,
+    preferredTime: currentAppointment.preferredTime,
+  });
+
+  // Update status history
+  let statusHistory = [];
+  if (currentAppointment.statusHistory) {
+    try {
+      statusHistory = JSON.parse(currentAppointment.statusHistory);
+    } catch {
+      statusHistory = [];
+    }
+  }
+  statusHistory.push({
+    from: currentAppointment.status,
+    to: "rescheduled",
+    at: new Date().toISOString(),
+    reason: reason || "Rescheduled by administrator",
+  });
+
+  const [appointment] = await db
+    .update(appointmentsTable)
+    .set({ 
+      preferredDate,
+      preferredTime,
+      rescheduledFrom,
+      rescheduledAt: new Date(),
+      rescheduleReason: reason || null,
+      status: "rescheduled",
+      statusHistory: JSON.stringify(statusHistory),
+    })
+    .where(eq(appointmentsTable.id, params.data.id))
+    .returning();
+
+  if (!appointment) {
+    res.status(404).json({ error: "Appointment not found" });
+    return;
+  }
+
+  res.json(
+    GetAppointmentResponse.parse({
+      ...appointment,
+      createdAt: appointment.createdAt.toISOString(),
+    })
+  );
+});
+
+router.patch("/appointments/:id/complete", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const params = UpdateAppointmentStatusParams.safeParse({ id: parseInt(raw, 10) });
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  // Get current appointment to update status history
+  const [currentAppointment] = await db
+    .select()
+    .from(appointmentsTable)
+    .where(eq(appointmentsTable.id, params.data.id));
+
+  if (!currentAppointment) {
+    res.status(404).json({ error: "Appointment not found" });
+    return;
+  }
+
+  // Update status history
+  let statusHistory = [];
+  if (currentAppointment.statusHistory) {
+    try {
+      statusHistory = JSON.parse(currentAppointment.statusHistory);
+    } catch {
+      statusHistory = [];
+    }
+  }
+  statusHistory.push({
+    from: currentAppointment.status,
+    to: "completed",
+    at: new Date().toISOString(),
+    reason: "Marked as completed",
+  });
+
+  const [appointment] = await db
+    .update(appointmentsTable)
+    .set({ 
+      status: "completed",
+      completedAt: new Date(),
+      statusHistory: JSON.stringify(statusHistory),
+    })
+    .where(eq(appointmentsTable.id, params.data.id))
+    .returning();
+
+  if (!appointment) {
+    res.status(404).json({ error: "Appointment not found" });
+    return;
+  }
+
+  res.json(
+    GetAppointmentResponse.parse({
+      ...appointment,
+      createdAt: appointment.createdAt.toISOString(),
+    })
+  );
+});
+
+router.patch("/appointments/:id/notes", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const params = UpdateAppointmentStatusParams.safeParse({ id: parseInt(raw, 10) });
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const { note } = req.body;
+  if (!note || typeof note !== "string") {
+    res.status(400).json({ error: "note is required and must be a string" });
+    return;
+  }
+
+  // Get current appointment to update notes history
+  const [currentAppointment] = await db
+    .select()
+    .from(appointmentsTable)
+    .where(eq(appointmentsTable.id, params.data.id));
+
+  if (!currentAppointment) {
+    res.status(404).json({ error: "Appointment not found" });
+    return;
+  }
+
+  // Update notes history
+  let notesHistory = [];
+  if (currentAppointment.notesHistory) {
+    try {
+      notesHistory = JSON.parse(currentAppointment.notesHistory);
+    } catch {
+      notesHistory = [];
+    }
+  }
+  notesHistory.push({
+    note,
+    at: new Date().toISOString(),
+  });
+
+  const [appointment] = await db
+    .update(appointmentsTable)
+    .set({ 
+      message: note,
+      notesHistory: JSON.stringify(notesHistory),
+    })
+    .where(eq(appointmentsTable.id, params.data.id))
+    .returning();
+
+  if (!appointment) {
+    res.status(404).json({ error: "Appointment not found" });
+    return;
+  }
+
+  res.json(
+    GetAppointmentResponse.parse({
       ...appointment,
       createdAt: appointment.createdAt.toISOString(),
     })
