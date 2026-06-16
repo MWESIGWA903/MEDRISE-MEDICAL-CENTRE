@@ -19,10 +19,9 @@ const CLINIC_EMAIL = "medrisemedicalcentre@gmail.com";
 const WHATSAPP_URL = "https://wa.me/256751527730";
 
 // ── Email transport ──────────────────────────────────────────────────────────
-// Priority 1: Resend  — cloud-native, no IP blocking, works from Render/AWS.
-//             In test mode only delivers to the Resend account owner's email.
-//             Verified-domain sending unlocks any TO address.
-// Priority 2: Gmail SMTP — fallback; may be blocked from cloud-server IPs.
+// Priority 1: Gmail SMTP — Use Gmail as primary for mwesigwahannington04@gmail.com
+//             Resend test domain (onboarding@resend.dev) only works for account owner
+// Priority 2: Resend  — cloud-native, but test domain has limitations
 // ─────────────────────────────────────────────────────────────────────────────
 const GMAIL_USER = process.env.EMAIL_USER || process.env.GMAIL_USER;
 const GMAIL_PASS = process.env.EMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD;
@@ -59,12 +58,29 @@ function createGmailTransport() {
 }
 
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  logger.info({ to, subject: subject.substring(0, 100) }, "Email send attempt started");
+  const timestamp = new Date().toISOString();
+  logger.info({ to, subject: subject.substring(0, 100), timestamp }, "Email send attempt started");
   
-  // ── Try Resend first (no IP blocking from cloud servers) ──────────────────
+  // ── Try Gmail SMTP first (primary for mwesigwahannington04@gmail.com) ─────────
+  if (USE_GMAIL) {
+    logger.info({ to, from: GMAIL_FROM, timestamp }, "Attempting Gmail SMTP transport (primary)");
+    try {
+      const transport = createGmailTransport();
+      await transport.sendMail({ from: GMAIL_FROM, to, subject, html });
+      logger.info({ to, transport: "gmail", subject: subject.substring(0, 100), timestamp }, "Email sent successfully via Gmail SMTP");
+      return;
+    } catch (err: any) {
+      const errorMessage = err?.message || String(err);
+      logger.error({ error: errorMessage, to, from: GMAIL_FROM, timestamp }, "Gmail SMTP: failed — falling back to Resend");
+    }
+  } else {
+    logger.warn({ timestamp, gmailUser: GMAIL_USER, hasPass: !!GMAIL_PASS }, "Gmail SMTP transport not available (EMAIL_USER or EMAIL_APP_PASSWORD not set) — skipping to Resend");
+  }
+
+  // ── Fallback: Resend (test domain has limitations) ─────────────────────────
   const resend = createResendClient();
   if (resend) {
-    logger.info({ to }, "Attempting Resend transport");
+    logger.info({ to, from: RESEND_FROM, timestamp }, "Attempting Resend transport (fallback)");
     let retryCount = 0;
     const maxRetries = 3;
     
@@ -78,7 +94,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
         });
         
         if (!error) {
-          logger.info({ to, id: data?.id, transport: "resend", subject: subject.substring(0, 100) }, "Email sent successfully via Resend");
+          logger.info({ to, id: data?.id, transport: "resend", subject: subject.substring(0, 100), timestamp }, "Email sent successfully via Resend");
           return;
         }
         
@@ -87,14 +103,14 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
           retryCount++;
           if (retryCount < maxRetries) {
             const delayMs = Math.pow(2, retryCount) * 1000; // Exponential backoff: 2s, 4s, 8s
-            logger.warn({ to, retryCount, delayMs }, "Resend: Rate limit hit, retrying...");
+            logger.warn({ to, retryCount, delayMs, timestamp }, "Resend: Rate limit hit, retrying...");
             await new Promise(resolve => setTimeout(resolve, delayMs));
             continue;
           }
         }
         
-        logger.error({ error: error.message, to, statusCode: error.statusCode }, "Resend: API error — falling back to Gmail SMTP");
-        break; // Exit retry loop and try Gmail
+        logger.error({ error: error.message, to, statusCode: error.statusCode, from: RESEND_FROM, timestamp }, "Resend: API error — no more transports");
+        break; // Exit retry loop
       } catch (err: any) {
         // Check for permission denied or high demand model errors
         const errorMessage = err?.message || String(err);
@@ -102,36 +118,20 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
           retryCount++;
           if (retryCount < maxRetries) {
             const delayMs = Math.pow(2, retryCount) * 1000;
-            logger.warn({ to, retryCount, delayMs, error: errorMessage }, "Resend: Rate/permission error, retrying...");
+            logger.warn({ to, retryCount, delayMs, error: errorMessage, timestamp }, "Resend: Rate/permission error, retrying...");
             await new Promise(resolve => setTimeout(resolve, delayMs));
             continue;
           }
         }
-        logger.error({ error: errorMessage, to }, "Resend: exception — falling back to Gmail SMTP");
+        logger.error({ error: errorMessage, to, from: RESEND_FROM, timestamp }, "Resend: exception — no more transports");
         break;
       }
     }
   } else {
-    logger.warn("Resend transport not available, skipping to Gmail fallback");
+    logger.warn({ timestamp }, "Resend transport not available — no more transports");
   }
 
-  // ── Fallback: Gmail SMTP ───────────────────────────────────────────────────
-  if (USE_GMAIL) {
-    logger.info({ to }, "Attempting Gmail SMTP transport");
-    try {
-      const transport = createGmailTransport();
-      await transport.sendMail({ from: GMAIL_FROM, to, subject, html });
-      logger.info({ to, transport: "gmail", subject: subject.substring(0, 100) }, "Email sent successfully via Gmail SMTP");
-      return;
-    } catch (err: any) {
-      const errorMessage = err?.message || String(err);
-      logger.error({ error: errorMessage, to }, "Gmail SMTP: failed — no more transports");
-    }
-  } else {
-    logger.warn("Gmail SMTP transport not available (EMAIL_USER or EMAIL_APP_PASSWORD not set)");
-  }
-
-  logger.warn({ to, subject: subject.substring(0, 100) }, "Email not sent — no transport succeeded (set RESEND_API_KEY or EMAIL_USER + EMAIL_APP_PASSWORD)");
+  logger.warn({ to, subject: subject.substring(0, 100), timestamp, resendAvailable: !!resend, gmailAvailable: USE_GMAIL }, "Email not sent — no transport succeeded (set EMAIL_USER + EMAIL_APP_PASSWORD or RESEND_API_KEY)");
 }
 
 function baseHtml(content: string): string {
