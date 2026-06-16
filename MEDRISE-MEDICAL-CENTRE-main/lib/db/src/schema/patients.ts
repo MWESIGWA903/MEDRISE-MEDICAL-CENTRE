@@ -4,7 +4,6 @@ import { z } from "zod";
 
 export const patientsTable = pgTable("patients", {
   id: serial("id").primaryKey(),
-  patientId: text("patient_id").notNull().unique(), // Professional Patient ID (e.g., MED-2024-001)
   fullName: text("full_name").notNull(),
   phone: text("phone").notNull(),
   email: text("email"),
@@ -30,7 +29,6 @@ export const patientsTable = pgTable("patients", {
 
 export const insertPatientSchema = createInsertSchema(patientsTable).omit({
   id: true,
-  patientId: true,
   createdAt: true,
   updatedAt: true,
 });

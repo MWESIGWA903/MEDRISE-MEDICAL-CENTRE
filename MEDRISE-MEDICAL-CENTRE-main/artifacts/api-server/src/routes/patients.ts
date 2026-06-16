@@ -16,13 +16,6 @@ import { logAudit } from "../lib/audit";
 
 const router: IRouter = Router();
 
-// Generate professional Patient ID (e.g., MED-2024-001)
-function generatePatientId(): string {
-  const year = new Date().getFullYear();
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  return `MED-${year}-${random}`;
-}
-
 function mapPatient(p: typeof patientsTable.$inferSelect) {
   return {
     ...p,
@@ -42,8 +35,7 @@ router.get("/patients", async (req, res): Promise<void> => {
           or(
             ilike(patientsTable.fullName, `%${search}%`),
             ilike(patientsTable.phone, `%${search}%`),
-            ilike(patientsTable.email, `%${search}%`),
-            ilike(patientsTable.patientId, `%${search}%`)
+            ilike(patientsTable.email, `%${search}%`)
           )
         )
         .orderBy(patientsTable.fullName)
@@ -71,13 +63,9 @@ router.post("/patients", async (req, res): Promise<void> => {
     return;
   }
 
-  // Generate professional Patient ID
-  const patientId = generatePatientId();
-
   const [patient] = await db
     .insert(patientsTable)
     .values({
-      patientId,
       fullName: parsed.data.fullName,
       phone: parsed.data.phone,
       email: parsed.data.email ?? null,
@@ -99,7 +87,7 @@ router.post("/patients", async (req, res): Promise<void> => {
     })
     .returning();
 
-  logAudit(req, "create_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName, patientId }).catch(() => {});
+  logAudit(req, "create_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {});
   res.status(201).json(GetPatientResponse.parse(mapPatient(patient)));
 });
 
