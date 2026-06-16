@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 import { db, adminsTable } from "@workspace/db";
 import {
   ListStaffResponse,
@@ -55,11 +56,13 @@ router.post("/staff", async (req, res): Promise<void> => {
     return;
   }
 
+  const hashedPassword = await bcrypt.hash(parsed.data.password, 12);
+
   const [staff] = await db
     .insert(adminsTable)
     .values({
       username: parsed.data.username,
-      password: parsed.data.password,
+      password: hashedPassword,
       name: parsed.data.name,
       role: parsed.data.role,
       title: parsed.data.title ?? null,
@@ -94,7 +97,9 @@ router.patch("/staff/:id", async (req, res): Promise<void> => {
 
   const updateData: Partial<typeof adminsTable.$inferInsert> = {};
   if (body.data.name !== undefined) updateData.name = body.data.name;
-  if (body.data.password !== undefined) updateData.password = body.data.password;
+  if (body.data.password !== undefined) {
+    updateData.password = await bcrypt.hash(body.data.password, 12);
+  }
   if (body.data.role !== undefined) updateData.role = body.data.role;
   if (body.data.title !== undefined) updateData.title = body.data.title;
   if (body.data.phone !== undefined) updateData.phone = body.data.phone;
