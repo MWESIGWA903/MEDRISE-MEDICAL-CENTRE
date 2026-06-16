@@ -32,8 +32,9 @@ const RESEND_FROM = `${CLINIC_NAME} <onboarding@resend.dev>`;
 const GMAIL_FROM  = USE_GMAIL ? `${CLINIC_NAME} <${GMAIL_USER}>` : RESEND_FROM;
 
 // Where clinic staff notifications are sent.
+// Temporary: Use mwesigwahannington04@gmail.com until domain is available
 const NOTIFICATION_TO =
-  process.env.NOTIFICATION_EMAIL ?? CLINIC_EMAIL;
+  process.env.NOTIFICATION_EMAIL ?? "mwesigwahannington04@gmail.com";
 
 function createResendClient() {
   const apiKey = process.env.RESEND_API_KEY;

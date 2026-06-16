@@ -74,8 +74,8 @@ router.post("/appointments", async (req, res): Promise<void> => {
   };
 
   // Fire-and-forget email sending - do not await
+  // Temporary: Only send clinic notification, not patient confirmation
   void Promise.all([
-    sendAppointmentConfirmationToPatient(apptDetails),
     sendAppointmentNotificationToClinic(apptDetails),
     createAndBroadcast({
       type: "appointment",
