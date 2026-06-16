@@ -26,12 +26,14 @@ router.get("/feedback", async (req, res): Promise<void> => {
 });
 
 router.post("/feedback", async (req, res): Promise<void> => {
+  const startTime = Date.now();
   const parsed = FeedbackInputSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
 
+  const dbStartTime = Date.now();
   const [row] = await db
     .insert(patientFeedbackTable)
     .values({
@@ -43,20 +45,21 @@ router.post("/feedback", async (req, res): Promise<void> => {
       wouldRecommend: parsed.data.wouldRecommend ?? null,
     })
     .returning();
+  const dbEndTime = Date.now();
+  console.log(`Feedback database save completed in ${dbEndTime - dbStartTime}ms`);
 
-  try {
-    await sendFeedbackNotificationToClinic({
-      patientName: row.patientName,
-      phone: row.phone,
-      service: row.service,
-      rating: row.rating,
-      comment: row.comment,
-      wouldRecommend: row.wouldRecommend,
-      submittedAt: row.createdAt.toLocaleString("en-UG", { dateStyle: "full", timeStyle: "short" }),
-    });
-  } catch (err) {
+  // Fire-and-forget email sending - do not await
+  void sendFeedbackNotificationToClinic({
+    patientName: row.patientName,
+    phone: row.phone,
+    service: row.service,
+    rating: row.rating,
+    comment: row.comment,
+    wouldRecommend: row.wouldRecommend,
+    submittedAt: row.createdAt.toLocaleString("en-UG", { dateStyle: "full", timeStyle: "short" }),
+  }).catch((err) => {
     console.error("Failed to send feedback notification:", err);
-  }
+  });
 
   const stars = "★".repeat(row.rating) + "☆".repeat(5 - row.rating);
   void createAndBroadcast({
@@ -67,6 +70,8 @@ router.post("/feedback", async (req, res): Promise<void> => {
     relatedId: row.id,
   });
 
+  const responseTime = Date.now() - startTime;
+  console.log(`Feedback HTTP response returned in ${responseTime}ms`);
   res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 

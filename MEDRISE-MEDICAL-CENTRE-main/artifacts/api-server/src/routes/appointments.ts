@@ -36,12 +36,14 @@ router.get("/appointments", async (req, res): Promise<void> => {
 });
 
 router.post("/appointments", async (req, res): Promise<void> => {
+  const startTime = Date.now();
   const parsed = CreateAppointmentBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
 
+  const dbStartTime = Date.now();
   const [appointment] = await db
     .insert(appointmentsTable)
     .values({
@@ -58,6 +60,8 @@ router.post("/appointments", async (req, res): Promise<void> => {
       status: "pending",
     })
     .returning();
+  const dbEndTime = Date.now();
+  console.log(`Appointment database save completed in ${dbEndTime - dbStartTime}ms`);
 
   const apptDetails = {
     patientName: appointment.patientName,
@@ -69,22 +73,23 @@ router.post("/appointments", async (req, res): Promise<void> => {
     message: appointment.message,
   };
 
-  try {
-    await Promise.all([
-      sendAppointmentConfirmationToPatient(apptDetails),
-      sendAppointmentNotificationToClinic(apptDetails),
-      createAndBroadcast({
-        type: "appointment",
-        title: "New Appointment Request",
-        body: `${appointment.patientName} — ${appointment.service} on ${appointment.preferredDate} at ${appointment.preferredTime}`,
-        severity: "info",
-        relatedId: appointment.id,
-      }),
-    ]);
-  } catch (err) {
+  // Fire-and-forget email sending - do not await
+  void Promise.all([
+    sendAppointmentConfirmationToPatient(apptDetails),
+    sendAppointmentNotificationToClinic(apptDetails),
+    createAndBroadcast({
+      type: "appointment",
+      title: "New Appointment Request",
+      body: `${appointment.patientName} — ${appointment.service} on ${appointment.preferredDate} at ${appointment.preferredTime}`,
+      severity: "info",
+      relatedId: appointment.id,
+    }),
+  ]).catch((err) => {
     console.error("Failed to send appointment notifications:", err);
-  }
+  });
 
+  const responseTime = Date.now() - startTime;
+  console.log(`Appointment HTTP response returned in ${responseTime}ms`);
   res.status(201).json(
     GetAppointmentResponse.parse({
       ...appointment,
@@ -176,20 +181,19 @@ router.patch("/appointments/:id", async (req, res): Promise<void> => {
 
   // Send patient email notification when confirmed or cancelled
   if ((body.data.status === "confirmed" || body.data.status === "cancelled") && appointment.email) {
-    try {
-      await sendAppointmentStatusUpdateToPatient({
-        patientName: appointment.patientName,
-        phone: appointment.phone,
-        email: appointment.email,
-        service: appointment.service,
-        preferredDate: appointment.preferredDate,
-        preferredTime: appointment.preferredTime,
-        message: appointment.message,
-        status: body.data.status,
-      });
-    } catch (err) {
+    // Fire-and-forget email sending - do not await
+    void sendAppointmentStatusUpdateToPatient({
+      patientName: appointment.patientName,
+      phone: appointment.phone,
+      email: appointment.email,
+      service: appointment.service,
+      preferredDate: appointment.preferredDate,
+      preferredTime: appointment.preferredTime,
+      message: appointment.message,
+      status: body.data.status,
+    }).catch((err) => {
       console.error("Failed to send appointment status update notification:", err);
-    }
+    });
   }
 
   res.json(
