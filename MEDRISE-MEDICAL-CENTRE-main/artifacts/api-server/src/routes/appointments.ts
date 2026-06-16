@@ -69,17 +69,21 @@ router.post("/appointments", async (req, res): Promise<void> => {
     message: appointment.message,
   };
 
-  void Promise.all([
-    sendAppointmentConfirmationToPatient(apptDetails),
-    sendAppointmentNotificationToClinic(apptDetails),
-    createAndBroadcast({
-      type: "appointment",
-      title: "New Appointment Request",
-      body: `${appointment.patientName} — ${appointment.service} on ${appointment.preferredDate} at ${appointment.preferredTime}`,
-      severity: "info",
-      relatedId: appointment.id,
-    }),
-  ]);
+  try {
+    await Promise.all([
+      sendAppointmentConfirmationToPatient(apptDetails),
+      sendAppointmentNotificationToClinic(apptDetails),
+      createAndBroadcast({
+        type: "appointment",
+        title: "New Appointment Request",
+        body: `${appointment.patientName} — ${appointment.service} on ${appointment.preferredDate} at ${appointment.preferredTime}`,
+        severity: "info",
+        relatedId: appointment.id,
+      }),
+    ]);
+  } catch (err) {
+    console.error("Failed to send appointment notifications:", err);
+  }
 
   res.status(201).json(
     GetAppointmentResponse.parse({
@@ -172,16 +176,20 @@ router.patch("/appointments/:id", async (req, res): Promise<void> => {
 
   // Send patient email notification when confirmed or cancelled
   if ((body.data.status === "confirmed" || body.data.status === "cancelled") && appointment.email) {
-    void sendAppointmentStatusUpdateToPatient({
-      patientName: appointment.patientName,
-      phone: appointment.phone,
-      email: appointment.email,
-      service: appointment.service,
-      preferredDate: appointment.preferredDate,
-      preferredTime: appointment.preferredTime,
-      message: appointment.message,
-      status: body.data.status,
-    });
+    try {
+      await sendAppointmentStatusUpdateToPatient({
+        patientName: appointment.patientName,
+        phone: appointment.phone,
+        email: appointment.email,
+        service: appointment.service,
+        preferredDate: appointment.preferredDate,
+        preferredTime: appointment.preferredTime,
+        message: appointment.message,
+        status: body.data.status,
+      });
+    } catch (err) {
+      console.error("Failed to send appointment status update notification:", err);
+    }
   }
 
   res.json(

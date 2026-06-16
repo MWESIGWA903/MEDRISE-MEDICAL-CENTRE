@@ -44,15 +44,19 @@ router.post("/feedback", async (req, res): Promise<void> => {
     })
     .returning();
 
-  sendFeedbackNotificationToClinic({
-    patientName: row.patientName,
-    phone: row.phone,
-    service: row.service,
-    rating: row.rating,
-    comment: row.comment,
-    wouldRecommend: row.wouldRecommend,
-    submittedAt: row.createdAt.toLocaleString("en-UG", { dateStyle: "full", timeStyle: "short" }),
-  });
+  try {
+    await sendFeedbackNotificationToClinic({
+      patientName: row.patientName,
+      phone: row.phone,
+      service: row.service,
+      rating: row.rating,
+      comment: row.comment,
+      wouldRecommend: row.wouldRecommend,
+      submittedAt: row.createdAt.toLocaleString("en-UG", { dateStyle: "full", timeStyle: "short" }),
+    });
+  } catch (err) {
+    console.error("Failed to send feedback notification:", err);
+  }
 
   const stars = "★".repeat(row.rating) + "☆".repeat(5 - row.rating);
   void createAndBroadcast({

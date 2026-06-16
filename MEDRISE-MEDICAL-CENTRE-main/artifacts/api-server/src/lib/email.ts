@@ -37,12 +37,17 @@ const NOTIFICATION_TO =
 
 function createResendClient() {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    logger.warn("RESEND_API_KEY not set - Resend transport unavailable");
+    return null;
+  }
+  logger.info("Resend transport created successfully");
   return new Resend(apiKey);
 }
 
 function createGmailTransport() {
   const pass = GMAIL_PASS!.replace(/\s+/g, "");
+  logger.info({ user: GMAIL_USER }, "Gmail SMTP transport created");
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -53,9 +58,12 @@ function createGmailTransport() {
 }
 
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  logger.info({ to, subject: subject.substring(0, 100) }, "Email send attempt started");
+  
   // ── Try Resend first (no IP blocking from cloud servers) ──────────────────
   const resend = createResendClient();
   if (resend) {
+    logger.info({ to }, "Attempting Resend transport");
     let retryCount = 0;
     const maxRetries = 3;
     
@@ -69,7 +77,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
         });
         
         if (!error) {
-          logger.info({ to, id: data?.id, transport: "resend" }, `Email sent: ${subject}`);
+          logger.info({ to, id: data?.id, transport: "resend", subject: subject.substring(0, 100) }, "Email sent successfully via Resend");
           return;
         }
         
@@ -84,7 +92,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
           }
         }
         
-        logger.error({ error, to }, "Resend: API error — falling back to Gmail SMTP");
+        logger.error({ error: error.message, to, statusCode: error.statusCode }, "Resend: API error — falling back to Gmail SMTP");
         break; // Exit retry loop and try Gmail
       } catch (err: any) {
         // Check for permission denied or high demand model errors
@@ -98,25 +106,31 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
             continue;
           }
         }
-        logger.error({ err, to }, "Resend: exception — falling back to Gmail SMTP");
+        logger.error({ error: errorMessage, to }, "Resend: exception — falling back to Gmail SMTP");
         break;
       }
     }
+  } else {
+    logger.warn("Resend transport not available, skipping to Gmail fallback");
   }
 
   // ── Fallback: Gmail SMTP ───────────────────────────────────────────────────
   if (USE_GMAIL) {
+    logger.info({ to }, "Attempting Gmail SMTP transport");
     try {
       const transport = createGmailTransport();
       await transport.sendMail({ from: GMAIL_FROM, to, subject, html });
-      logger.info({ to, transport: "gmail" }, `Email sent: ${subject}`);
+      logger.info({ to, transport: "gmail", subject: subject.substring(0, 100) }, "Email sent successfully via Gmail SMTP");
       return;
-    } catch (err) {
-      logger.error({ err, to }, "Gmail SMTP: failed — no more transports");
+    } catch (err: any) {
+      const errorMessage = err?.message || String(err);
+      logger.error({ error: errorMessage, to }, "Gmail SMTP: failed — no more transports");
     }
+  } else {
+    logger.warn("Gmail SMTP transport not available (EMAIL_USER or EMAIL_APP_PASSWORD not set)");
   }
 
-  logger.warn({ to, subject }, "Email not sent — no transport succeeded (set RESEND_API_KEY or EMAIL_USER + EMAIL_APP_PASSWORD)");
+  logger.warn({ to, subject: subject.substring(0, 100) }, "Email not sent — no transport succeeded (set RESEND_API_KEY or EMAIL_USER + EMAIL_APP_PASSWORD)");
 }
 
 function baseHtml(content: string): string {
