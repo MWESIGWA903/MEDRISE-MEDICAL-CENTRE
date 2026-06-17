@@ -24,6 +24,14 @@ export const triageTable = pgTable("triage", {
   interventionsPerformed: text("interventions_performed"),
   reassessmentNotes: text("reassessment_notes"),
 
+  // Triage Nursing Notes
+  presentingComplaints: text("presenting_complaints"),
+  briefMedicalHistory: text("brief_medical_history"),
+  emergencyInvestigationsRequested: text("emergency_investigations_requested"),
+  investigationResults: text("investigation_results"),
+  laboratoryResultsUpload: text("laboratory_results_upload"),
+  imagingResultsUpload: text("imaging_results_upload"),
+
   priority: text("priority").notNull().default("normal"),
   status: text("status").notNull().default("active"),
   isEmergency: boolean("is_emergency").notNull().default(false),

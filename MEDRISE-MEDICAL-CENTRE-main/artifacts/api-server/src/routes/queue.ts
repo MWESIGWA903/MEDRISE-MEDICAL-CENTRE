@@ -47,7 +47,7 @@ const QueueEntryInputSchema = z.object({
 });
 
 const QueueEntryUpdateSchema = z.object({
-  status: z.enum(["waiting", "in-consultation", "nursing", "theatre", "done", "skipped"]).optional(),
+  status: z.enum(["queue", "waiting", "in-consultation", "nursing", "theatre", "done", "skipped"]).optional(),
   priority: z.enum(PRIORITY_VALUES).optional(),
   staffId: z.number().int().optional().nullable(),
   notes: z.string().optional(),
@@ -134,7 +134,7 @@ router.post("/queue", async (req, res): Promise<void> => {
       patientId: parsed.data.patientId ?? null,
       patientName,
       queueDate,
-      status: "waiting",
+      status: "queue",
       arrivalOrder,
       staffId: parsed.data.staffId ?? null,
       staffName,
@@ -218,6 +218,19 @@ router.patch("/queue/:id", async (req, res): Promise<void> => {
   if (!entry) {
     res.status(404).json({ error: "Queue entry not found" });
     return;
+  }
+
+  // Department Transfer Automation
+  // When department changes, ensure patient appears in target department workflow
+  if (parsed.data.department && parsed.data.department !== entry.department) {
+    // Create notification for target department
+    void createAndBroadcast({
+      type: "transfer",
+      title: `Patient Transferred to ${parsed.data.department}`,
+      body: `${entry.patientName} has been transferred from ${entry.department} to ${parsed.data.department}`,
+      severity: "info",
+      relatedId: entry.id,
+    });
   }
 
   // Email patient on status change if they have a linked patient record with an email address

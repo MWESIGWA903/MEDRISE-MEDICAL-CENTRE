@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db, adminsTable } from "@workspace/db";
+import { PROFESSIONAL_ROLES, professionalRoleEnum } from "@workspace/db";
 import {
   ListStaffResponse,
   CreateStaffBody,
@@ -32,6 +33,16 @@ router.get("/staff", async (req, res): Promise<void> => {
   res.json(ListStaffResponse.parse(rows.map(mapStaff)));
 });
 
+router.get("/staff/public", async (req, res): Promise<void> => {
+  const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
+  res.json(rows.map(a => ({
+    id: a.id,
+    name: a.name,
+    role: a.role,
+    title: a.title ?? null,
+  })));
+});
+
 router.post("/staff", async (req, res): Promise<void> => {
   const session = await getSessionFromRequestAsync(req);
   if (!session) { res.status(401).json({ error: "Not authenticated" }); return; }
@@ -43,6 +54,12 @@ router.post("/staff", async (req, res): Promise<void> => {
   const parsed = CreateStaffBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  // Validate role is a professional role
+  if (parsed.data.role && !PROFESSIONAL_ROLES.includes(parsed.data.role as any)) {
+    res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
     return;
   }
 
@@ -92,6 +109,12 @@ router.patch("/staff/:id", async (req, res): Promise<void> => {
   const body = UpdateStaffBody.safeParse(req.body);
   if (!body.success) {
     res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  // Validate role is a professional role
+  if (body.data.role && !PROFESSIONAL_ROLES.includes(body.data.role as any)) {
+    res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
     return;
   }
 
