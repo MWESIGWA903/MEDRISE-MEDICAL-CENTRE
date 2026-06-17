@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { db, consultationsTable, patientsTable, adminsTable } from "@workspace/db";
+import { db, consultationsTable, patientsTable, adminsTable, labOrdersTable, imagingOrdersTable, pharmacyOrdersTable, triageTable } from "@workspace/db";
 import { z } from "zod";
 import { logAudit } from "../lib/audit";
 
@@ -17,6 +17,8 @@ const ConsultationInputSchema = z.object({
   referral: z.string().optional(),
   followUpDate: z.string().optional(),
   notes: z.string().optional(),
+  labInvestigations: z.string().optional(),
+  imagingInvestigations: z.string().optional(),
 });
 
 async function mapConsultation(c: typeof consultationsTable.$inferSelect) {
@@ -59,6 +61,80 @@ router.post("/consultations", async (req, res): Promise<void> => {
     followUpDate: parsed.data.followUpDate ?? null,
     notes: parsed.data.notes ?? null,
   }).returning();
+
+  // Investigation Request Automation
+  // Automatically create lab orders when investigations are requested
+  if (parsed.data.labInvestigations) {
+    const investigations = parsed.data.labInvestigations.split(',').map(s => s.trim()).filter(Boolean);
+    for (const investigation of investigations) {
+      await db.insert(labOrdersTable).values({
+        patientId: parsed.data.patientId,
+        consultationId: row.id,
+        testName: investigation,
+        testCategory: 'routine',
+        priority: 'routine',
+        status: 'pending',
+        clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis,
+        orderedBy: parsed.data.staffId,
+      });
+    }
+  }
+
+  // Automatically create imaging orders when imaging investigations are requested
+  if (parsed.data.imagingInvestigations) {
+    const studies = parsed.data.imagingInvestigations.split(',').map(s => s.trim()).filter(Boolean);
+    for (const study of studies) {
+      const studyLower = study.toLowerCase();
+      let modality = "X-Ray";
+      if (studyLower.includes("ct scan") || studyLower.includes("ct —") || studyLower.includes("computed tomography")) modality = "CT Scan";
+      else if (studyLower.includes("mri") || studyLower.includes("magnetic resonance")) modality = "MRI";
+      else if (studyLower.includes("ultrasound") || studyLower.includes("echo") || studyLower.includes("doppler")) modality = "Ultrasound";
+      else if (studyLower.includes("mammogram") || studyLower.includes("mammography")) modality = "Mammography";
+      
+      await db.insert(imagingOrdersTable).values({
+        patientId: parsed.data.patientId,
+        consultationId: row.id,
+        modality,
+        bodyPart: study,
+        clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis,
+        priority: 'routine',
+        status: 'requested',
+      });
+    }
+  }
+
+  // Pharmacy Automation
+  // Automatically create pharmacy orders when prescriptions are created
+  if (parsed.data.prescriptions) {
+    const prescriptionLines = parsed.data.prescriptions.split('\n').map(s => s.trim()).filter(Boolean);
+    for (const prescription of prescriptionLines) {
+      // Parse prescription format: DrugName Dose Frequency Duration Instructions
+      const parts = prescription.split('|').map(s => s.trim());
+      if (parts.length >= 4) {
+        await db.insert(pharmacyOrdersTable).values({
+          patientId: parsed.data.patientId,
+          consultationId: row.id,
+          drugName: parts[0],
+          dose: parts[1],
+          frequency: parts[2],
+          duration: parts[3],
+          instructions: parts[4] || 'As directed',
+          prescribedBy: parsed.data.staffId,
+          status: 'pending',
+          priority: 'routine',
+        });
+      }
+    }
+  }
+
+  // Follow-up Automation
+  // Automatically update follow-up status when follow-up date is entered
+  if (parsed.data.followUpDate) {
+    await db.update(consultationsTable)
+      .set({ followUpStatus: 'scheduled' })
+      .where(eq(consultationsTable.id, row.id));
+  }
+
   logAudit(req, "create_consultation", { entityType: "consultation", entityId: row.id, details: parsed.data.chiefComplaint ?? parsed.data.diagnosis ?? "" }).catch(() => {});
   res.status(201).json(await mapConsultation(row));
 });
@@ -67,7 +143,26 @@ router.get("/consultations/:id", async (req, res): Promise<void> => {
   const id = parseInt(req.params.id, 10);
   const [row] = await db.select().from(consultationsTable).where(eq(consultationsTable.id, id));
   if (!row) { res.status(404).json({ error: "Not found" }); return; }
-  res.json(await mapConsultation(row));
+  
+  // Consultation Continuity - Include triage data
+  const triageData = await db
+    .select()
+    .from(triageTable)
+    .where(eq(triageTable.patientId, row.patientId))
+    .orderBy(desc(triageTable.triageTime))
+    .limit(1)
+    .then(r => r[0] || null);
+  
+  const consultation = await mapConsultation(row);
+  res.json({
+    ...consultation,
+    triageData: triageData ? {
+      ...triageData,
+      triageTime: triageData.triageTime.toISOString(),
+      createdAt: triageData.createdAt.toISOString(),
+      updatedAt: triageData.updatedAt.toISOString(),
+    } : null,
+  });
 });
 
 router.patch("/consultations/:id", async (req, res): Promise<void> => {

@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { desc, eq } from "drizzle-orm";
-import { db, triageTable } from "@workspace/db";
+import { db, triageTable, labOrdersTable, imagingOrdersTable } from "@workspace/db";
 import { z } from "zod";
 import { getSessionFromRequest } from "../lib/session";
 import { logAudit } from "../lib/audit";
@@ -23,6 +23,13 @@ const TriageInputSchema = z.object({
   nursingAssessment: z.string().optional(),
   interventionsPerformed: z.string().optional(),
   reassessmentNotes: z.string().optional(),
+  // Triage Nursing Notes
+  presentingComplaints: z.string().optional(),
+  briefMedicalHistory: z.string().optional(),
+  emergencyInvestigationsRequested: z.string().optional(),
+  investigationResults: z.string().optional(),
+  laboratoryResultsUpload: z.string().optional(),
+  imagingResultsUpload: z.string().optional(),
   priority: z.enum(["normal", "non-urgent", "urgent", "emergency", "deceased"]).default("normal"),
   status: z.enum(["active", "completed", "referred"]).default("active"),
   isEmergency: z.boolean().default(false),
@@ -70,6 +77,30 @@ router.post("/triage", async (req, res): Promise<void> => {
         triageTime: triageTime ? new Date(triageTime) : new Date(),
       })
       .returning();
+
+    // Investigation Request Automation
+    // Automatically create lab orders when investigations are requested
+    if (parsed.data.emergencyInvestigationsRequested) {
+      const investigations = parsed.data.emergencyInvestigationsRequested.split(',').map(s => s.trim()).filter(Boolean);
+      for (const investigation of investigations) {
+        const investigationLower = investigation.toLowerCase();
+        // Check if it's a lab test
+        if (investigationLower.includes('blood') || investigationLower.includes('cbc') || 
+            investigationLower.includes('urine') || investigationLower.includes('culture') ||
+            investigationLower.includes('biochemistry') || investigationLower.includes('serology') ||
+            investigationLower.includes('hematology') || investigationLower.includes('lab')) {
+          await db.insert(labOrdersTable).values({
+            patientId: parsed.data.patientId,
+            testName: investigation,
+            testCategory: 'routine',
+            priority: parsed.data.isEmergency ? 'stat' : 'routine',
+            status: 'pending',
+            clinicalInfo: parsed.data.chiefComplaint,
+            orderedBy: session.id,
+          });
+        }
+      }
+    }
 
     await logAudit(req, "record_triage", {
       entityType: "triage",

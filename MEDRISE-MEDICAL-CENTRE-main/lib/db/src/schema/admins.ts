@@ -2,6 +2,26 @@ import { pgTable, serial, text, boolean, integer, timestamp } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const PROFESSIONAL_ROLES = [
+  "medical_director",
+  "doctor",
+  "clinical_officer",
+  "nurse",
+  "midwife",
+  "laboratory_technician",
+  "radiographer",
+  "sonographer",
+  "pharmacist",
+  "dispenser",
+  "receptionist",
+  "administrator",
+  "owner",
+  "admin",
+  "staff",
+] as const;
+
+export const professionalRoleEnum = z.enum(PROFESSIONAL_ROLES);
+
 export const adminsTable = pgTable("admins", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
