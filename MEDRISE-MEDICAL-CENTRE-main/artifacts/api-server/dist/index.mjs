@@ -60542,6 +60542,7 @@ var init_patientQueue = __esm({
       managementPlan: text("management_plan"),
       vitalsSnapshot: text("vitals_snapshot"),
       notificationPhone: text("notification_phone"),
+      triageNursingNotes: text("triage_nursing_notes"),
       createdAt: timestamp("created_at").defaultNow().notNull(),
       updatedAt: timestamp("updated_at").defaultNow().notNull()
     });
@@ -90479,7 +90480,8 @@ var QueueEntryInputSchema = external_exports.object({
   labInvestigations: external_exports.string().optional(),
   imagingInvestigations: external_exports.string().optional(),
   managementPlan: external_exports.string().optional(),
-  diagnosis: external_exports.string().optional()
+  diagnosis: external_exports.string().optional(),
+  triageNursingNotes: external_exports.string().optional()
 });
 var QueueEntryUpdateSchema = external_exports.object({
   status: external_exports.enum(["queue", "waiting", "in-consultation", "nursing", "theatre", "done", "skipped"]).optional(),
@@ -90493,7 +90495,8 @@ var QueueEntryUpdateSchema = external_exports.object({
   notificationPhone: external_exports.string().optional(),
   diagnosis: external_exports.string().optional(),
   labInvestigations: external_exports.string().optional(),
-  imagingInvestigations: external_exports.string().optional()
+  imagingInvestigations: external_exports.string().optional(),
+  triageNursingNotes: external_exports.string().optional()
 });
 async function getNextArrivalOrder(date6) {
   const existing = await db.select({ arrivalOrder: patientQueueTable.arrivalOrder }).from(patientQueueTable).where(eq(patientQueueTable.queueDate, date6));
@@ -90540,7 +90543,7 @@ router16.post("/queue", async (req, res) => {
     patientId: parsed.data.patientId ?? null,
     patientName,
     queueDate,
-    status: "queue",
+    status: "waiting",
     arrivalOrder,
     staffId: parsed.data.staffId ?? null,
     staffName,
@@ -90554,7 +90557,8 @@ router16.post("/queue", async (req, res) => {
     labInvestigations: parsed.data.labInvestigations ?? null,
     imagingInvestigations: parsed.data.imagingInvestigations ?? null,
     managementPlan: parsed.data.managementPlan ?? null,
-    diagnosis: parsed.data.diagnosis ?? null
+    diagnosis: parsed.data.diagnosis ?? null,
+    triageNursingNotes: parsed.data.triageNursingNotes ?? null
   }).returning();
   const isUrgent = entry.priority === "emergency" || entry.priority === "urgent";
   void createAndBroadcast({
@@ -90564,6 +90568,51 @@ router16.post("/queue", async (req, res) => {
     severity: entry.priority === "emergency" ? "urgent" : entry.priority === "urgent" ? "warning" : "info",
     relatedId: entry.id
   });
+  if (parsed.data.labInvestigations && parsed.data.patientId) {
+    let labTests = [];
+    try {
+      labTests = JSON.parse(parsed.data.labInvestigations);
+    } catch {
+    }
+    if (labTests.length > 0) {
+      const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
+      await db.insert(labOrdersTable).values(
+        labTests.map((test) => ({
+          patientId: parsed.data.patientId,
+          testName: test,
+          testCategory: "routine",
+          priority: patientPriority,
+          status: "pending",
+          clinicalInfo: parsed.data.notes ?? null,
+          orderedBy: parsed.data.staffId ?? null
+        }))
+      );
+    }
+  }
+  if (parsed.data.imagingInvestigations && parsed.data.patientId) {
+    let imagingStudies = [];
+    try {
+      imagingStudies = JSON.parse(parsed.data.imagingInvestigations);
+    } catch {
+    }
+    if (imagingStudies.length > 0) {
+      const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
+      await db.insert(imagingOrdersTable).values(
+        imagingStudies.map((study) => {
+          const { modality, bodyPart } = parseImagingStudyString(study);
+          return {
+            patientId: parsed.data.patientId,
+            queueEntryId: entry.id,
+            modality,
+            bodyPart,
+            clinicalIndication: parsed.data.notes ?? null,
+            priority: patientPriority,
+            status: "requested"
+          };
+        })
+      );
+    }
+  }
   res.status(201).json(mapEntry(entry));
 });
 router16.patch("/queue/:id", async (req, res) => {
@@ -90591,6 +90640,7 @@ router16.patch("/queue/:id", async (req, res) => {
   if (parsed.data.diagnosis !== void 0) updateData.diagnosis = parsed.data.diagnosis;
   if (parsed.data.labInvestigations !== void 0) updateData.labInvestigations = parsed.data.labInvestigations;
   if (parsed.data.imagingInvestigations !== void 0) updateData.imagingInvestigations = parsed.data.imagingInvestigations;
+  if (parsed.data.triageNursingNotes !== void 0) updateData.triageNursingNotes = parsed.data.triageNursingNotes;
   if (parsed.data.staffId !== void 0) {
     updateData.staffId = parsed.data.staffId;
     if (parsed.data.staffId) {

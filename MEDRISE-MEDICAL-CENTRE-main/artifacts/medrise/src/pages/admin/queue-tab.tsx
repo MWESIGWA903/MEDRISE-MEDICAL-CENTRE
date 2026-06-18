@@ -663,6 +663,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const [regAge, setRegAge] = useState('');
   const [regAgeMonths, setRegAgeMonths] = useState('');
   const [regAgeDays, setRegAgeDays] = useState('');
+  const [regDob, setRegDob] = useState('');
   const [regSex, setRegSex] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regEmail, setRegEmail] = useState('');
@@ -685,10 +686,18 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const [triageGlucose, setTriageGlucose] = useState('');
   const [triageMuac, setTriageMuac] = useState('');
   const [triageGcs, setTriageGcs] = useState('');
+  const [triageBloodGroup, setTriageBloodGroup] = useState('');
   const [triageEmergencyTx, setTriageEmergencyTx] = useState('');
   const [triageSelectedLab, setTriageSelectedLab] = useState<string[]>([]);
   const [triageSelectedImaging, setTriageSelectedImaging] = useState<string[]>([]);
   const [triageIsolation, setTriageIsolation] = useState<string[]>([]);
+  // Triage Nursing Notes
+  const [triagePresentingComplaint, setTriagePresentingComplaint] = useState('');
+  const [triageBriefHistory, setTriageBriefHistory] = useState('');
+  const [triageEmergencyInvestigations, setTriageEmergencyInvestigations] = useState('');
+  const [triageInvestigationResults, setTriageInvestigationResults] = useState('');
+  const [triageLabResultsNote, setTriageLabResultsNote] = useState('');
+  const [triageImagingResultsNote, setTriageImagingResultsNote] = useState('');
 
   const addMutation = useAddToQueue();
   const updateMutation = useUpdateQueueEntry();
@@ -705,6 +714,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
     setRegAge('');
     setRegAgeMonths('');
     setRegAgeDays('');
+    setRegDob('');
     setRegSex('');
     setRegPhone('');
     setRegEmail('');
@@ -728,11 +738,31 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
     setTriageGlucose('');
     setTriageMuac('');
     setTriageGcs('');
+    setTriageBloodGroup('');
     setTriageEmergencyTx('');
     setTriageSelectedLab([]);
     setTriageSelectedImaging([]);
     setTriageIsolation([]);
+    setTriagePresentingComplaint('');
+    setTriageBriefHistory('');
+    setTriageEmergencyInvestigations('');
+    setTriageInvestigationResults('');
+    setTriageLabResultsNote('');
+    setTriageImagingResultsNote('');
   };
+
+  // Auto-compute Date of Birth from age fields for patient registration
+  const computedDob = React.useMemo(() => {
+    const years = parseInt(regAge) || 0;
+    const months = parseInt(regAgeMonths) || 0;
+    const days = parseInt(regAgeDays) || 0;
+    if (!years && !months && !days) return '';
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - years);
+    d.setMonth(d.getMonth() - months);
+    d.setDate(d.getDate() - days);
+    return d.toISOString().slice(0, 10);
+  }, [regAge, regAgeMonths, regAgeDays]);
 
   // Auto BMI from triage weight/height
   const triageBmi = React.useMemo(() => {
@@ -769,6 +799,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
           age: regAge ? parseInt(regAge) : undefined,
           ageMonths: regAgeMonths ? parseInt(regAgeMonths) : undefined,
           ageDays: regAgeDays ? parseInt(regAgeDays) : undefined,
+          dateOfBirth: (regDob || computedDob) || undefined,
           gender: (regSex || undefined) as 'male' | 'female' | 'other' | undefined,
           address: regAddress.trim() || undefined,
           nextOfKinName: regNextOfKinName.trim() || undefined,
@@ -846,9 +877,21 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
       triageGlucose && `RBS: ${triageGlucose} mmol/L`,
       triageMuac && `MUAC: ${triageMuac} cm`,
       triageGcs && `GCS: ${triageGcs}`,
+      triageBloodGroup && `Blood Group: ${triageBloodGroup}`,
     ]
       .filter(Boolean)
       .join(' | ');
+
+    const triageNursingNotesObj = {
+      presentingComplaint: triagePresentingComplaint || null,
+      briefMedicalHistory: triageBriefHistory || null,
+      emergencyInvestigationsRequested: triageEmergencyInvestigations || null,
+      investigationResults: triageInvestigationResults || null,
+      labResultsNote: triageLabResultsNote || null,
+      imagingResultsNote: triageImagingResultsNote || null,
+    };
+    const hasNursingNotes = Object.values(triageNursingNotesObj).some(Boolean);
+    const triageNursingNotesStr = hasNursingNotes ? JSON.stringify(triageNursingNotesObj) : undefined;
 
     const isolationNote =
       triageIsolation.length > 0 ? `\n\n⚠️ INFECTION CONTROL: ${triageIsolation.join(', ')}` : '';
@@ -881,6 +924,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
             triageSelectedLab.length > 0 ? JSON.stringify(triageSelectedLab) : undefined,
           imagingInvestigations:
             triageSelectedImaging.length > 0 ? JSON.stringify(triageSelectedImaging) : undefined,
+          triageNursingNotes: triageNursingNotesStr,
         } as any,
       },
       {
@@ -1385,6 +1429,20 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                        Date of Birth
+                      </label>
+                      <Input
+                        type="date"
+                        value={regDob || computedDob}
+                        onChange={(e) => setRegDob(e.target.value)}
+                        className="text-sm"
+                      />
+                      {computedDob && !regDob && (
+                        <p className="text-[10px] text-blue-500 mt-0.5">Auto-calculated from age</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-1.5 block">
                         Sex *
                       </label>
                       <Select value={regSex} onValueChange={setRegSex}>
@@ -1747,10 +1805,10 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                       <SelectContent>
                         <SelectItem value="none">Any available</SelectItem>
                         {staffList
-                          .filter((s) => ['doctor', 'nurse', 'midwife'].includes(s.role ?? ''))
+                          .filter((s) => ['medical_director', 'doctor', 'clinical_officer', 'nurse', 'midwife'].includes(s.role ?? ''))
                           .map((s) => (
                             <SelectItem key={s.id} value={String(s.id)}>
-                              {s.name} ({s.role})
+                              {s.name} ({s.role?.replace(/_/g, ' ')})
                             </SelectItem>
                           ))}
                       </SelectContent>
@@ -1869,6 +1927,20 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                           />
                         </div>
                       ))}
+                      <div>
+                        <label className="text-xs text-gray-500 block mb-0.5">Blood Group</label>
+                        <Select value={triageBloodGroup || 'none'} onValueChange={(v) => setTriageBloodGroup(v === 'none' ? '' : v)}>
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">— Unknown —</SelectItem>
+                            {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
+                              <SelectItem key={bg} value={bg}>{bg}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
 
@@ -1892,6 +1964,81 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                       </div>
                     </div>
                   )}
+
+                  {/* Triage Nursing Notes */}
+                  <div className="border border-blue-200 bg-blue-50 rounded-lg p-3 space-y-3">
+                    <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider flex items-center gap-1.5">
+                      📋 Triage Nursing Notes
+                    </p>
+                    <div>
+                      <label className="text-xs text-gray-600 font-medium block mb-1">
+                        Presenting Complaint(s) <span className="text-gray-400 font-normal">(chief complaint)</span>
+                      </label>
+                      <Textarea
+                        placeholder="e.g. Fever for 3 days, severe headache, vomiting…"
+                        value={triagePresentingComplaint}
+                        onChange={(e) => setTriagePresentingComplaint(e.target.value)}
+                        className="min-h-[52px] resize-none text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-600 font-medium block mb-1">
+                        Brief Medical History <span className="text-gray-400 font-normal">(known conditions, allergies, meds)</span>
+                      </label>
+                      <Textarea
+                        placeholder="e.g. Known diabetic on metformin, penicillin allergy, hypertensive…"
+                        value={triageBriefHistory}
+                        onChange={(e) => setTriageBriefHistory(e.target.value)}
+                        className="min-h-[52px] resize-none text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-600 font-medium block mb-1">
+                        Emergency Investigations Requested
+                      </label>
+                      <Textarea
+                        placeholder="e.g. FBC, Malaria RDT, Urine R/E, Blood sugar, Chest X-ray…"
+                        value={triageEmergencyInvestigations}
+                        onChange={(e) => setTriageEmergencyInvestigations(e.target.value)}
+                        className="min-h-[44px] resize-none text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-600 font-medium block mb-1">
+                        Investigation Results <span className="text-gray-400 font-normal">(if available)</span>
+                      </label>
+                      <Textarea
+                        placeholder="e.g. Malaria RDT: Positive (P. falciparum), Hb: 8.2 g/dL, RBS: 14.2 mmol/L…"
+                        value={triageInvestigationResults}
+                        onChange={(e) => setTriageInvestigationResults(e.target.value)}
+                        className="min-h-[44px] resize-none text-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-600 font-medium block mb-1">
+                          Lab Results Note
+                        </label>
+                        <Textarea
+                          placeholder="Lab report summary or pending…"
+                          value={triageLabResultsNote}
+                          onChange={(e) => setTriageLabResultsNote(e.target.value)}
+                          className="min-h-[44px] resize-none text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-600 font-medium block mb-1">
+                          Imaging Results Note
+                        </label>
+                        <Textarea
+                          placeholder="Radiology/imaging summary or pending…"
+                          value={triageImagingResultsNote}
+                          onChange={(e) => setTriageImagingResultsNote(e.target.value)}
+                          className="min-h-[44px] resize-none text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Emergency Initial Treatment */}
                   <div>

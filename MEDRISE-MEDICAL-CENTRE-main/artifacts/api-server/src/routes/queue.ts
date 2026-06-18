@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and } from "drizzle-orm";
-import { db, patientQueueTable, patientsTable, adminsTable, imagingOrdersTable } from "@workspace/db";
+import { db, patientQueueTable, patientsTable, adminsTable, imagingOrdersTable, labOrdersTable } from "@workspace/db";
 import { z } from "zod";
 import { createAndBroadcast } from "../lib/notificationHelper";
 import { sendQueueStatusUpdateToPatient } from "../lib/email";
@@ -44,6 +44,7 @@ const QueueEntryInputSchema = z.object({
   imagingInvestigations: z.string().optional(),
   managementPlan: z.string().optional(),
   diagnosis: z.string().optional(),
+  triageNursingNotes: z.string().optional(),
 });
 
 const QueueEntryUpdateSchema = z.object({
@@ -59,6 +60,7 @@ const QueueEntryUpdateSchema = z.object({
   diagnosis: z.string().optional(),
   labInvestigations: z.string().optional(),
   imagingInvestigations: z.string().optional(),
+  triageNursingNotes: z.string().optional(),
 });
 
 async function getNextArrivalOrder(date: string): Promise<number> {
@@ -134,7 +136,7 @@ router.post("/queue", async (req, res): Promise<void> => {
       patientId: parsed.data.patientId ?? null,
       patientName,
       queueDate,
-      status: "queue",
+      status: "waiting",
       arrivalOrder,
       staffId: parsed.data.staffId ?? null,
       staffName,
@@ -149,6 +151,7 @@ router.post("/queue", async (req, res): Promise<void> => {
       imagingInvestigations: parsed.data.imagingInvestigations ?? null,
       managementPlan: parsed.data.managementPlan ?? null,
       diagnosis: parsed.data.diagnosis ?? null,
+      triageNursingNotes: parsed.data.triageNursingNotes ?? null,
     })
     .returning();
 
@@ -162,6 +165,49 @@ router.post("/queue", async (req, res): Promise<void> => {
     severity: entry.priority === "emergency" ? "urgent" : entry.priority === "urgent" ? "warning" : "info",
     relatedId: entry.id,
   });
+
+  // Auto-create lab_orders when lab investigations are set at triage for a known patient
+  if (parsed.data.labInvestigations && parsed.data.patientId) {
+    let labTests: string[] = [];
+    try { labTests = JSON.parse(parsed.data.labInvestigations); } catch { /* not JSON */ }
+    if (labTests.length > 0) {
+      const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
+      await db.insert(labOrdersTable).values(
+        labTests.map(test => ({
+          patientId: parsed.data.patientId!,
+          testName: test,
+          testCategory: "routine",
+          priority: patientPriority,
+          status: "pending",
+          clinicalInfo: parsed.data.notes ?? null,
+          orderedBy: parsed.data.staffId ?? null,
+        }))
+      );
+    }
+  }
+
+  // Auto-create imaging_orders when imaging investigations are set at triage for a known patient
+  if (parsed.data.imagingInvestigations && parsed.data.patientId) {
+    let imagingStudies: string[] = [];
+    try { imagingStudies = JSON.parse(parsed.data.imagingInvestigations); } catch { /* not JSON */ }
+    if (imagingStudies.length > 0) {
+      const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
+      await db.insert(imagingOrdersTable).values(
+        imagingStudies.map(study => {
+          const { modality, bodyPart } = parseImagingStudyString(study);
+          return {
+            patientId: parsed.data.patientId!,
+            queueEntryId: entry.id,
+            modality,
+            bodyPart,
+            clinicalIndication: parsed.data.notes ?? null,
+            priority: patientPriority,
+            status: "requested" as const,
+          };
+        })
+      );
+    }
+  }
 
   res.status(201).json(mapEntry(entry));
 });
@@ -194,6 +240,7 @@ router.patch("/queue/:id", async (req, res): Promise<void> => {
   if (parsed.data.diagnosis !== undefined) updateData.diagnosis = parsed.data.diagnosis;
   if (parsed.data.labInvestigations !== undefined) updateData.labInvestigations = parsed.data.labInvestigations;
   if (parsed.data.imagingInvestigations !== undefined) updateData.imagingInvestigations = parsed.data.imagingInvestigations;
+  if (parsed.data.triageNursingNotes !== undefined) (updateData as any).triageNursingNotes = parsed.data.triageNursingNotes;
 
   if (parsed.data.staffId !== undefined) {
     updateData.staffId = parsed.data.staffId;

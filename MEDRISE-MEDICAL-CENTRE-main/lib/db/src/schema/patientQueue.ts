@@ -21,6 +21,7 @@ export const patientQueueTable = pgTable("patient_queue", {
   managementPlan: text("management_plan"),
   vitalsSnapshot: text("vitals_snapshot"),
   notificationPhone: text("notification_phone"),
+  triageNursingNotes: text("triage_nursing_notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

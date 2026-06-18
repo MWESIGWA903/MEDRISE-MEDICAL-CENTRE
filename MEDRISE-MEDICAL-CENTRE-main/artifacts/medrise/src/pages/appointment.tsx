@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
 import * as z from 'zod';
 import { Helmet } from 'react-helmet-async';
 
@@ -32,9 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DEPARTMENTS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
-const DOCTORS = [
-  'Dr. Mwesigwa Hannington',
-];
+const CLINICAL_ROLES = ['medical_director', 'doctor', 'clinical_officer', 'nurse', 'midwife'];
 
 const formSchema = z.object({
   patientName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -58,6 +57,18 @@ export default function Appointment() {
   const { toast } = useToast();
   const createAppointment = useCreateAppointment();
   const [success, setSuccess] = React.useState(false);
+
+  const apiBase = (import.meta as any).env?.VITE_API_URL ?? '';
+  const { data: staffData = [] } = useQuery<{ id: number; name: string; role: string | null; title: string | null }[]>({
+    queryKey: ['staff-public'],
+    queryFn: async () => {
+      const res = await fetch(`${apiBase}/api/staff/public`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+  const clinicalStaff = staffData.filter((s) => CLINICAL_ROLES.includes(s.role ?? ''));
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -348,9 +359,9 @@ export default function Appointment() {
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="no-preference">No preference</SelectItem>
-                              {DOCTORS.map((doc) => (
-                                <SelectItem key={doc} value={doc}>
-                                  {doc}
+                              {clinicalStaff.map((s) => (
+                                <SelectItem key={s.id} value={s.name}>
+                                  {s.title ? `${s.title} ${s.name}` : s.name}{s.role ? ` — ${s.role.replace(/_/g, ' ')}` : ''}
                                 </SelectItem>
                               ))}
                             </SelectContent>

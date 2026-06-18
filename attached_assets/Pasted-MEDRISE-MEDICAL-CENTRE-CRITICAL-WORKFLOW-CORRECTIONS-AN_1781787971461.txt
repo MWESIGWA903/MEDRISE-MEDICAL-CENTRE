@@ -1,0 +1,401 @@
+MEDRISE MEDICAL CENTRE – CRITICAL WORKFLOW CORRECTIONS AND IMPLEMENTATION
+
+IMPORTANT
+
+Do not create reports.
+
+Do not create implementation plans.
+
+Do not create audits.
+
+Do not create documentation.
+
+Do not estimate timelines.
+
+Proceed directly to fixing and implementing the functionality.
+
+Preserve all existing departments exactly as configured.
+
+Do not rename departments.
+
+Do not remove departments.
+
+Do not merge departments.
+
+Do not alter existing department workflows that are already functioning correctly.
+
+Maintain all existing working functionality.
+
+Only fix the issues listed below.
+
+==================================================
+PRIORITY 1 – ASSIGN STAFF SYNCHRONIZATION
+
+Current Issue:
+
+Under Add Patient To Queue → Assign Staff, Dr. Mwesigwa Hannington is missing.
+
+Required:
+
+- Synchronize Assign Staff with Staff Accounts.
+- Include Dr. Mwesigwa Hannington.
+- Include all active clinical staff.
+- Include all doctors.
+- Include all nurses.
+- Include all midwives.
+- Include Medical Director.
+- Include Clinical Officers.
+- Display active staff automatically.
+- No manual updates required.
+
+Verify that every active staff member appears.
+
+==================================================
+PRIORITY 2 – PUBLIC APPOINTMENT STAFF SELECTION
+
+Current Issue:
+
+Only some staff members appear.
+
+Required:
+
+- Synchronize appointment booking staff list with Staff Accounts.
+- Display all active healthcare staff.
+- Update automatically when staff are added.
+- Do not require manual configuration.
+
+==================================================
+PRIORITY 3 – DATE OF BIRTH AUTOMATION
+
+Required:
+
+When Age is entered:
+
+- Automatically calculate Date of Birth.
+- Auto-populate Date of Birth field.
+
+Allow manual adjustment if necessary.
+
+==================================================
+PRIORITY 4 – BLOOD GROUP FIELD
+
+Add:
+
+Patient Blood Group
+
+Location:
+
+Add Patient To Queue
+
+Requirements:
+
+- Optional field.
+- Support:
+  - A+
+  - A-
+  - B+
+  - B-
+  - AB+
+  - AB-
+  - O+
+  - O-
+
+Save to patient record.
+
+Display in Consultation.
+
+Display in EHR.
+
+==================================================
+PRIORITY 5 – TRIAGE NURSING NOTES
+
+Current Issue:
+
+Triage Nursing Notes section still missing.
+
+Create section:
+
+TRIAGE NURSING NOTES
+
+Location:
+
+Below Vital Signs
+
+Above Emergency / Initial Treatment Given
+
+Fields:
+
+1. Presenting Complaint(s)
+
+2. Brief Medical History
+
+3. Emergency Investigations Requested
+
+4. Investigation Results
+
+5. Upload Laboratory Results
+
+6. Upload Imaging Results
+
+Requirements:
+
+- Auto-save.
+- Persist permanently.
+- Visible in Consultation.
+- Visible in EHR.
+- Visible during Follow-Up.
+
+==================================================
+PRIORITY 6 – APPOINTMENT → QUEUE → WAITING WORKFLOW
+
+Current Issue:
+
+After Add Patient To Queue:
+
+Patient disappears.
+
+Patient not visible in Queue.
+
+Patient not visible in Waiting.
+
+Required Workflow:
+
+Appointment Confirmed
+→ Add Patient To Queue
+→ Queue
+→ Waiting
+→ Consultation
+
+Requirements:
+
+- Patient must appear in Queue immediately.
+- Queue staff must be able to continue workflow.
+- After queue processing patient moves to Waiting.
+- No disappearing patients.
+- No lost records.
+
+Investigate root cause and fix permanently.
+
+==================================================
+PRIORITY 7 – APPOINTMENT PERSISTENCE
+
+Current Issue:
+
+Appointments disappear after refresh.
+
+Required:
+
+- Appointment records must persist.
+- Refresh must not remove appointments.
+- Reload must not remove appointments.
+- Database must remain source of truth.
+
+Verify:
+
+- Pending appointments remain.
+- Confirmed appointments remain.
+- Completed appointments remain.
+- Cancelled appointments remain.
+
+==================================================
+PRIORITY 8 – LABORATORY AUTOMATION
+
+Current Issue:
+
+Laboratory requests made during triage do not appear in Laboratory.
+
+Required:
+
+Whenever nurse requests laboratory investigations:
+
+Automatically create Laboratory request.
+
+Immediately display patient under Laboratory Department.
+
+No duplicate entry required.
+
+==================================================
+PRIORITY 9 – IMAGING AUTOMATION
+
+Current Issue:
+
+Imaging requests made during triage do not appear in Imaging Department.
+
+Required:
+
+Whenever nurse requests imaging:
+
+Automatically create Imaging request.
+
+Immediately display patient in:
+
+- Radiology
+- Sonography
+- Imaging Department
+
+No duplicate entry required.
+
+==================================================
+PRIORITY 10 – PHARMACY AUTOMATION
+
+Current Issue:
+
+Nurse prescriptions do not appear in Pharmacy.
+
+Required:
+
+Whenever nurse prescribes treatment:
+
+Automatically create Pharmacy task.
+
+Send:
+
+- Medication
+- Dose
+- Frequency
+- Duration
+- Instructions
+
+Immediately to Pharmacy.
+
+No duplicate entry required.
+
+==================================================
+PRIORITY 11 – CONSULTATION CONTINUITY
+
+Doctor must automatically see:
+
+- Vital Signs
+- Blood Group
+- Presenting Complaint
+- Brief History
+- Investigations Requested
+- Investigation Results
+- Uploaded Files
+- Initial Treatment Given
+
+Doctor should continue care without re-entering information.
+
+==================================================
+PRIORITY 12 – DOCUMENT STANDARDIZATION AND PATIENT IDENTIFICATION
+
+Current Issue:
+
+Patient demographic details are missing from some generated documents.
+
+Required:
+
+Every generated clinical document must automatically include:
+
+- Patient Name
+- Age
+- Sex
+- Patient Identifier
+- Department
+- Date
+- Time
+- Attending Clinician
+
+The system should automatically pull this information from the patient record.
+
+Apply this requirement to all printable and downloadable documents including:
+
+LABORATORY
+
+- Laboratory Request Forms
+- Laboratory Reports
+- Laboratory Result Printouts
+
+IMAGING / RADIOLOGY
+
+- X-Ray Reports
+- Ultrasound Reports
+- CT Reports
+- MRI Reports
+- Imaging Request Forms
+- Imaging Result Printouts
+
+CONSULTATION
+
+- Consultation Notes
+- Clinical Summaries
+
+PHARMACY
+
+- Prescriptions
+- Medication Printouts
+
+REFERRALS
+
+- Referral Notes
+- Referral Letters
+
+ADMISSION
+
+- Admission Notes
+- Admission Summaries
+
+DISCHARGE
+
+- Discharge Summaries
+- Discharge Reports
+
+FOLLOW-UP
+
+- Follow-Up Notes
+- Follow-Up Forms
+
+SICK LEAVE
+
+- Sick Leave Forms
+- Medical Leave Certificates
+
+DEATH DOCUMENTATION
+
+- Death Notification Forms
+- Death Summaries
+
+THEATRE
+
+- Operative Notes
+- Theatre Reports
+
+GENERAL DOCUMENTS
+
+- Any patient-related report generated by the system
+
+Requirements:
+
+- Age and Sex must always appear before printing.
+- Patient information should auto-populate.
+- Staff should not manually re-enter demographic details.
+- Printed reports must follow professional healthcare documentation standards.
+- Documents should remain consistent across all departments.
+- Missing patient demographics should prevent incomplete report generation.
+
+==================================================
+TESTING REQUIREMENT
+
+Before completion verify:
+
+1. Dr. Mwesigwa appears in Assign Staff.
+2. All active staff appear in Public Appointment Booking.
+3. Date of Birth auto-generates from Age.
+4. Blood Group field works.
+5. Triage Nursing Notes section exists.
+6. Patient remains visible after Add Patient To Queue.
+7. Patient progresses Queue → Waiting correctly.
+8. Appointments persist after refresh.
+9. Laboratory requests appear automatically.
+10. Imaging requests appear automatically.
+11. Pharmacy requests appear automatically.
+12. Consultation receives triage information automatically.
+13. All reports contain Patient Name.
+14. All reports contain Age.
+15. All reports contain Sex.
+16. All reports contain Patient Identifier.
+17. All reports contain Department.
+18. All reports contain Date and Time.
+19. All reports contain Attending Clinician.
+
+Only mark the task complete after functionality is implemented, tested, deployed, and verified.

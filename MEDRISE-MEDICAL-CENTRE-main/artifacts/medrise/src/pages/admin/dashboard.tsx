@@ -1250,7 +1250,7 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
           });
           queryClient.invalidateQueries({ queryKey: getListQueueQueryKey() });
           updateStatusMutation.mutate(
-            { id: appt.id, data: { status: 'completed' } },
+            { id: appt.id, data: { status: 'checked_in' as any } },
             {
               onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: getListAppointmentsQueryKey() });
