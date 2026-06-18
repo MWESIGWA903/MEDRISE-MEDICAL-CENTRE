@@ -1,0 +1,2 @@
+- [MedRise monorepo layout](medrise-layout.md) — pnpm monorepo; API on port 8080, frontend on 5000; api-zod patched manually, not regenerated.
+- [MedRise schema/api-zod fixes](medrise-schema-fixes.md) — gender/bloodType must be zod.string() not enums; UpdatePatientBody fields must be optional for PATCH; triage PATCH had delete-after-set bug.

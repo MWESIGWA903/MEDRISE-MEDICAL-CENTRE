@@ -134,7 +134,6 @@ router.patch("/triage/:id", async (req, res): Promise<void> => {
     const updates: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
     if (parsed.data.triageTime) {
       updates.triageTime = new Date(parsed.data.triageTime as string);
-      delete updates.triageTime;
     }
 
     const [updated] = await db

@@ -41,62 +41,82 @@ async function mapOrder(o: typeof imagingOrdersTable.$inferSelect) {
 }
 
 router.get("/imaging/orders", async (req, res): Promise<void> => {
-  const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : undefined;
-  const status = typeof req.query.status === "string" ? req.query.status : undefined;
-  const modality = typeof req.query.modality === "string" ? req.query.modality : undefined;
-  let rows = patientId
-    ? await db.select().from(imagingOrdersTable).where(eq(imagingOrdersTable.patientId, patientId)).orderBy(desc(imagingOrdersTable.requestedAt))
-    : await db.select().from(imagingOrdersTable).orderBy(desc(imagingOrdersTable.requestedAt));
-  if (status) rows = rows.filter(r => r.status === status);
-  if (modality) rows = rows.filter(r => r.modality === modality);
-  const mapped = await Promise.all(rows.map(mapOrder));
-  res.json(mapped);
+  try {
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : undefined;
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const modality = typeof req.query.modality === "string" ? req.query.modality : undefined;
+    let rows = patientId
+      ? await db.select().from(imagingOrdersTable).where(eq(imagingOrdersTable.patientId, patientId)).orderBy(desc(imagingOrdersTable.requestedAt))
+      : await db.select().from(imagingOrdersTable).orderBy(desc(imagingOrdersTable.requestedAt));
+    if (status) rows = rows.filter(r => r.status === status);
+    if (modality) rows = rows.filter(r => r.modality === modality);
+    const mapped = await Promise.all(rows.map(mapOrder));
+    res.json(mapped);
+  } catch (err) {
+    console.error("GET /imaging/orders error:", err);
+    res.status(500).json({ error: "Failed to fetch imaging orders" });
+  }
 });
 
 router.post("/imaging/orders", async (req, res): Promise<void> => {
-  const parsed = ImagingOrderInputSchema.safeParse(req.body);
-  if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
-  const [row] = await db.insert(imagingOrdersTable).values({
-    patientId: parsed.data.patientId,
-    consultationId: parsed.data.consultationId ?? null,
-    requestedBy: parsed.data.requestedBy ?? null,
-    modality: parsed.data.modality,
-    bodyPart: parsed.data.bodyPart ?? null,
-    clinicalIndication: parsed.data.clinicalIndication ?? null,
-    priority: parsed.data.priority ?? "routine",
-    notes: parsed.data.notes ?? null,
-  }).returning();
-  logAudit(req, "create_imaging_order", { entityType: "imaging_order", entityId: row.id, details: `${parsed.data.modality}${parsed.data.bodyPart ? " — " + parsed.data.bodyPart : ""}` }).catch(() => {});
-  res.status(201).json(await mapOrder(row));
+  try {
+    const parsed = ImagingOrderInputSchema.safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+    const [row] = await db.insert(imagingOrdersTable).values({
+      patientId: parsed.data.patientId,
+      consultationId: parsed.data.consultationId ?? null,
+      requestedBy: parsed.data.requestedBy ?? null,
+      modality: parsed.data.modality,
+      bodyPart: parsed.data.bodyPart ?? null,
+      clinicalIndication: parsed.data.clinicalIndication ?? null,
+      priority: parsed.data.priority ?? "routine",
+      notes: parsed.data.notes ?? null,
+    }).returning();
+    logAudit(req, "create_imaging_order", { entityType: "imaging_order", entityId: row.id, details: `${parsed.data.modality}${parsed.data.bodyPart ? " — " + parsed.data.bodyPart : ""}` }).catch(() => {});
+    res.status(201).json(await mapOrder(row));
+  } catch (err) {
+    console.error("POST /imaging/orders error:", err);
+    res.status(500).json({ error: "Failed to create imaging order" });
+  }
 });
 
 router.patch("/imaging/orders/:id", async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = ImagingOrderUpdateSchema.safeParse(req.body);
-  if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
-  const updateData: Record<string, unknown> = {};
-  if (parsed.data.status) {
-    updateData.status = parsed.data.status;
-    if (parsed.data.status === "completed") updateData.completedAt = new Date();
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = ImagingOrderUpdateSchema.safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+    const updateData: Record<string, unknown> = {};
+    if (parsed.data.status) {
+      updateData.status = parsed.data.status;
+      if (parsed.data.status === "completed") updateData.completedAt = new Date();
+    }
+    if (parsed.data.findings !== undefined) updateData.findings = parsed.data.findings;
+    if (parsed.data.impression !== undefined) updateData.impression = parsed.data.impression;
+    if (parsed.data.reportedBy !== undefined) updateData.reportedBy = parsed.data.reportedBy;
+    if (parsed.data.notes !== undefined) updateData.notes = parsed.data.notes;
+    const [row] = await db.update(imagingOrdersTable).set(updateData).where(eq(imagingOrdersTable.id, id)).returning();
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    if (parsed.data.status) {
+      logAudit(req, "update_imaging_order_status", { entityType: "imaging_order", entityId: row.id, details: `${row.modality} → ${parsed.data.status}` }).catch(() => {});
+    }
+    res.json(await mapOrder(row));
+  } catch (err) {
+    console.error("PATCH /imaging/orders/:id error:", err);
+    res.status(500).json({ error: "Failed to update imaging order" });
   }
-  if (parsed.data.findings !== undefined) updateData.findings = parsed.data.findings;
-  if (parsed.data.impression !== undefined) updateData.impression = parsed.data.impression;
-  if (parsed.data.reportedBy !== undefined) updateData.reportedBy = parsed.data.reportedBy;
-  if (parsed.data.notes !== undefined) updateData.notes = parsed.data.notes;
-  const [row] = await db.update(imagingOrdersTable).set(updateData).where(eq(imagingOrdersTable.id, id)).returning();
-  if (!row) { res.status(404).json({ error: "Not found" }); return; }
-  if (parsed.data.status) {
-    logAudit(req, "update_imaging_order_status", { entityType: "imaging_order", entityId: row.id, details: `${row.modality} → ${parsed.data.status}` }).catch(() => {});
-  }
-  res.json(await mapOrder(row));
 });
 
 router.delete("/imaging/orders/:id", async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.delete(imagingOrdersTable).where(eq(imagingOrdersTable.id, id)).returning();
-  if (!row) { res.status(404).json({ error: "Not found" }); return; }
-  logAudit(req, "delete_imaging_order", { entityType: "imaging_order", entityId: row.id, details: `${row.modality}${row.bodyPart ? " — " + row.bodyPart : ""}` }).catch(() => {});
-  res.sendStatus(204);
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.delete(imagingOrdersTable).where(eq(imagingOrdersTable.id, id)).returning();
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    logAudit(req, "delete_imaging_order", { entityType: "imaging_order", entityId: row.id, details: `${row.modality}${row.bodyPart ? " — " + row.bodyPart : ""}` }).catch(() => {});
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /imaging/orders/:id error:", err);
+    res.status(500).json({ error: "Failed to delete imaging order" });
+  }
 });
 
 export default router;

@@ -1,0 +1,549 @@
+MEDRISE MEDICAL CENTRE – FINAL PRODUCTION STABILIZATION, BUG FIXING, VALIDATION, TESTING, DEPLOYMENT AND SYSTEM HARDENING
+
+IMPORTANT:
+
+Do not create reports, plans, implementation summaries, timelines, documentation, investigations, assessments, or recommendations.
+
+Proceed directly to fixing, validating, testing, deploying, and verifying functionality.
+
+Do not stop after coding.
+
+Do not stop after local testing.
+
+Do not stop after GitHub push.
+
+Only complete after successful production verification.
+
+Maintain all departments exactly as currently configured.
+
+Do not rename, remove, merge, hide, or modify department names.
+
+==================================================
+PHASE 1 – CRITICAL SYSTEM FAILURE REPAIR
+
+FULL BACKEND AUDIT
+
+Audit every API endpoint, database operation, route handler, middleware, service layer, authentication layer, frontend request, and deployment configuration.
+
+Repair all failures.
+
+==================================================
+
+1. PUBLIC APPOINTMENT STAFF DIRECTORY
+
+Current issue:
+
+No staff appear on public appointment booking page.
+
+Required:
+
+Display all active healthcare staff.
+
+Include:
+
+- Medical Director
+- Doctors
+- Clinical Officers
+- Nurses
+- Midwives
+- Pharmacists
+- Laboratory Technicians
+- Radiographers
+- Sonographers
+- Dispensers
+- Receptionists
+- Any active clinical staff
+
+Requirements:
+
+- Dynamic database loading
+- No hardcoded names
+- Automatic synchronization
+- New staff appear automatically
+- Disabled staff disappear automatically
+
+Verify on:
+
+- Render
+- Vercel
+- Netlify
+
+==================================================
+2. PATIENT REGISTRATION FAILURE
+
+Current issue:
+
+"Failed to register patient"
+
+Required:
+
+Audit:
+
+- Frontend form
+- Validation
+- API endpoint
+- Database insertion
+- Middleware
+- Response handling
+
+Repair all failures.
+
+Patient registration must work successfully on all deployments.
+
+==================================================
+3. ADD PATIENT TO QUEUE FAILURE
+
+Current issue:
+
+"Failed to add patient"
+
+Required:
+
+Audit:
+
+- Queue creation
+- Queue database writes
+- Queue API
+- Staff assignment
+- Validation logic
+
+Repair all failures.
+
+==================================================
+4. APPOINTMENT CHECK-IN FAILURE
+
+Current issue:
+
+"Check in failed"
+
+Required workflow:
+
+Appointment Confirmed
+↓
+Check In
+↓
+Queue
+↓
+Waiting
+↓
+Triage
+↓
+Consultation
+
+Patients must never disappear.
+
+==================================================
+5. QUEUE VISIBILITY FAILURE
+
+Current issue:
+
+Patient appears under totals but not visible anywhere.
+
+Required:
+
+Verify:
+
+- Queue table
+- Waiting table
+- Status transitions
+- Dashboard synchronization
+
+Repair all failures.
+
+==================================================
+6. DEPARTMENT MODULE FAILURES
+
+Repair all department save failures.
+
+Examples already reported:
+
+- Theatre
+- Admissions
+- Dental
+- ANC
+- Maternity
+
+Audit every department.
+
+Verify:
+
+- Add patient
+- Save
+- Update
+- Edit
+- Transfer
+- Delete
+
+Repair all broken routes.
+
+==================================================
+7. JSON RESPONSE FAILURES
+
+Current issue:
+
+Unexpected end of JSON input
+
+Required:
+
+Every API endpoint must return valid JSON.
+
+Add proper:
+
+- Success responses
+- Error responses
+- Validation responses
+
+No empty responses.
+
+==================================================
+PHASE 2 – CLINICAL WORKFLOW COMPLETION
+
+==================================================
+8. AGE ENTRY STANDARDIZATION
+
+Everywhere in system:
+
+Allow:
+
+- Years
+- Months
+- Weeks
+- Days
+
+Date of birth auto-generates.
+
+Manual override allowed.
+
+Apply to:
+
+- Registration
+- Queue
+- Admissions
+- ANC
+- Theatre
+- Dental
+- Follow-up
+- Patient Database
+
+==================================================
+9. TRIAGE CONTINUITY
+
+Verify and repair:
+
+Triage Nursing Notes automatically available in:
+
+- Consultation
+- EHR
+- Follow-up
+- Patient Database
+
+Include:
+
+- Presenting Complaint
+- Medical History
+- Investigations
+- Results
+- Uploaded files
+
+==================================================
+10. INVESTIGATION AUTOMATION
+
+Verify and repair:
+
+Triage Nurse Request
+→ Laboratory
+
+Triage Nurse Request
+→ Imaging
+
+Doctor Request
+→ Laboratory
+
+Doctor Request
+→ Imaging
+
+Automatically.
+
+No manual duplication.
+
+==================================================
+11. PHARMACY AUTOMATION
+
+Verify and repair:
+
+Nurse Prescription
+→ Pharmacy
+
+Doctor Prescription
+→ Pharmacy
+
+Automatically.
+
+Include:
+
+- Drug
+- Dose
+- Frequency
+- Duration
+- Instructions
+
+==================================================
+12. DEPARTMENT TRANSFER AUTOMATION
+
+Verify:
+
+Consultation
+→ Laboratory
+
+Consultation
+→ Imaging
+
+Consultation
+→ Theatre
+
+Consultation
+→ Admission
+
+Consultation
+→ Pharmacy
+
+Consultation
+→ Any department
+
+Patient must appear instantly.
+
+==================================================
+13. FOLLOW-UP AUTOMATION
+
+When follow-up date entered:
+
+Automatically create follow-up record.
+
+Display in Follow-Up section.
+
+==================================================
+14. EHR SYNCHRONIZATION
+
+Automatically store:
+
+- Registration
+- Queue
+- Triage
+- Consultation
+- Investigations
+- Prescriptions
+- Admissions
+- Theatre
+- Follow-up
+
+No missing records.
+
+==================================================
+PHASE 3 – DOCUMENT STANDARDIZATION
+
+==================================================
+15. PATIENT DEMOGRAPHICS
+
+Every printable document must include:
+
+- Patient Name
+- Patient ID
+- Age
+- Sex
+- Department
+- Date
+- Time
+- Clinician
+
+Apply to:
+
+- Laboratory Reports
+- Imaging Reports
+- Prescriptions
+- Referral Letters
+- Discharge Summaries
+- Sick Leave Certificates
+- Birth Certificates
+- Death Notification Forms
+- Admission Notes
+- Theatre Notes
+- Recovery Notes
+- ANC Reports
+- Follow-Up Reports
+
+No exceptions.
+
+==================================================
+PHASE 4 – SYSTEM SECURITY AND STABILITY
+
+==================================================
+16. AUDIT TRAIL
+
+Track:
+
+- Created by
+- Updated by
+- Deleted by
+- Date
+- Time
+
+For all patient records.
+
+==================================================
+17. DATABASE BACKUPS
+
+Implement:
+
+- Daily backup
+- Restore verification
+- Recovery process
+
+==================================================
+18. SECURITY HARDENING
+
+Protect:
+
+- APIs
+- Authentication
+- Patient data
+
+Prevent:
+
+- Unauthorized access
+- SQL injection
+- XSS
+- Broken role permissions
+
+==================================================
+19. DATA INTEGRITY VALIDATION
+
+Verify:
+
+- No duplicate patients
+- No orphan appointments
+- No broken staff references
+- No invalid IDs
+
+==================================================
+20. PERFORMANCE OPTIMIZATION
+
+Optimize:
+
+- Searches
+- Dashboard loading
+- Patient lookup
+- Queue loading
+
+==================================================
+21. MOBILE RESPONSIVENESS
+
+Verify:
+
+- Android
+- iPhone
+- Tablet
+- Laptop
+
+==================================================
+22. PRIVACY AND TERMS PAGES
+
+Repair:
+
+- Privacy Policy page
+- Terms and Conditions page
+
+Verify:
+
+- Vercel
+- Render
+- Netlify
+
+==================================================
+23. AUTO-SAVE
+
+Verify everywhere:
+
+- Consultation
+- Triage
+- Admissions
+- Theatre
+- Recovery
+- Laboratory
+- Imaging
+- Follow-up
+
+No information loss.
+
+==================================================
+PHASE 5 – FINAL ACCEPTANCE TESTING
+
+Perform complete end-to-end testing:
+
+Patient Registration
+→ Appointment
+→ Queue
+→ Waiting
+→ Triage
+→ Consultation
+→ Laboratory
+→ Imaging
+→ Pharmacy
+→ Admission
+→ Theatre
+→ Recovery
+→ Discharge
+→ Follow-Up
+
+Test:
+
+- Adult patients
+- Pediatric patients
+- ANC patients
+- Dental patients
+- Theatre patients
+- Emergency patients
+
+Repair all failures discovered.
+
+==================================================
+PHASE 6 – DEPLOYMENT
+
+Only after all testing passes:
+
+1. Run production build.
+2. Verify build succeeds.
+3. Verify zero runtime errors.
+4. Commit all changes.
+5. Push all changes to GitHub.
+6. Trigger deployment.
+7. Verify deployment on Render.
+8. Verify deployment on Vercel.
+9. Verify deployment on Netlify.
+10. Verify production environment functionality.
+
+==================================================
+FINAL COMPLETION CRITERIA
+
+Project is only complete when:
+
+- No registration failures
+- No queue failures
+- No check-in failures
+- No department save failures
+- No JSON parsing errors
+- No missing staff
+- No disappearing appointments
+- No broken routes
+- No missing patient information
+- No missing EHR records
+- No missing investigations
+- No missing prescriptions
+- No deployment failures
+
+After successful verification:
+
+Commit.
+Push to GitHub.
+Verify deployment.
+Verify production.
+Then stop.

@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db, adminsTable } from "@workspace/db";
-import { PROFESSIONAL_ROLES, professionalRoleEnum } from "@workspace/db";
+import { PROFESSIONAL_ROLES } from "@workspace/db";
 import {
   ListStaffResponse,
   CreateStaffBody,
@@ -29,55 +29,52 @@ function mapStaff(a: typeof adminsTable.$inferSelect) {
 }
 
 router.get("/staff", async (req, res): Promise<void> => {
-  const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
-  res.json(ListStaffResponse.parse(rows.map(mapStaff)));
+  try {
+    const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
+    res.json(ListStaffResponse.parse(rows.map(mapStaff)));
+  } catch (err) {
+    console.error("GET /staff error:", err);
+    res.status(500).json({ error: "Failed to fetch staff" });
+  }
 });
 
-router.get("/staff/public", async (req, res): Promise<void> => {
-  const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
-  res.json(rows.map(a => ({
-    id: a.id,
-    name: a.name,
-    role: a.role,
-    title: a.title ?? null,
-  })));
+router.get("/staff/public", async (_req, res): Promise<void> => {
+  try {
+    const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
+    res.json(rows.map(a => ({
+      id: a.id,
+      name: a.name,
+      role: a.role,
+      title: a.title ?? null,
+    })));
+  } catch (err) {
+    console.error("GET /staff/public error:", err);
+    res.status(500).json({ error: "Failed to fetch staff directory" });
+  }
 });
 
 router.post("/staff", async (req, res): Promise<void> => {
-  const session = await getSessionFromRequestAsync(req);
-  if (!session) { res.status(401).json({ error: "Not authenticated" }); return; }
-  if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can create staff accounts" });
-    return;
-  }
+  try {
+    const session = await getSessionFromRequestAsync(req);
+    if (!session) { res.status(401).json({ error: "Not authenticated" }); return; }
+    if (!WRITE_ROLES.includes(session.role ?? "")) {
+      res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can create staff accounts" });
+      return;
+    }
 
-  const parsed = CreateStaffBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
+    const parsed = CreateStaffBody.safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
-  // Validate role is a professional role
-  if (parsed.data.role && !PROFESSIONAL_ROLES.includes(parsed.data.role as any)) {
-    res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
-    return;
-  }
+    if (parsed.data.role && !PROFESSIONAL_ROLES.includes(parsed.data.role as any)) {
+      res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
+      return;
+    }
 
-  const existing = await db
-    .select()
-    .from(adminsTable)
-    .where(eq(adminsTable.username, parsed.data.username));
+    const existing = await db.select().from(adminsTable).where(eq(adminsTable.username, parsed.data.username));
+    if (existing.length > 0) { res.status(409).json({ error: "Username already exists" }); return; }
 
-  if (existing.length > 0) {
-    res.status(409).json({ error: "Username already exists" });
-    return;
-  }
-
-  const hashedPassword = await bcrypt.hash(parsed.data.password, 12);
-
-  const [staff] = await db
-    .insert(adminsTable)
-    .values({
+    const hashedPassword = await bcrypt.hash(parsed.data.password, 12);
+    const [staff] = await db.insert(adminsTable).values({
       username: parsed.data.username,
       password: hashedPassword,
       name: parsed.data.name,
@@ -85,89 +82,76 @@ router.post("/staff", async (req, res): Promise<void> => {
       title: parsed.data.title ?? null,
       phone: parsed.data.phone ?? null,
       email: parsed.data.email ?? null,
-    })
-    .returning();
+    }).returning();
 
-  res.status(201).json(mapStaff(staff));
+    res.status(201).json(mapStaff(staff));
+  } catch (err) {
+    console.error("POST /staff error:", err);
+    res.status(500).json({ error: "Failed to create staff account" });
+  }
 });
 
 router.patch("/staff/:id", async (req, res): Promise<void> => {
-  const session = await getSessionFromRequestAsync(req);
-  if (!session) { res.status(401).json({ error: "Not authenticated" }); return; }
-  if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can edit staff accounts" });
-    return;
+  try {
+    const session = await getSessionFromRequestAsync(req);
+    if (!session) { res.status(401).json({ error: "Not authenticated" }); return; }
+    if (!WRITE_ROLES.includes(session.role ?? "")) {
+      res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can edit staff accounts" });
+      return;
+    }
+
+    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const params = UpdateStaffParams.safeParse({ id: parseInt(raw, 10) });
+    if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
+
+    const body = UpdateStaffBody.safeParse(req.body);
+    if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
+
+    if (body.data.role && !PROFESSIONAL_ROLES.includes(body.data.role as any)) {
+      res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
+      return;
+    }
+
+    const updateData: Partial<typeof adminsTable.$inferInsert> = {};
+    if (body.data.name !== undefined) updateData.name = body.data.name;
+    if (body.data.password !== undefined) updateData.password = await bcrypt.hash(body.data.password, 12);
+    if (body.data.role !== undefined) updateData.role = body.data.role;
+    if (body.data.title !== undefined) updateData.title = body.data.title;
+    if (body.data.phone !== undefined) updateData.phone = body.data.phone;
+    if (body.data.email !== undefined) updateData.email = body.data.email;
+    if ((body.data as any).isActive !== undefined) (updateData as any).isActive = (body.data as any).isActive;
+
+    const [staff] = await db.update(adminsTable).set(updateData).where(eq(adminsTable.id, params.data.id)).returning();
+    if (!staff) { res.status(404).json({ error: "Staff not found" }); return; }
+
+    res.json(mapStaff(staff));
+  } catch (err) {
+    console.error("PATCH /staff/:id error:", err);
+    res.status(500).json({ error: "Failed to update staff account" });
   }
-
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = UpdateStaffParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const body = UpdateStaffBody.safeParse(req.body);
-  if (!body.success) {
-    res.status(400).json({ error: body.error.message });
-    return;
-  }
-
-  // Validate role is a professional role
-  if (body.data.role && !PROFESSIONAL_ROLES.includes(body.data.role as any)) {
-    res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
-    return;
-  }
-
-  const updateData: Partial<typeof adminsTable.$inferInsert> = {};
-  if (body.data.name !== undefined) updateData.name = body.data.name;
-  if (body.data.password !== undefined) {
-    updateData.password = await bcrypt.hash(body.data.password, 12);
-  }
-  if (body.data.role !== undefined) updateData.role = body.data.role;
-  if (body.data.title !== undefined) updateData.title = body.data.title;
-  if (body.data.phone !== undefined) updateData.phone = body.data.phone;
-  if (body.data.email !== undefined) updateData.email = body.data.email;
-
-  const [staff] = await db
-    .update(adminsTable)
-    .set(updateData)
-    .where(eq(adminsTable.id, params.data.id))
-    .returning();
-
-  if (!staff) {
-    res.status(404).json({ error: "Staff not found" });
-    return;
-  }
-
-  res.json(mapStaff(staff));
 });
 
 router.delete("/staff/:id", async (req, res): Promise<void> => {
-  const session = await getSessionFromRequestAsync(req);
-  if (!session) { res.status(401).json({ error: "Not authenticated" }); return; }
-  if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can delete staff accounts" });
-    return;
+  try {
+    const session = await getSessionFromRequestAsync(req);
+    if (!session) { res.status(401).json({ error: "Not authenticated" }); return; }
+    if (!WRITE_ROLES.includes(session.role ?? "")) {
+      res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can delete staff accounts" });
+      return;
+    }
+
+    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const params = DeleteStaffParams.safeParse({ id: parseInt(raw, 10) });
+    if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
+
+    const [deleted] = await db.delete(adminsTable).where(eq(adminsTable.id, params.data.id)).returning();
+    if (!deleted) { res.status(404).json({ error: "Staff not found" }); return; }
+
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /staff/:id error:", err);
+    res.status(500).json({ error: "Failed to delete staff account" });
   }
-
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = DeleteStaffParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const [deleted] = await db
-    .delete(adminsTable)
-    .where(eq(adminsTable.id, params.data.id))
-    .returning();
-
-  if (!deleted) {
-    res.status(404).json({ error: "Staff not found" });
-    return;
-  }
-
-  res.sendStatus(204);
 });
 
 export default router;

@@ -28,11 +28,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except2, desc4) => {
+var __copyProps = (to, from, except2, desc3) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except2)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc4 = __getOwnPropDesc(from, key)) || desc4.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc3 = __getOwnPropDesc(from, key)) || desc3.enumerable });
   }
   return to;
 };
@@ -1481,10 +1481,10 @@ var require_http_errors = __commonJS({
       return ServerError;
     }
     function nameFunc(func, name) {
-      var desc4 = Object.getOwnPropertyDescriptor(func, "name");
-      if (desc4 && desc4.configurable) {
-        desc4.value = name;
-        Object.defineProperty(func, "name", desc4);
+      var desc3 = Object.getOwnPropertyDescriptor(func, "name");
+      if (desc3 && desc3.configurable) {
+        desc3.value = name;
+        Object.defineProperty(func, "name", desc3);
       }
     }
     function populateConstructorExports(exports2, codes, HttpError) {
@@ -17056,14 +17056,14 @@ var require_get = __commonJS({
         throw e;
       }
     }
-    var desc4 = !!hasProtoAccessor && gOPD && gOPD(
+    var desc3 = !!hasProtoAccessor && gOPD && gOPD(
       Object.prototype,
       /** @type {keyof typeof Object.prototype} */
       "__proto__"
     );
     var $Object = Object;
     var $getPrototypeOf = $Object.getPrototypeOf;
-    module.exports = desc4 && typeof desc4.get === "function" ? callBind([desc4.get]) : typeof $getPrototypeOf === "function" ? (
+    module.exports = desc3 && typeof desc3.get === "function" ? callBind([desc3.get]) : typeof $getPrototypeOf === "function" ? (
       /** @type {import('./get')} */
       function getDunder(value) {
         return $getPrototypeOf(value == null ? value : $Object(value));
@@ -17413,10 +17413,10 @@ var require_get_intrinsic = __commonJS({
             return void undefined2;
           }
           if ($gOPD && i + 1 >= parts.length) {
-            var desc4 = $gOPD(value, part);
-            isOwn = !!desc4;
-            if (isOwn && "get" in desc4 && !("originalValue" in desc4.get)) {
-              value = desc4.get;
+            var desc3 = $gOPD(value, part);
+            isOwn = !!desc3;
+            if (isOwn && "get" in desc3 && !("originalValue" in desc3.get)) {
+              value = desc3.get;
             } else {
               value = value[part];
             }
@@ -28831,13 +28831,13 @@ var require_ipv4 = __commonJS({
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
-      var desc4 = Object.getOwnPropertyDescriptor(m, k);
-      if (!desc4 || ("get" in desc4 ? !m.__esModule : desc4.writable || desc4.configurable)) {
-        desc4 = { enumerable: true, get: function() {
+      var desc3 = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc3 || ("get" in desc3 ? !m.__esModule : desc3.writable || desc3.configurable)) {
+        desc3 = { enumerable: true, get: function() {
           return m[k];
         } };
       }
-      Object.defineProperty(o, k2, desc4);
+      Object.defineProperty(o, k2, desc3);
     }) : (function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
       o[k2] = m[k];
@@ -29397,13 +29397,13 @@ var require_regular_expressions = __commonJS({
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
-      var desc4 = Object.getOwnPropertyDescriptor(m, k);
-      if (!desc4 || ("get" in desc4 ? !m.__esModule : desc4.writable || desc4.configurable)) {
-        desc4 = { enumerable: true, get: function() {
+      var desc3 = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc3 || ("get" in desc3 ? !m.__esModule : desc3.writable || desc3.configurable)) {
+        desc3 = { enumerable: true, get: function() {
           return m[k];
         } };
       }
-      Object.defineProperty(o, k2, desc4);
+      Object.defineProperty(o, k2, desc3);
     }) : (function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
       o[k2] = m[k];
@@ -29489,13 +29489,13 @@ var require_ipv6 = __commonJS({
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
-      var desc4 = Object.getOwnPropertyDescriptor(m, k);
-      if (!desc4 || ("get" in desc4 ? !m.__esModule : desc4.writable || desc4.configurable)) {
-        desc4 = { enumerable: true, get: function() {
+      var desc3 = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc3 || ("get" in desc3 ? !m.__esModule : desc3.writable || desc3.configurable)) {
+        desc3 = { enumerable: true, get: function() {
           return m[k];
         } };
       }
-      Object.defineProperty(o, k2, desc4);
+      Object.defineProperty(o, k2, desc3);
     }) : (function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
       o[k2] = m[k];
@@ -30606,13 +30606,13 @@ var require_ip_address = __commonJS({
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
-      var desc4 = Object.getOwnPropertyDescriptor(m, k);
-      if (!desc4 || ("get" in desc4 ? !m.__esModule : desc4.writable || desc4.configurable)) {
-        desc4 = { enumerable: true, get: function() {
+      var desc3 = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc3 || ("get" in desc3 ? !m.__esModule : desc3.writable || desc3.configurable)) {
+        desc3 = { enumerable: true, get: function() {
           return m[k];
         } };
       }
-      Object.defineProperty(o, k2, desc4);
+      Object.defineProperty(o, k2, desc3);
     }) : (function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
       o[k2] = m[k];
@@ -35466,10 +35466,10 @@ var init_subquery = __esm({
     init_entity();
     Subquery = class {
       static [entityKind] = "Subquery";
-      constructor(sql4, fields, alias, isWith = false, usedTables = []) {
+      constructor(sql3, fields, alias, isWith = false, usedTables = []) {
         this._ = {
           brand: "Subquery",
-          sql: sql4,
+          sql: sql3,
           selectedFields: fields,
           alias,
           isWith,
@@ -40561,12 +40561,12 @@ var require_result = __commonJS({
         }
         const row = /* @__PURE__ */ Object.create(null);
         for (let i = 0; i < fieldDescriptions.length; i++) {
-          const desc4 = fieldDescriptions[i];
-          row[desc4.name] = null;
+          const desc3 = fieldDescriptions[i];
+          row[desc3.name] = null;
           if (this._types) {
-            this._parsers[i] = this._types.getTypeParser(desc4.dataTypeID, desc4.format || "text");
+            this._parsers[i] = this._types.getTypeParser(desc3.dataTypeID, desc3.format || "text");
           } else {
-            this._parsers[i] = types3.getTypeParser(desc4.dataTypeID, desc4.format || "text");
+            this._parsers[i] = types3.getTypeParser(desc3.dataTypeID, desc3.format || "text");
           }
         }
         this._prebuiltEmptyResultObject = { ...row };
@@ -47266,10 +47266,10 @@ var init_raw = __esm({
     init_entity();
     init_query_promise();
     PgRaw = class extends QueryPromise {
-      constructor(execute, sql4, query, mapBatchResult) {
+      constructor(execute, sql3, query, mapBatchResult) {
         super();
         this.execute = execute;
-        this.sql = sql4;
+        this.sql = sql3;
         this.query = query;
         this.mapBatchResult = mapBatchResult;
       }
@@ -47589,8 +47589,8 @@ var init_db = __esm({
 });
 
 // ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_pg@8.21.0/node_modules/drizzle-orm/cache/core/cache.js
-async function hashQuery(sql4, params) {
-  const dataToHash = `${sql4}-${JSON.stringify(params)}`;
+async function hashQuery(sql3, params) {
+  const dataToHash = `${sql3}-${JSON.stringify(params)}`;
   const encoder = new TextEncoder();
   const data = encoder.encode(dataToHash);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
@@ -80658,9 +80658,9 @@ var CreatePatientBody = objectType({
   "age": numberType().optional(),
   "ageMonths": numberType().optional(),
   "ageDays": numberType().optional(),
-  "gender": enumType(["male", "female", "other"]).optional(),
+  "gender": stringType().optional(),
   "address": stringType().optional(),
-  "bloodType": enumType(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"]).optional(),
+  "bloodType": stringType().optional(),
   "allergies": stringType().optional(),
   "medicalNotes": stringType().optional(),
   "nextOfKinName": stringType().optional(),
@@ -80701,16 +80701,16 @@ var UpdatePatientParams = objectType({
 });
 var updatePatientBodyFullNameMin = 2;
 var UpdatePatientBody = objectType({
-  "fullName": stringType().min(updatePatientBodyFullNameMin),
-  "phone": stringType(),
+  "fullName": stringType().min(updatePatientBodyFullNameMin).optional(),
+  "phone": stringType().optional(),
   "email": stringType().optional(),
   "dateOfBirth": stringType().optional(),
   "age": numberType().optional(),
   "ageMonths": numberType().optional(),
   "ageDays": numberType().optional(),
-  "gender": enumType(["male", "female", "other"]).optional(),
+  "gender": stringType().optional(),
   "address": stringType().optional(),
-  "bloodType": enumType(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"]).optional(),
+  "bloodType": stringType().optional(),
   "allergies": stringType().optional(),
   "medicalNotes": stringType().optional(),
   "nextOfKinName": stringType().optional(),
@@ -88926,118 +88926,150 @@ function mapPatient(p) {
   };
 }
 router4.get("/patients", async (req, res) => {
-  const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
-  const rows = search ? await db.select().from(patientsTable).where(
-    or(
-      ilike(patientsTable.fullName, `%${search}%`),
-      ilike(patientsTable.phone, `%${search}%`),
-      ilike(patientsTable.email, `%${search}%`)
-    )
-  ).orderBy(patientsTable.fullName) : await db.select().from(patientsTable).orderBy(patientsTable.fullName);
-  res.json(ListPatientsResponse.parse(rows.map(mapPatient)));
+  try {
+    const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
+    const rows = search ? await db.select().from(patientsTable).where(
+      or(
+        ilike(patientsTable.fullName, `%${search}%`),
+        ilike(patientsTable.phone, `%${search}%`),
+        ilike(patientsTable.email, `%${search}%`)
+      )
+    ).orderBy(patientsTable.fullName) : await db.select().from(patientsTable).orderBy(patientsTable.fullName);
+    res.json(ListPatientsResponse.parse(rows.map(mapPatient)));
+  } catch (err) {
+    console.error("GET /patients error:", err);
+    res.status(500).json({ error: "Failed to fetch patients" });
+  }
 });
 router4.post("/patients", async (req, res) => {
-  const parsed = CreatePatientBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = CreatePatientBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const existingPatient = await db.select().from(patientsTable).where(eq(patientsTable.phone, parsed.data.phone)).limit(1);
+    if (existingPatient.length > 0) {
+      res.status(409).json({ error: "A patient with this phone number already exists" });
+      return;
+    }
+    const [patient] = await db.insert(patientsTable).values({
+      fullName: parsed.data.fullName,
+      phone: parsed.data.phone,
+      email: parsed.data.email ?? null,
+      dateOfBirth: parsed.data.dateOfBirth ?? null,
+      age: parsed.data.age ?? null,
+      ageMonths: parsed.data.ageMonths ?? null,
+      ageDays: parsed.data.ageDays ?? null,
+      gender: parsed.data.gender ?? null,
+      address: parsed.data.address ?? null,
+      bloodType: parsed.data.bloodType ?? null,
+      allergies: parsed.data.allergies ?? null,
+      medicalNotes: parsed.data.medicalNotes ?? null,
+      nextOfKinName: parsed.data.nextOfKinName ?? null,
+      nextOfKinPhone: parsed.data.nextOfKinPhone ?? null,
+      nextOfKinRelationship: parsed.data.nextOfKinRelationship ?? null,
+      insuranceName: parsed.data.insuranceName ?? null,
+      insurancePolicyNumber: parsed.data.insurancePolicyNumber ?? null,
+      paymentMethod: parsed.data.paymentMethod ?? null
+    }).returning();
+    logAudit(req, "create_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {
+    });
+    res.status(201).json(GetPatientResponse.parse(mapPatient(patient)));
+  } catch (err) {
+    console.error("POST /patients error:", err);
+    res.status(500).json({ error: "Failed to register patient" });
   }
-  const existingPatient = await db.select().from(patientsTable).where(eq(patientsTable.phone, parsed.data.phone)).limit(1);
-  if (existingPatient.length > 0) {
-    res.status(409).json({ error: "A patient with this phone number already exists" });
-    return;
-  }
-  const [patient] = await db.insert(patientsTable).values({
-    fullName: parsed.data.fullName,
-    phone: parsed.data.phone,
-    email: parsed.data.email ?? null,
-    dateOfBirth: parsed.data.dateOfBirth ?? null,
-    age: parsed.data.age ?? null,
-    ageMonths: parsed.data.ageMonths ?? null,
-    ageDays: parsed.data.ageDays ?? null,
-    gender: parsed.data.gender ?? null,
-    address: parsed.data.address ?? null,
-    bloodType: parsed.data.bloodType ?? null,
-    allergies: parsed.data.allergies ?? null,
-    medicalNotes: parsed.data.medicalNotes ?? null,
-    nextOfKinName: parsed.data.nextOfKinName ?? null,
-    nextOfKinPhone: parsed.data.nextOfKinPhone ?? null,
-    nextOfKinRelationship: parsed.data.nextOfKinRelationship ?? null,
-    insuranceName: parsed.data.insuranceName ?? null,
-    insurancePolicyNumber: parsed.data.insurancePolicyNumber ?? null,
-    paymentMethod: parsed.data.paymentMethod ?? null
-  }).returning();
-  logAudit(req, "create_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {
-  });
-  res.status(201).json(GetPatientResponse.parse(mapPatient(patient)));
 });
-router4.get("/patients/stats/summary", async (req, res) => {
-  const rows = await db.select().from(patientsTable);
-  const now = /* @__PURE__ */ new Date();
-  const todayStr = now.toISOString().slice(0, 10);
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay());
-  const weekStartStr = weekStart.toISOString().slice(0, 10);
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-  res.json(
-    GetPatientStatsResponse.parse({
+router4.get("/patients/stats/summary", async (_req, res) => {
+  try {
+    const rows = await db.select().from(patientsTable);
+    const now = /* @__PURE__ */ new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    const weekStartStr = weekStart.toISOString().slice(0, 10);
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    res.json(GetPatientStatsResponse.parse({
       total: rows.length,
       today: rows.filter((r) => r.createdAt.toISOString().slice(0, 10) === todayStr).length,
       thisWeek: rows.filter((r) => r.createdAt.toISOString().slice(0, 10) >= weekStartStr).length,
       thisMonth: rows.filter((r) => r.createdAt.toISOString().slice(0, 10) >= monthStart).length
-    })
-  );
+    }));
+  } catch (err) {
+    console.error("GET /patients/stats error:", err);
+    res.status(500).json({ error: "Failed to fetch patient statistics" });
+  }
 });
 router4.get("/patients/:id", async (req, res) => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = GetPatientParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
+  try {
+    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const params = GetPatientParams.safeParse({ id: parseInt(raw, 10) });
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+    const [patient] = await db.select().from(patientsTable).where(eq(patientsTable.id, params.data.id));
+    if (!patient) {
+      res.status(404).json({ error: "Patient not found" });
+      return;
+    }
+    res.json(GetPatientResponse.parse(mapPatient(patient)));
+  } catch (err) {
+    console.error("GET /patients/:id error:", err);
+    res.status(500).json({ error: "Failed to fetch patient" });
   }
-  const [patient] = await db.select().from(patientsTable).where(eq(patientsTable.id, params.data.id));
-  if (!patient) {
-    res.status(404).json({ error: "Patient not found" });
-    return;
-  }
-  res.json(GetPatientResponse.parse(mapPatient(patient)));
 });
 router4.patch("/patients/:id", async (req, res) => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = UpdatePatientParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
+  try {
+    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const params = UpdatePatientParams.safeParse({ id: parseInt(raw, 10) });
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+    const body = UpdatePatientBody.safeParse(req.body);
+    if (!body.success) {
+      res.status(400).json({ error: body.error.message });
+      return;
+    }
+    if (Object.keys(body.data).length === 0) {
+      res.status(400).json({ error: "No fields provided to update" });
+      return;
+    }
+    const [patient] = await db.update(patientsTable).set({ ...body.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(patientsTable.id, params.data.id)).returning();
+    if (!patient) {
+      res.status(404).json({ error: "Patient not found" });
+      return;
+    }
+    logAudit(req, "update_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {
+    });
+    res.json(UpdatePatientResponse.parse(mapPatient(patient)));
+  } catch (err) {
+    console.error("PATCH /patients/:id error:", err);
+    res.status(500).json({ error: "Failed to update patient" });
   }
-  const body = UpdatePatientBody.safeParse(req.body);
-  if (!body.success) {
-    res.status(400).json({ error: body.error.message });
-    return;
-  }
-  const [patient] = await db.update(patientsTable).set({ ...body.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(patientsTable.id, params.data.id)).returning();
-  if (!patient) {
-    res.status(404).json({ error: "Patient not found" });
-    return;
-  }
-  logAudit(req, "update_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {
-  });
-  res.json(UpdatePatientResponse.parse(mapPatient(patient)));
 });
 router4.delete("/patients/:id", async (req, res) => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = DeletePatientParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
+  try {
+    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const params = DeletePatientParams.safeParse({ id: parseInt(raw, 10) });
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+    const [patient] = await db.delete(patientsTable).where(eq(patientsTable.id, params.data.id)).returning();
+    if (!patient) {
+      res.status(404).json({ error: "Patient not found" });
+      return;
+    }
+    logAudit(req, "delete_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {
+    });
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /patients/:id error:", err);
+    res.status(500).json({ error: "Failed to delete patient" });
   }
-  const [patient] = await db.delete(patientsTable).where(eq(patientsTable.id, params.data.id)).returning();
-  if (!patient) {
-    res.status(404).json({ error: "Patient not found" });
-    return;
-  }
-  logAudit(req, "delete_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {
-  });
-  res.sendStatus(204);
 });
 var patients_default = router4;
 
@@ -89060,117 +89092,141 @@ function mapStaff(a) {
   };
 }
 router5.get("/staff", async (req, res) => {
-  const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
-  res.json(ListStaffResponse.parse(rows.map(mapStaff)));
+  try {
+    const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
+    res.json(ListStaffResponse.parse(rows.map(mapStaff)));
+  } catch (err) {
+    console.error("GET /staff error:", err);
+    res.status(500).json({ error: "Failed to fetch staff" });
+  }
 });
-router5.get("/staff/public", async (req, res) => {
-  const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
-  res.json(rows.map((a) => ({
-    id: a.id,
-    name: a.name,
-    role: a.role,
-    title: a.title ?? null
-  })));
+router5.get("/staff/public", async (_req, res) => {
+  try {
+    const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
+    res.json(rows.map((a) => ({
+      id: a.id,
+      name: a.name,
+      role: a.role,
+      title: a.title ?? null
+    })));
+  } catch (err) {
+    console.error("GET /staff/public error:", err);
+    res.status(500).json({ error: "Failed to fetch staff directory" });
+  }
 });
 router5.post("/staff", async (req, res) => {
-  const session = await getSessionFromRequestAsync(req);
-  if (!session) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
+  try {
+    const session = await getSessionFromRequestAsync(req);
+    if (!session) {
+      res.status(401).json({ error: "Not authenticated" });
+      return;
+    }
+    if (!WRITE_ROLES.includes(session.role ?? "")) {
+      res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can create staff accounts" });
+      return;
+    }
+    const parsed = CreateStaffBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    if (parsed.data.role && !PROFESSIONAL_ROLES.includes(parsed.data.role)) {
+      res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
+      return;
+    }
+    const existing = await db.select().from(adminsTable).where(eq(adminsTable.username, parsed.data.username));
+    if (existing.length > 0) {
+      res.status(409).json({ error: "Username already exists" });
+      return;
+    }
+    const hashedPassword = await bcryptjs_default.hash(parsed.data.password, 12);
+    const [staff] = await db.insert(adminsTable).values({
+      username: parsed.data.username,
+      password: hashedPassword,
+      name: parsed.data.name,
+      role: parsed.data.role,
+      title: parsed.data.title ?? null,
+      phone: parsed.data.phone ?? null,
+      email: parsed.data.email ?? null
+    }).returning();
+    res.status(201).json(mapStaff(staff));
+  } catch (err) {
+    console.error("POST /staff error:", err);
+    res.status(500).json({ error: "Failed to create staff account" });
   }
-  if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can create staff accounts" });
-    return;
-  }
-  const parsed = CreateStaffBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  if (parsed.data.role && !PROFESSIONAL_ROLES.includes(parsed.data.role)) {
-    res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
-    return;
-  }
-  const existing = await db.select().from(adminsTable).where(eq(adminsTable.username, parsed.data.username));
-  if (existing.length > 0) {
-    res.status(409).json({ error: "Username already exists" });
-    return;
-  }
-  const hashedPassword = await bcryptjs_default.hash(parsed.data.password, 12);
-  const [staff] = await db.insert(adminsTable).values({
-    username: parsed.data.username,
-    password: hashedPassword,
-    name: parsed.data.name,
-    role: parsed.data.role,
-    title: parsed.data.title ?? null,
-    phone: parsed.data.phone ?? null,
-    email: parsed.data.email ?? null
-  }).returning();
-  res.status(201).json(mapStaff(staff));
 });
 router5.patch("/staff/:id", async (req, res) => {
-  const session = await getSessionFromRequestAsync(req);
-  if (!session) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
+  try {
+    const session = await getSessionFromRequestAsync(req);
+    if (!session) {
+      res.status(401).json({ error: "Not authenticated" });
+      return;
+    }
+    if (!WRITE_ROLES.includes(session.role ?? "")) {
+      res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can edit staff accounts" });
+      return;
+    }
+    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const params = UpdateStaffParams.safeParse({ id: parseInt(raw, 10) });
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+    const body = UpdateStaffBody.safeParse(req.body);
+    if (!body.success) {
+      res.status(400).json({ error: body.error.message });
+      return;
+    }
+    if (body.data.role && !PROFESSIONAL_ROLES.includes(body.data.role)) {
+      res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
+      return;
+    }
+    const updateData = {};
+    if (body.data.name !== void 0) updateData.name = body.data.name;
+    if (body.data.password !== void 0) updateData.password = await bcryptjs_default.hash(body.data.password, 12);
+    if (body.data.role !== void 0) updateData.role = body.data.role;
+    if (body.data.title !== void 0) updateData.title = body.data.title;
+    if (body.data.phone !== void 0) updateData.phone = body.data.phone;
+    if (body.data.email !== void 0) updateData.email = body.data.email;
+    if (body.data.isActive !== void 0) updateData.isActive = body.data.isActive;
+    const [staff] = await db.update(adminsTable).set(updateData).where(eq(adminsTable.id, params.data.id)).returning();
+    if (!staff) {
+      res.status(404).json({ error: "Staff not found" });
+      return;
+    }
+    res.json(mapStaff(staff));
+  } catch (err) {
+    console.error("PATCH /staff/:id error:", err);
+    res.status(500).json({ error: "Failed to update staff account" });
   }
-  if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can edit staff accounts" });
-    return;
-  }
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = UpdateStaffParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const body = UpdateStaffBody.safeParse(req.body);
-  if (!body.success) {
-    res.status(400).json({ error: body.error.message });
-    return;
-  }
-  if (body.data.role && !PROFESSIONAL_ROLES.includes(body.data.role)) {
-    res.status(400).json({ error: `Invalid role. Must be one of: ${PROFESSIONAL_ROLES.join(", ")}` });
-    return;
-  }
-  const updateData = {};
-  if (body.data.name !== void 0) updateData.name = body.data.name;
-  if (body.data.password !== void 0) {
-    updateData.password = await bcryptjs_default.hash(body.data.password, 12);
-  }
-  if (body.data.role !== void 0) updateData.role = body.data.role;
-  if (body.data.title !== void 0) updateData.title = body.data.title;
-  if (body.data.phone !== void 0) updateData.phone = body.data.phone;
-  if (body.data.email !== void 0) updateData.email = body.data.email;
-  const [staff] = await db.update(adminsTable).set(updateData).where(eq(adminsTable.id, params.data.id)).returning();
-  if (!staff) {
-    res.status(404).json({ error: "Staff not found" });
-    return;
-  }
-  res.json(mapStaff(staff));
 });
 router5.delete("/staff/:id", async (req, res) => {
-  const session = await getSessionFromRequestAsync(req);
-  if (!session) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
+  try {
+    const session = await getSessionFromRequestAsync(req);
+    if (!session) {
+      res.status(401).json({ error: "Not authenticated" });
+      return;
+    }
+    if (!WRITE_ROLES.includes(session.role ?? "")) {
+      res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can delete staff accounts" });
+      return;
+    }
+    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const params = DeleteStaffParams.safeParse({ id: parseInt(raw, 10) });
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+    const [deleted] = await db.delete(adminsTable).where(eq(adminsTable.id, params.data.id)).returning();
+    if (!deleted) {
+      res.status(404).json({ error: "Staff not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /staff/:id error:", err);
+    res.status(500).json({ error: "Failed to delete staff account" });
   }
-  if (!WRITE_ROLES.includes(session.role ?? "")) {
-    res.status(403).json({ error: "Forbidden: only admin, owner, or medical_director can delete staff accounts" });
-    return;
-  }
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = DeleteStaffParams.safeParse({ id: parseInt(raw, 10) });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const [deleted] = await db.delete(adminsTable).where(eq(adminsTable.id, params.data.id)).returning();
-  if (!deleted) {
-    res.status(404).json({ error: "Staff not found" });
-    return;
-  }
-  res.sendStatus(204);
 });
 var staff_default = router5;
 
@@ -89381,136 +89437,161 @@ async function mapConsultation(c) {
   };
 }
 router7.get("/consultations", async (req, res) => {
-  const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
-  const rows = patientId ? await db.select().from(consultationsTable).where(eq(consultationsTable.patientId, patientId)).orderBy(desc(consultationsTable.visitDate)) : await db.select().from(consultationsTable).orderBy(desc(consultationsTable.visitDate));
-  const mapped = await Promise.all(rows.map(mapConsultation));
-  res.json(mapped);
+  try {
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
+    const rows = patientId ? await db.select().from(consultationsTable).where(eq(consultationsTable.patientId, patientId)).orderBy(desc(consultationsTable.visitDate)) : await db.select().from(consultationsTable).orderBy(desc(consultationsTable.visitDate));
+    const mapped = await Promise.all(rows.map(mapConsultation));
+    res.json(mapped);
+  } catch (err) {
+    console.error("GET /consultations error:", err);
+    res.status(500).json({ error: "Failed to fetch consultations" });
+  }
 });
 router7.post("/consultations", async (req, res) => {
-  const parsed = ConsultationInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const [row] = await db.insert(consultationsTable).values({
-    patientId: parsed.data.patientId,
-    staffId: parsed.data.staffId ?? null,
-    visitDate: parsed.data.visitDate,
-    chiefComplaint: parsed.data.chiefComplaint ?? null,
-    diagnosis: parsed.data.diagnosis ?? null,
-    treatmentPlan: parsed.data.treatmentPlan ?? null,
-    prescriptions: parsed.data.prescriptions ?? null,
-    referral: parsed.data.referral ?? null,
-    followUpDate: parsed.data.followUpDate ?? null,
-    notes: parsed.data.notes ?? null
-  }).returning();
-  if (parsed.data.labInvestigations) {
-    const investigations = parsed.data.labInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
-    for (const investigation of investigations) {
-      await db.insert(labOrdersTable).values({
-        patientId: parsed.data.patientId,
-        consultationId: row.id,
-        testName: investigation,
-        testCategory: "routine",
-        priority: "routine",
-        status: "pending",
-        clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis,
-        orderedBy: parsed.data.staffId
-      });
+  try {
+    const parsed = ConsultationInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
     }
-  }
-  if (parsed.data.imagingInvestigations) {
-    const studies = parsed.data.imagingInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
-    for (const study of studies) {
-      const studyLower = study.toLowerCase();
-      let modality = "X-Ray";
-      if (studyLower.includes("ct scan") || studyLower.includes("ct \u2014") || studyLower.includes("computed tomography")) modality = "CT Scan";
-      else if (studyLower.includes("mri") || studyLower.includes("magnetic resonance")) modality = "MRI";
-      else if (studyLower.includes("ultrasound") || studyLower.includes("echo") || studyLower.includes("doppler")) modality = "Ultrasound";
-      else if (studyLower.includes("mammogram") || studyLower.includes("mammography")) modality = "Mammography";
-      await db.insert(imagingOrdersTable).values({
-        patientId: parsed.data.patientId,
-        consultationId: row.id,
-        modality,
-        bodyPart: study,
-        clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis,
-        priority: "routine",
-        status: "requested"
-      });
-    }
-  }
-  if (parsed.data.prescriptions) {
-    const prescriptionLines = parsed.data.prescriptions.split("\n").map((s) => s.trim()).filter(Boolean);
-    for (const prescription of prescriptionLines) {
-      const parts = prescription.split("|").map((s) => s.trim());
-      if (parts.length >= 4) {
-        await db.insert(pharmacyOrdersTable).values({
+    const [row] = await db.insert(consultationsTable).values({
+      patientId: parsed.data.patientId,
+      staffId: parsed.data.staffId ?? null,
+      visitDate: parsed.data.visitDate,
+      chiefComplaint: parsed.data.chiefComplaint ?? null,
+      diagnosis: parsed.data.diagnosis ?? null,
+      treatmentPlan: parsed.data.treatmentPlan ?? null,
+      prescriptions: parsed.data.prescriptions ?? null,
+      referral: parsed.data.referral ?? null,
+      followUpDate: parsed.data.followUpDate ?? null,
+      notes: parsed.data.notes ?? null
+    }).returning();
+    if (parsed.data.labInvestigations) {
+      const investigations = parsed.data.labInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
+      for (const investigation of investigations) {
+        await db.insert(labOrdersTable).values({
           patientId: parsed.data.patientId,
           consultationId: row.id,
-          drugName: parts[0],
-          dose: parts[1],
-          frequency: parts[2],
-          duration: parts[3],
-          instructions: parts[4] || "As directed",
-          prescribedBy: parsed.data.staffId,
+          testName: investigation,
+          testCategory: "routine",
+          priority: "routine",
           status: "pending",
-          priority: "routine"
+          clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis,
+          orderedBy: parsed.data.staffId
         });
       }
     }
+    if (parsed.data.imagingInvestigations) {
+      const studies = parsed.data.imagingInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
+      for (const study of studies) {
+        const studyLower = study.toLowerCase();
+        let modality = "X-Ray";
+        if (studyLower.includes("ct scan") || studyLower.includes("computed tomography")) modality = "CT Scan";
+        else if (studyLower.includes("mri") || studyLower.includes("magnetic resonance")) modality = "MRI";
+        else if (studyLower.includes("ultrasound") || studyLower.includes("echo") || studyLower.includes("doppler")) modality = "Ultrasound";
+        else if (studyLower.includes("mammogram") || studyLower.includes("mammography")) modality = "Mammography";
+        await db.insert(imagingOrdersTable).values({
+          patientId: parsed.data.patientId,
+          consultationId: row.id,
+          modality,
+          bodyPart: study,
+          clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis,
+          priority: "routine",
+          status: "requested"
+        });
+      }
+    }
+    if (parsed.data.prescriptions) {
+      const prescriptionLines = parsed.data.prescriptions.split("\n").map((s) => s.trim()).filter(Boolean);
+      for (const prescription of prescriptionLines) {
+        const parts = prescription.split("|").map((s) => s.trim());
+        if (parts.length >= 4) {
+          await db.insert(pharmacyOrdersTable).values({
+            patientId: parsed.data.patientId,
+            consultationId: row.id,
+            drugName: parts[0],
+            dose: parts[1],
+            frequency: parts[2],
+            duration: parts[3],
+            instructions: parts[4] || "As directed",
+            prescribedBy: parsed.data.staffId,
+            status: "pending",
+            priority: "routine"
+          });
+        }
+      }
+    }
+    if (parsed.data.followUpDate) {
+      await db.update(consultationsTable).set({ followUpStatus: "scheduled" }).where(eq(consultationsTable.id, row.id));
+    }
+    logAudit(req, "create_consultation", { entityType: "consultation", entityId: row.id, details: parsed.data.chiefComplaint ?? parsed.data.diagnosis ?? "" }).catch(() => {
+    });
+    res.status(201).json(await mapConsultation(row));
+  } catch (err) {
+    console.error("POST /consultations error:", err);
+    res.status(500).json({ error: "Failed to save consultation" });
   }
-  if (parsed.data.followUpDate) {
-    await db.update(consultationsTable).set({ followUpStatus: "scheduled" }).where(eq(consultationsTable.id, row.id));
-  }
-  logAudit(req, "create_consultation", { entityType: "consultation", entityId: row.id, details: parsed.data.chiefComplaint ?? parsed.data.diagnosis ?? "" }).catch(() => {
-  });
-  res.status(201).json(await mapConsultation(row));
 });
 router7.get("/consultations/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.select().from(consultationsTable).where(eq(consultationsTable.id, id));
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(consultationsTable).where(eq(consultationsTable.id, id));
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    const triageData = await db.select().from(triageTable).where(eq(triageTable.patientId, row.patientId)).orderBy(desc(triageTable.triageTime)).limit(1).then((r) => r[0] || null);
+    const consultation = await mapConsultation(row);
+    res.json({
+      ...consultation,
+      triageData: triageData ? {
+        ...triageData,
+        triageTime: triageData.triageTime.toISOString(),
+        createdAt: triageData.createdAt.toISOString(),
+        updatedAt: triageData.updatedAt.toISOString()
+      } : null
+    });
+  } catch (err) {
+    console.error("GET /consultations/:id error:", err);
+    res.status(500).json({ error: "Failed to fetch consultation" });
   }
-  const triageData = await db.select().from(triageTable).where(eq(triageTable.patientId, row.patientId)).orderBy(desc(triageTable.triageTime)).limit(1).then((r) => r[0] || null);
-  const consultation = await mapConsultation(row);
-  res.json({
-    ...consultation,
-    triageData: triageData ? {
-      ...triageData,
-      triageTime: triageData.triageTime.toISOString(),
-      createdAt: triageData.createdAt.toISOString(),
-      updatedAt: triageData.updatedAt.toISOString()
-    } : null
-  });
 });
 router7.patch("/consultations/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = ConsultationInputSchema.partial().safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = ConsultationInputSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(consultationsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(consultationsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    logAudit(req, "update_consultation", { entityType: "consultation", entityId: row.id, details: parsed.data.diagnosis ?? "" }).catch(() => {
+    });
+    res.json(await mapConsultation(row));
+  } catch (err) {
+    console.error("PATCH /consultations/:id error:", err);
+    res.status(500).json({ error: "Failed to update consultation" });
   }
-  const [row] = await db.update(consultationsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(consultationsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  logAudit(req, "update_consultation", { entityType: "consultation", entityId: row.id, details: parsed.data.diagnosis ?? "" }).catch(() => {
-  });
-  res.json(await mapConsultation(row));
 });
 router7.delete("/consultations/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.delete(consultationsTable).where(eq(consultationsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.delete(consultationsTable).where(eq(consultationsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    logAudit(req, "delete_consultation", { entityType: "consultation", entityId: row.id }).catch(() => {
+    });
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /consultations/:id error:", err);
+    res.status(500).json({ error: "Failed to delete consultation" });
   }
-  logAudit(req, "delete_consultation", { entityType: "consultation", entityId: row.id }).catch(() => {
-  });
-  res.sendStatus(204);
 });
 var consultations_default = router7;
 
@@ -89611,134 +89692,153 @@ async function mapInvoice(inv) {
   };
 }
 router9.get("/billing", async (req, res) => {
-  const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
-  const status = typeof req.query.status === "string" ? req.query.status : void 0;
-  let query = db.select().from(invoicesTable).$dynamic();
-  if (patientId) query = query.where(eq(invoicesTable.patientId, patientId));
-  const rows = await query.orderBy(desc(invoicesTable.createdAt));
-  const filtered = status ? rows.filter((r) => r.status === status) : rows;
-  const mapped = await Promise.all(filtered.map(mapInvoice));
-  res.json(mapped);
+  try {
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
+    const status = typeof req.query.status === "string" ? req.query.status : void 0;
+    let query = db.select().from(invoicesTable).$dynamic();
+    if (patientId) query = query.where(eq(invoicesTable.patientId, patientId));
+    const rows = await query.orderBy(desc(invoicesTable.createdAt));
+    const filtered = status ? rows.filter((r) => r.status === status) : rows;
+    const mapped = await Promise.all(filtered.map(mapInvoice));
+    res.json(mapped);
+  } catch (err) {
+    console.error("GET /billing error:", err);
+    res.status(500).json({ error: "Failed to fetch billing records" });
+  }
 });
 router9.post("/billing", async (req, res) => {
-  const parsed = InvoiceInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const total = parsed.data.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-  invoiceCounter++;
-  const invNumber = `INV-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(invoiceCounter).padStart(4, "0")}`;
-  const [inv] = await db.insert(invoicesTable).values({
-    patientId: parsed.data.patientId,
-    consultationId: parsed.data.consultationId ?? null,
-    invoiceNumber: invNumber,
-    totalAmount: String(total),
-    notes: parsed.data.notes ?? null
-  }).returning();
-  for (const item of parsed.data.items) {
-    await db.insert(invoiceItemsTable).values({
-      invoiceId: inv.id,
-      description: item.description,
-      quantity: item.quantity,
-      unitPrice: String(item.unitPrice),
-      amount: String(item.quantity * item.unitPrice)
-    });
-  }
-  logAudit(req, "create_invoice", { entityType: "invoice", entityId: inv.id, details: `${invNumber} \u2014 UGX ${total.toLocaleString()}` }).catch(() => {
-  });
-  res.status(201).json(await mapInvoice(inv));
-});
-router9.get("/billing/stats/summary", async (req, res) => {
-  const rows = await db.select().from(invoicesTable);
-  const now = /* @__PURE__ */ new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-  const totalRevenue = rows.reduce((s, r) => s + parseFloat(String(r.totalAmount)), 0);
-  const totalPaid = rows.filter((r) => r.status === "paid").reduce((s, r) => s + parseFloat(String(r.totalAmount)), 0);
-  const totalUnpaid = rows.filter((r) => r.status === "unpaid" || r.status === "partial").reduce((s, r) => s + parseFloat(String(r.totalAmount)) - parseFloat(String(r.paidAmount)), 0);
-  const thisMonthRevenue = rows.filter((r) => r.createdAt.toISOString().slice(0, 10) >= monthStart).reduce((s, r) => s + parseFloat(String(r.paidAmount)), 0);
-  res.json({ totalInvoices: rows.length, totalRevenue: totalRevenue.toFixed(2), totalPaid: totalPaid.toFixed(2), totalUnpaid: totalUnpaid.toFixed(2), thisMonthRevenue: thisMonthRevenue.toFixed(2) });
-});
-router9.get("/billing/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [inv] = await db.select().from(invoicesTable).where(eq(invoicesTable.id, id));
-  if (!inv) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json(await mapInvoice(inv));
-});
-router9.patch("/billing/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = InvoiceUpdateSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const updateData = { updatedAt: /* @__PURE__ */ new Date() };
-  if (parsed.data.status) updateData.status = parsed.data.status;
-  if (parsed.data.paidAmount !== void 0) updateData.paidAmount = String(parsed.data.paidAmount);
-  if (parsed.data.paymentMethod) updateData.paymentMethod = parsed.data.paymentMethod;
-  if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
-  const [inv] = await db.update(invoicesTable).set(updateData).where(eq(invoicesTable.id, id)).returning();
-  if (!inv) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  if (parsed.data.status === "paid" || parsed.data.paidAmount !== void 0) {
-    logAudit(req, "record_payment", { entityType: "invoice", entityId: inv.id, details: `${inv.invoiceNumber} \u2014 ${parsed.data.paymentMethod ?? "cash"} \u2014 UGX ${parsed.data.paidAmount ?? inv.paidAmount}` }).catch(() => {
-    });
-  }
-  res.json(await mapInvoice(inv));
-});
-router9.post("/billing/append-items", async (req, res) => {
-  const schema = external_exports.object({
-    patientId: external_exports.number().int(),
-    department: external_exports.string().optional(),
-    items: external_exports.array(ItemSchema).min(1)
-  });
-  const parsed = schema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const { patientId, items, department } = parsed.data;
-  const prefix = department ? `[${department}] ` : "";
-  const prefixed = items.map((i) => ({ ...i, description: `${prefix}${i.description}` }));
-  const [existing] = await db.select().from(invoicesTable).where(and(eq(invoicesTable.patientId, patientId), or(eq(invoicesTable.status, "unpaid"), eq(invoicesTable.status, "partial")))).orderBy(desc(invoicesTable.createdAt)).limit(1);
-  let inv;
-  if (existing) {
-    for (const item of prefixed) {
-      await db.insert(invoiceItemsTable).values({ invoiceId: existing.id, description: item.description, quantity: item.quantity, unitPrice: String(item.unitPrice), amount: String(item.quantity * item.unitPrice) });
+  try {
+    const parsed = InvoiceInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
     }
-    const added = prefixed.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-    const [updated] = await db.update(invoicesTable).set({ totalAmount: String(parseFloat(String(existing.totalAmount)) + added), updatedAt: /* @__PURE__ */ new Date() }).where(eq(invoicesTable.id, existing.id)).returning();
-    inv = updated;
-  } else {
-    const total = prefixed.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+    const total = parsed.data.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
     invoiceCounter++;
     const invNumber = `INV-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(invoiceCounter).padStart(4, "0")}`;
-    const [newInv] = await db.insert(invoicesTable).values({ patientId, invoiceNumber: invNumber, totalAmount: String(total) }).returning();
-    for (const item of prefixed) {
-      await db.insert(invoiceItemsTable).values({ invoiceId: newInv.id, description: item.description, quantity: item.quantity, unitPrice: String(item.unitPrice), amount: String(item.quantity * item.unitPrice) });
+    const [inv] = await db.insert(invoicesTable).values({ patientId: parsed.data.patientId, consultationId: parsed.data.consultationId ?? null, invoiceNumber: invNumber, totalAmount: String(total), notes: parsed.data.notes ?? null }).returning();
+    for (const item of parsed.data.items) {
+      await db.insert(invoiceItemsTable).values({ invoiceId: inv.id, description: item.description, quantity: item.quantity, unitPrice: String(item.unitPrice), amount: String(item.quantity * item.unitPrice) });
     }
-    inv = newInv;
+    logAudit(req, "create_invoice", { entityType: "invoice", entityId: inv.id, details: `${invNumber} \u2014 UGX ${total.toLocaleString()}` }).catch(() => {
+    });
+    res.status(201).json(await mapInvoice(inv));
+  } catch (err) {
+    console.error("POST /billing error:", err);
+    res.status(500).json({ error: "Failed to create invoice" });
   }
-  logAudit(req, "auto_bill_items", { entityType: "invoice", entityId: inv.id, details: `Auto-billed ${department ?? "Dept"} \u2014 ${prefixed.length} item(s)` }).catch(() => {
-  });
-  res.status(201).json(await mapInvoice(inv));
+});
+router9.get("/billing/stats/summary", async (_req, res) => {
+  try {
+    const rows = await db.select().from(invoicesTable);
+    const now = /* @__PURE__ */ new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    const totalRevenue = rows.reduce((s, r) => s + parseFloat(String(r.totalAmount)), 0);
+    const totalPaid = rows.filter((r) => r.status === "paid").reduce((s, r) => s + parseFloat(String(r.totalAmount)), 0);
+    const totalUnpaid = rows.filter((r) => r.status === "unpaid" || r.status === "partial").reduce((s, r) => s + parseFloat(String(r.totalAmount)) - parseFloat(String(r.paidAmount)), 0);
+    const thisMonthRevenue = rows.filter((r) => r.createdAt.toISOString().slice(0, 10) >= monthStart).reduce((s, r) => s + parseFloat(String(r.paidAmount)), 0);
+    res.json({ totalInvoices: rows.length, totalRevenue: totalRevenue.toFixed(2), totalPaid: totalPaid.toFixed(2), totalUnpaid: totalUnpaid.toFixed(2), thisMonthRevenue: thisMonthRevenue.toFixed(2) });
+  } catch (err) {
+    console.error("GET /billing/stats error:", err);
+    res.status(500).json({ error: "Failed to fetch billing stats" });
+  }
+});
+router9.get("/billing/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [inv] = await db.select().from(invoicesTable).where(eq(invoicesTable.id, id));
+    if (!inv) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json(await mapInvoice(inv));
+  } catch (err) {
+    console.error("GET /billing/:id error:", err);
+    res.status(500).json({ error: "Failed to fetch invoice" });
+  }
+});
+router9.patch("/billing/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = InvoiceUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const updateData = { updatedAt: /* @__PURE__ */ new Date() };
+    if (parsed.data.status) updateData.status = parsed.data.status;
+    if (parsed.data.paidAmount !== void 0) updateData.paidAmount = String(parsed.data.paidAmount);
+    if (parsed.data.paymentMethod) updateData.paymentMethod = parsed.data.paymentMethod;
+    if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
+    const [inv] = await db.update(invoicesTable).set(updateData).where(eq(invoicesTable.id, id)).returning();
+    if (!inv) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    if (parsed.data.status === "paid" || parsed.data.paidAmount !== void 0) {
+      logAudit(req, "record_payment", { entityType: "invoice", entityId: inv.id, details: `${inv.invoiceNumber} \u2014 ${parsed.data.paymentMethod ?? "cash"}` }).catch(() => {
+      });
+    }
+    res.json(await mapInvoice(inv));
+  } catch (err) {
+    console.error("PATCH /billing/:id error:", err);
+    res.status(500).json({ error: "Failed to update invoice" });
+  }
+});
+router9.post("/billing/append-items", async (req, res) => {
+  try {
+    const schema = external_exports.object({ patientId: external_exports.number().int(), department: external_exports.string().optional(), items: external_exports.array(ItemSchema).min(1) });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const { patientId, items, department } = parsed.data;
+    const prefix = department ? `[${department}] ` : "";
+    const prefixed = items.map((i) => ({ ...i, description: `${prefix}${i.description}` }));
+    const [existing] = await db.select().from(invoicesTable).where(and(eq(invoicesTable.patientId, patientId), or(eq(invoicesTable.status, "unpaid"), eq(invoicesTable.status, "partial")))).orderBy(desc(invoicesTable.createdAt)).limit(1);
+    let inv;
+    if (existing) {
+      for (const item of prefixed) {
+        await db.insert(invoiceItemsTable).values({ invoiceId: existing.id, description: item.description, quantity: item.quantity, unitPrice: String(item.unitPrice), amount: String(item.quantity * item.unitPrice) });
+      }
+      const added = prefixed.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+      const [updated] = await db.update(invoicesTable).set({ totalAmount: String(parseFloat(String(existing.totalAmount)) + added), updatedAt: /* @__PURE__ */ new Date() }).where(eq(invoicesTable.id, existing.id)).returning();
+      inv = updated;
+    } else {
+      const total = prefixed.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+      invoiceCounter++;
+      const invNumber = `INV-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(invoiceCounter).padStart(4, "0")}`;
+      const [newInv] = await db.insert(invoicesTable).values({ patientId, invoiceNumber: invNumber, totalAmount: String(total) }).returning();
+      for (const item of prefixed) {
+        await db.insert(invoiceItemsTable).values({ invoiceId: newInv.id, description: item.description, quantity: item.quantity, unitPrice: String(item.unitPrice), amount: String(item.quantity * item.unitPrice) });
+      }
+      inv = newInv;
+    }
+    logAudit(req, "auto_bill_items", { entityType: "invoice", entityId: inv.id, details: `Auto-billed ${department ?? "Dept"} \u2014 ${prefixed.length} item(s)` }).catch(() => {
+    });
+    res.status(201).json(await mapInvoice(inv));
+  } catch (err) {
+    console.error("POST /billing/append-items error:", err);
+    res.status(500).json({ error: "Failed to append billing items" });
+  }
 });
 router9.delete("/billing/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await db.delete(invoiceItemsTable).where(eq(invoiceItemsTable.invoiceId, id));
-  const [inv] = await db.delete(invoicesTable).where(eq(invoicesTable.id, id)).returning();
-  if (!inv) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    await db.delete(invoiceItemsTable).where(eq(invoiceItemsTable.invoiceId, id));
+    const [inv] = await db.delete(invoicesTable).where(eq(invoicesTable.id, id)).returning();
+    if (!inv) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    logAudit(req, "delete_invoice", { entityType: "invoice", entityId: inv.id, details: inv.invoiceNumber }).catch(() => {
+    });
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /billing/:id error:", err);
+    res.status(500).json({ error: "Failed to delete invoice" });
   }
-  logAudit(req, "delete_invoice", { entityType: "invoice", entityId: inv.id, details: inv.invoiceNumber }).catch(() => {
-  });
-  res.sendStatus(204);
 });
 var billing_default = router9;
 
@@ -89777,132 +89877,181 @@ function mapStock(s) {
   };
 }
 router10.get("/pharmacy/stock", async (req, res) => {
-  const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
-  const lowStock = req.query.lowStock === "true";
-  let rows = search ? await db.select().from(pharmacyStockTable).where(ilike(pharmacyStockTable.drugName, `%${search}%`)).orderBy(pharmacyStockTable.drugName) : await db.select().from(pharmacyStockTable).orderBy(pharmacyStockTable.drugName);
-  if (lowStock) rows = rows.filter((r) => r.quantity <= r.reorderLevel);
-  res.json(rows.map(mapStock));
+  try {
+    const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
+    const lowStock = req.query.lowStock === "true";
+    let rows = search ? await db.select().from(pharmacyStockTable).where(ilike(pharmacyStockTable.drugName, `%${search}%`)).orderBy(pharmacyStockTable.drugName) : await db.select().from(pharmacyStockTable).orderBy(pharmacyStockTable.drugName);
+    if (lowStock) rows = rows.filter((r) => r.quantity <= r.reorderLevel);
+    res.json(rows.map(mapStock));
+  } catch (err) {
+    console.error("GET /pharmacy/stock error:", err);
+    res.status(500).json({ error: "Failed to fetch pharmacy stock" });
+  }
 });
 router10.post("/pharmacy/stock", async (req, res) => {
-  const parsed = StockInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = StockInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(pharmacyStockTable).values({
+      drugName: parsed.data.drugName,
+      genericName: parsed.data.genericName ?? null,
+      category: parsed.data.category ?? null,
+      quantity: parsed.data.quantity,
+      unit: parsed.data.unit,
+      reorderLevel: parsed.data.reorderLevel ?? 10,
+      expiryDate: parsed.data.expiryDate ?? null,
+      buyingPrice: parsed.data.buyingPrice !== void 0 ? String(parsed.data.buyingPrice) : null,
+      sellingPrice: parsed.data.sellingPrice !== void 0 ? String(parsed.data.sellingPrice) : null,
+      notes: parsed.data.notes ?? null
+    }).returning();
+    logAudit(req, "add_drug_stock", { entityType: "pharmacy_stock", entityId: row.id, details: `${row.drugName} \u2014 qty ${row.quantity} ${row.unit}` }).catch(() => {
+    });
+    res.status(201).json(mapStock(row));
+  } catch (err) {
+    console.error("POST /pharmacy/stock error:", err);
+    res.status(500).json({ error: "Failed to add drug to stock" });
   }
-  const [row] = await db.insert(pharmacyStockTable).values({
-    drugName: parsed.data.drugName,
-    genericName: parsed.data.genericName ?? null,
-    category: parsed.data.category ?? null,
-    quantity: parsed.data.quantity,
-    unit: parsed.data.unit,
-    reorderLevel: parsed.data.reorderLevel ?? 10,
-    expiryDate: parsed.data.expiryDate ?? null,
-    buyingPrice: parsed.data.buyingPrice !== void 0 ? String(parsed.data.buyingPrice) : null,
-    sellingPrice: parsed.data.sellingPrice !== void 0 ? String(parsed.data.sellingPrice) : null,
-    notes: parsed.data.notes ?? null
-  }).returning();
-  logAudit(req, "add_drug_stock", { entityType: "pharmacy_stock", entityId: row.id, details: `${row.drugName} \u2014 qty ${row.quantity} ${row.unit}` }).catch(() => {
-  });
-  res.status(201).json(mapStock(row));
 });
 router10.patch("/pharmacy/stock/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = StockInputSchema.partial().safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const updateData = { updatedAt: /* @__PURE__ */ new Date() };
-  if (parsed.data.drugName !== void 0) updateData.drugName = parsed.data.drugName;
-  if (parsed.data.genericName !== void 0) updateData.genericName = parsed.data.genericName;
-  if (parsed.data.category !== void 0) updateData.category = parsed.data.category;
-  if (parsed.data.quantity !== void 0) updateData.quantity = parsed.data.quantity;
-  if (parsed.data.unit !== void 0) updateData.unit = parsed.data.unit;
-  if (parsed.data.reorderLevel !== void 0) updateData.reorderLevel = parsed.data.reorderLevel;
-  if (parsed.data.expiryDate !== void 0) updateData.expiryDate = parsed.data.expiryDate;
-  if (parsed.data.buyingPrice !== void 0) updateData.buyingPrice = String(parsed.data.buyingPrice);
-  if (parsed.data.sellingPrice !== void 0) updateData.sellingPrice = String(parsed.data.sellingPrice);
-  if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
-  const [before] = await db.select().from(pharmacyStockTable).where(eq(pharmacyStockTable.id, id));
-  const [row] = await db.update(pharmacyStockTable).set(updateData).where(eq(pharmacyStockTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  logAudit(req, "update_drug_stock", { entityType: "pharmacy_stock", entityId: row.id, details: row.drugName }).catch(() => {
-  });
-  const wasOk = before ? before.quantity > before.reorderLevel : true;
-  const isLow = row.quantity <= row.reorderLevel;
-  if (wasOk && isLow) {
-    const isOut = row.quantity === 0;
-    void createAndBroadcast({
-      type: "pharmacy_stock",
-      title: isOut ? `Out of Stock: ${row.drugName}` : `Low Stock: ${row.drugName}`,
-      body: isOut ? `${row.drugName} is now out of stock. Please reorder immediately.` : `${row.drugName} has ${row.quantity} ${row.unit} remaining (reorder level: ${row.reorderLevel}).`,
-      severity: isOut ? "urgent" : "warning",
-      relatedId: row.id
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = StockInputSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const updateData = { updatedAt: /* @__PURE__ */ new Date() };
+    if (parsed.data.drugName !== void 0) updateData.drugName = parsed.data.drugName;
+    if (parsed.data.genericName !== void 0) updateData.genericName = parsed.data.genericName;
+    if (parsed.data.category !== void 0) updateData.category = parsed.data.category;
+    if (parsed.data.quantity !== void 0) updateData.quantity = parsed.data.quantity;
+    if (parsed.data.unit !== void 0) updateData.unit = parsed.data.unit;
+    if (parsed.data.reorderLevel !== void 0) updateData.reorderLevel = parsed.data.reorderLevel;
+    if (parsed.data.expiryDate !== void 0) updateData.expiryDate = parsed.data.expiryDate;
+    if (parsed.data.buyingPrice !== void 0) updateData.buyingPrice = String(parsed.data.buyingPrice);
+    if (parsed.data.sellingPrice !== void 0) updateData.sellingPrice = String(parsed.data.sellingPrice);
+    if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
+    const [before] = await db.select().from(pharmacyStockTable).where(eq(pharmacyStockTable.id, id));
+    const [row] = await db.update(pharmacyStockTable).set(updateData).where(eq(pharmacyStockTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    logAudit(req, "update_drug_stock", { entityType: "pharmacy_stock", entityId: row.id, details: row.drugName }).catch(() => {
     });
+    const wasOk = before ? before.quantity > before.reorderLevel : true;
+    const isLow = row.quantity <= row.reorderLevel;
+    if (wasOk && isLow) {
+      const isOut = row.quantity === 0;
+      void createAndBroadcast({ type: "pharmacy_stock", title: isOut ? `Out of Stock: ${row.drugName}` : `Low Stock: ${row.drugName}`, body: isOut ? `${row.drugName} is now out of stock.` : `${row.drugName} has ${row.quantity} ${row.unit} remaining.`, severity: isOut ? "urgent" : "warning", relatedId: row.id });
+    }
+    res.json(mapStock(row));
+  } catch (err) {
+    console.error("PATCH /pharmacy/stock/:id error:", err);
+    res.status(500).json({ error: "Failed to update drug stock" });
   }
-  res.json(mapStock(row));
 });
 router10.delete("/pharmacy/stock/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.delete(pharmacyStockTable).where(eq(pharmacyStockTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.delete(pharmacyStockTable).where(eq(pharmacyStockTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    logAudit(req, "delete_drug_stock", { entityType: "pharmacy_stock", entityId: row.id, details: row.drugName }).catch(() => {
+    });
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /pharmacy/stock/:id error:", err);
+    res.status(500).json({ error: "Failed to delete drug stock" });
   }
-  logAudit(req, "delete_drug_stock", { entityType: "pharmacy_stock", entityId: row.id, details: row.drugName }).catch(() => {
-  });
-  res.sendStatus(204);
 });
 router10.post("/pharmacy/dispense", async (req, res) => {
-  const parsed = DispenseInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const [stock] = await db.select().from(pharmacyStockTable).where(eq(pharmacyStockTable.id, parsed.data.stockId));
-  if (!stock) {
-    res.status(404).json({ error: "Stock item not found" });
-    return;
-  }
-  if (stock.quantity < parsed.data.quantity) {
-    res.status(400).json({ error: "Insufficient stock" });
-    return;
-  }
-  const [updated] = await db.update(pharmacyStockTable).set({ quantity: stock.quantity - parsed.data.quantity, updatedAt: /* @__PURE__ */ new Date() }).where(eq(pharmacyStockTable.id, parsed.data.stockId)).returning();
-  await db.insert(pharmacyDispensingsTable).values({
-    stockId: parsed.data.stockId,
-    patientId: parsed.data.patientId ?? null,
-    consultationId: parsed.data.consultationId ?? null,
-    quantity: parsed.data.quantity,
-    notes: parsed.data.notes ?? null
-  });
-  logAudit(req, "dispense_drug", { entityType: "pharmacy_stock", entityId: stock.id, details: `${stock.drugName} \u2014 qty ${parsed.data.quantity} ${stock.unit}` }).catch(() => {
-  });
-  if (updated.quantity <= updated.reorderLevel) {
-    const isOut = updated.quantity === 0;
-    void createAndBroadcast({
-      type: "pharmacy_stock",
-      title: isOut ? `Out of Stock: ${updated.drugName}` : `Low Stock: ${updated.drugName}`,
-      body: isOut ? `${updated.drugName} is now out of stock. Please reorder immediately.` : `${updated.drugName} has ${updated.quantity} ${updated.unit} remaining (reorder level: ${updated.reorderLevel}).`,
-      severity: isOut ? "urgent" : "warning",
-      relatedId: updated.id
+  try {
+    const parsed = DispenseInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [stock] = await db.select().from(pharmacyStockTable).where(eq(pharmacyStockTable.id, parsed.data.stockId));
+    if (!stock) {
+      res.status(404).json({ error: "Stock item not found" });
+      return;
+    }
+    if (stock.quantity < parsed.data.quantity) {
+      res.status(400).json({ error: "Insufficient stock" });
+      return;
+    }
+    const [updated] = await db.update(pharmacyStockTable).set({ quantity: stock.quantity - parsed.data.quantity, updatedAt: /* @__PURE__ */ new Date() }).where(eq(pharmacyStockTable.id, parsed.data.stockId)).returning();
+    await db.insert(pharmacyDispensingsTable).values({ stockId: parsed.data.stockId, patientId: parsed.data.patientId ?? null, consultationId: parsed.data.consultationId ?? null, quantity: parsed.data.quantity, notes: parsed.data.notes ?? null });
+    logAudit(req, "dispense_drug", { entityType: "pharmacy_stock", entityId: stock.id, details: `${stock.drugName} \u2014 qty ${parsed.data.quantity} ${stock.unit}` }).catch(() => {
     });
+    if (updated.quantity <= updated.reorderLevel) {
+      const isOut = updated.quantity === 0;
+      void createAndBroadcast({ type: "pharmacy_stock", title: isOut ? `Out of Stock: ${updated.drugName}` : `Low Stock: ${updated.drugName}`, body: isOut ? `${updated.drugName} is now out of stock.` : `${updated.drugName} has ${updated.quantity} ${updated.unit} remaining.`, severity: isOut ? "urgent" : "warning", relatedId: updated.id });
+    }
+    res.json(mapStock(updated));
+  } catch (err) {
+    console.error("POST /pharmacy/dispense error:", err);
+    res.status(500).json({ error: "Failed to dispense drug" });
   }
-  res.json(mapStock(updated));
 });
-router10.get("/pharmacy/stats", async (req, res) => {
-  const rows = await db.select().from(pharmacyStockTable);
-  const now = /* @__PURE__ */ new Date();
-  const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1e3).toISOString().slice(0, 10);
-  res.json({
-    totalItems: rows.length,
-    lowStockItems: rows.filter((r) => r.quantity > 0 && r.quantity <= r.reorderLevel).length,
-    outOfStockItems: rows.filter((r) => r.quantity === 0).length,
-    expiringItems: rows.filter((r) => r.expiryDate && r.expiryDate <= thirtyDays).length
-  });
+router10.get("/pharmacy/stats", async (_req, res) => {
+  try {
+    const rows = await db.select().from(pharmacyStockTable);
+    const now = /* @__PURE__ */ new Date();
+    const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1e3).toISOString().slice(0, 10);
+    res.json({
+      totalItems: rows.length,
+      lowStockItems: rows.filter((r) => r.quantity > 0 && r.quantity <= r.reorderLevel).length,
+      outOfStockItems: rows.filter((r) => r.quantity === 0).length,
+      expiringItems: rows.filter((r) => r.expiryDate && r.expiryDate <= thirtyDays).length
+    });
+  } catch (err) {
+    console.error("GET /pharmacy/stats error:", err);
+    res.status(500).json({ error: "Failed to fetch pharmacy stats" });
+  }
+});
+router10.get("/pharmacy/orders", async (req, res) => {
+  try {
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
+    const status = typeof req.query.status === "string" ? req.query.status : void 0;
+    let rows = await db.select().from(pharmacyOrdersTable).orderBy(desc(pharmacyOrdersTable.createdAt));
+    if (patientId) rows = rows.filter((r) => r.patientId === patientId);
+    if (status) rows = rows.filter((r) => r.status === status);
+    const enriched = await Promise.all(rows.map(async (r) => {
+      const patient = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, r.patientId)).then((x) => x[0]);
+      return { ...r, patientName: patient?.fullName ?? null, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() };
+    }));
+    res.json(enriched);
+  } catch (err) {
+    console.error("GET /pharmacy/orders error:", err);
+    res.status(500).json({ error: "Failed to fetch pharmacy orders" });
+  }
+});
+router10.patch("/pharmacy/orders/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const schema = external_exports.object({ status: external_exports.string().optional(), notes: external_exports.string().optional() });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(pharmacyOrdersTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(pharmacyOrdersTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error("PATCH /pharmacy/orders/:id error:", err);
+    res.status(500).json({ error: "Failed to update pharmacy order" });
+  }
 });
 var pharmacy_default = router10;
 
@@ -89949,146 +90098,158 @@ async function mapOrder(o) {
   };
 }
 router11.get("/lab/orders", async (req, res) => {
-  const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
-  const status = typeof req.query.status === "string" ? req.query.status : void 0;
-  let rows = patientId ? await db.select().from(labOrdersTable).where(eq(labOrdersTable.patientId, patientId)).orderBy(desc(labOrdersTable.orderedAt)) : await db.select().from(labOrdersTable).orderBy(desc(labOrdersTable.orderedAt));
-  if (status) rows = rows.filter((r) => r.status === status);
-  const mapped = await Promise.all(rows.map(mapOrder));
-  res.json(mapped);
+  try {
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
+    const status = typeof req.query.status === "string" ? req.query.status : void 0;
+    let rows = patientId ? await db.select().from(labOrdersTable).where(eq(labOrdersTable.patientId, patientId)).orderBy(desc(labOrdersTable.orderedAt)) : await db.select().from(labOrdersTable).orderBy(desc(labOrdersTable.orderedAt));
+    if (status) rows = rows.filter((r) => r.status === status);
+    const mapped = await Promise.all(rows.map(mapOrder));
+    res.json(mapped);
+  } catch (err) {
+    console.error("GET /lab/orders error:", err);
+    res.status(500).json({ error: "Failed to fetch lab orders" });
+  }
 });
 router11.post("/lab/orders", async (req, res) => {
-  const parsed = LabOrderInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const [row] = await db.insert(labOrdersTable).values({
-    patientId: parsed.data.patientId,
-    consultationId: parsed.data.consultationId ?? null,
-    orderedBy: parsed.data.orderedBy ?? null,
-    testName: parsed.data.testName,
-    testCategory: parsed.data.testCategory ?? null,
-    priority: parsed.data.priority ?? "routine",
-    clinicalInfo: parsed.data.clinicalInfo ?? null,
-    notes: parsed.data.notes ?? null
-  }).returning();
-  logAudit(req, "create_lab_order", { entityType: "lab_order", entityId: row.id, details: `${parsed.data.testName} \u2014 ${parsed.data.priority ?? "routine"}` }).catch(() => {
-  });
-  const isStat = row.priority === "stat";
-  void createAndBroadcast({
-    type: "lab_order",
-    title: isStat ? `STAT Lab Order: ${row.testName}` : `New Lab Order: ${row.testName}`,
-    body: isStat ? `Urgent lab test ordered \u2014 immediate processing required.` : `Priority: ${row.priority}`,
-    severity: isStat ? "urgent" : "info",
-    relatedId: row.id
-  });
-  res.status(201).json(await mapOrder(row));
-});
-router11.patch("/lab/orders/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = LabOrderUpdateSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const updateData = {};
-  if (parsed.data.status) {
-    updateData.status = parsed.data.status;
-    if (parsed.data.status === "completed") updateData.completedAt = /* @__PURE__ */ new Date();
-  }
-  if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
-  const [row] = await db.update(labOrdersTable).set(updateData).where(eq(labOrdersTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  if (parsed.data.status) {
-    logAudit(req, "update_lab_order_status", { entityType: "lab_order", entityId: row.id, details: `${row.testName} \u2192 ${parsed.data.status}` }).catch(() => {
-    });
-    if (parsed.data.status === "completed") {
-      void createAndBroadcast({
-        type: "lab_order",
-        title: `Lab Result Ready: ${row.testName}`,
-        body: `Test completed. Review the result for patient order #${row.id}.`,
-        severity: row.priority === "stat" ? "urgent" : "info",
-        relatedId: row.id
-      });
-    } else if (parsed.data.status === "in-progress") {
-      void createAndBroadcast({
-        type: "lab_order",
-        title: `Lab Order In Progress: ${row.testName}`,
-        body: `Processing has started for order #${row.id}.`,
-        severity: row.priority === "stat" ? "warning" : "info",
-        relatedId: row.id
-      });
+  try {
+    const parsed = LabOrderInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
     }
-  }
-  res.json(await mapOrder(row));
-});
-router11.delete("/lab/orders/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await db.delete(labResultsTable).where(eq(labResultsTable.labOrderId, id));
-  const [row] = await db.delete(labOrdersTable).where(eq(labOrdersTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  logAudit(req, "delete_lab_order", { entityType: "lab_order", entityId: row.id, details: row.testName }).catch(() => {
-  });
-  res.sendStatus(204);
-});
-router11.post("/lab/results", async (req, res) => {
-  const parsed = LabResultInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const [row] = await db.insert(labResultsTable).values({
-    labOrderId: parsed.data.labOrderId,
-    result: parsed.data.result ?? null,
-    unit: parsed.data.unit ?? null,
-    referenceRange: parsed.data.referenceRange ?? null,
-    interpretation: parsed.data.interpretation ?? null,
-    notes: parsed.data.notes ?? null,
-    recordedBy: parsed.data.recordedBy ?? null
-  }).returning();
-  await db.update(labOrdersTable).set({ status: "completed", completedAt: /* @__PURE__ */ new Date() }).where(eq(labOrdersTable.id, parsed.data.labOrderId));
-  logAudit(req, "record_lab_result", { entityType: "lab_result", entityId: row.id, details: `Order #${parsed.data.labOrderId} \u2014 ${parsed.data.interpretation ?? "recorded"}` }).catch(() => {
-  });
-  const [completedOrder] = await db.select().from(labOrdersTable).where(eq(labOrdersTable.id, parsed.data.labOrderId));
-  if (completedOrder) {
-    const interp = parsed.data.interpretation?.toLowerCase() ?? "";
-    const isCritical = interp.includes("critical") || interp.includes("abnormal") || completedOrder.priority === "stat";
+    const [row] = await db.insert(labOrdersTable).values({
+      patientId: parsed.data.patientId,
+      consultationId: parsed.data.consultationId ?? null,
+      orderedBy: parsed.data.orderedBy ?? null,
+      testName: parsed.data.testName,
+      testCategory: parsed.data.testCategory ?? null,
+      priority: parsed.data.priority ?? "routine",
+      clinicalInfo: parsed.data.clinicalInfo ?? null,
+      notes: parsed.data.notes ?? null
+    }).returning();
+    logAudit(req, "create_lab_order", { entityType: "lab_order", entityId: row.id, details: `${parsed.data.testName} \u2014 ${parsed.data.priority ?? "routine"}` }).catch(() => {
+    });
+    const isStat = row.priority === "stat";
     void createAndBroadcast({
       type: "lab_order",
-      title: isCritical ? `CRITICAL Result: ${completedOrder.testName}` : `Lab Result Recorded: ${completedOrder.testName}`,
-      body: parsed.data.interpretation ? `Interpretation: ${parsed.data.interpretation}` : `Result recorded for order #${parsed.data.labOrderId}.`,
-      severity: isCritical ? "urgent" : "info",
-      relatedId: completedOrder.id
+      title: isStat ? `STAT Lab Order: ${row.testName}` : `New Lab Order: ${row.testName}`,
+      body: isStat ? `Urgent lab test ordered \u2014 immediate processing required.` : `Priority: ${row.priority}`,
+      severity: isStat ? "urgent" : "info",
+      relatedId: row.id
     });
-    void (async () => {
-      const patient = await db.select({ email: patientsTable.email, fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, completedOrder.patientId)).then((r) => r[0]);
-      if (patient?.email) {
-        await sendLabResultsReadyToPatient({
-          patientName: patient.fullName,
-          email: patient.email,
-          testName: completedOrder.testName,
-          interpretation: parsed.data.interpretation,
-          isCritical
-        });
-      }
-    })();
+    res.status(201).json(await mapOrder(row));
+  } catch (err) {
+    console.error("POST /lab/orders error:", err);
+    res.status(500).json({ error: "Failed to create lab order" });
   }
-  res.status(201).json({ ...row, recordedAt: row.recordedAt.toISOString() });
+});
+router11.patch("/lab/orders/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = LabOrderUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const updateData = {};
+    if (parsed.data.status) {
+      updateData.status = parsed.data.status;
+      if (parsed.data.status === "completed") updateData.completedAt = /* @__PURE__ */ new Date();
+    }
+    if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
+    const [row] = await db.update(labOrdersTable).set(updateData).where(eq(labOrdersTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    if (parsed.data.status) {
+      logAudit(req, "update_lab_order_status", { entityType: "lab_order", entityId: row.id, details: `${row.testName} \u2192 ${parsed.data.status}` }).catch(() => {
+      });
+      if (parsed.data.status === "completed") {
+        void createAndBroadcast({ type: "lab_order", title: `Lab Result Ready: ${row.testName}`, body: `Test completed. Review the result for patient order #${row.id}.`, severity: row.priority === "stat" ? "urgent" : "info", relatedId: row.id });
+      } else if (parsed.data.status === "in-progress") {
+        void createAndBroadcast({ type: "lab_order", title: `Lab Order In Progress: ${row.testName}`, body: `Processing has started for order #${row.id}.`, severity: row.priority === "stat" ? "warning" : "info", relatedId: row.id });
+      }
+    }
+    res.json(await mapOrder(row));
+  } catch (err) {
+    console.error("PATCH /lab/orders/:id error:", err);
+    res.status(500).json({ error: "Failed to update lab order" });
+  }
+});
+router11.delete("/lab/orders/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    await db.delete(labResultsTable).where(eq(labResultsTable.labOrderId, id));
+    const [row] = await db.delete(labOrdersTable).where(eq(labOrdersTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    logAudit(req, "delete_lab_order", { entityType: "lab_order", entityId: row.id, details: row.testName }).catch(() => {
+    });
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /lab/orders/:id error:", err);
+    res.status(500).json({ error: "Failed to delete lab order" });
+  }
+});
+router11.post("/lab/results", async (req, res) => {
+  try {
+    const parsed = LabResultInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(labResultsTable).values({
+      labOrderId: parsed.data.labOrderId,
+      result: parsed.data.result ?? null,
+      unit: parsed.data.unit ?? null,
+      referenceRange: parsed.data.referenceRange ?? null,
+      interpretation: parsed.data.interpretation ?? null,
+      notes: parsed.data.notes ?? null,
+      recordedBy: parsed.data.recordedBy ?? null
+    }).returning();
+    await db.update(labOrdersTable).set({ status: "completed", completedAt: /* @__PURE__ */ new Date() }).where(eq(labOrdersTable.id, parsed.data.labOrderId));
+    logAudit(req, "record_lab_result", { entityType: "lab_result", entityId: row.id, details: `Order #${parsed.data.labOrderId} \u2014 ${parsed.data.interpretation ?? "recorded"}` }).catch(() => {
+    });
+    const [completedOrder] = await db.select().from(labOrdersTable).where(eq(labOrdersTable.id, parsed.data.labOrderId));
+    if (completedOrder) {
+      const interp = parsed.data.interpretation?.toLowerCase() ?? "";
+      const isCritical = interp.includes("critical") || interp.includes("abnormal") || completedOrder.priority === "stat";
+      void createAndBroadcast({
+        type: "lab_order",
+        title: isCritical ? `CRITICAL Result: ${completedOrder.testName}` : `Lab Result Recorded: ${completedOrder.testName}`,
+        body: parsed.data.interpretation ? `Interpretation: ${parsed.data.interpretation}` : `Result recorded for order #${parsed.data.labOrderId}.`,
+        severity: isCritical ? "urgent" : "info",
+        relatedId: completedOrder.id
+      });
+      void (async () => {
+        const patient = await db.select({ email: patientsTable.email, fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, completedOrder.patientId)).then((r) => r[0]);
+        if (patient?.email) {
+          await sendLabResultsReadyToPatient({ patientName: patient.fullName, email: patient.email, testName: completedOrder.testName, interpretation: parsed.data.interpretation, isCritical });
+        }
+      })();
+    }
+    res.status(201).json({ ...row, recordedAt: row.recordedAt.toISOString() });
+  } catch (err) {
+    console.error("POST /lab/results error:", err);
+    res.status(500).json({ error: "Failed to record lab result" });
+  }
 });
 router11.delete("/lab/results/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.delete(labResultsTable).where(eq(labResultsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.delete(labResultsTable).where(eq(labResultsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /lab/results/:id error:", err);
+    res.status(500).json({ error: "Failed to delete lab result" });
   }
-  res.sendStatus(204);
 });
 var lab_default = router11;
 
@@ -90130,72 +90291,92 @@ async function mapOrder2(o) {
   };
 }
 router12.get("/imaging/orders", async (req, res) => {
-  const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
-  const status = typeof req.query.status === "string" ? req.query.status : void 0;
-  const modality = typeof req.query.modality === "string" ? req.query.modality : void 0;
-  let rows = patientId ? await db.select().from(imagingOrdersTable).where(eq(imagingOrdersTable.patientId, patientId)).orderBy(desc(imagingOrdersTable.requestedAt)) : await db.select().from(imagingOrdersTable).orderBy(desc(imagingOrdersTable.requestedAt));
-  if (status) rows = rows.filter((r) => r.status === status);
-  if (modality) rows = rows.filter((r) => r.modality === modality);
-  const mapped = await Promise.all(rows.map(mapOrder2));
-  res.json(mapped);
+  try {
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
+    const status = typeof req.query.status === "string" ? req.query.status : void 0;
+    const modality = typeof req.query.modality === "string" ? req.query.modality : void 0;
+    let rows = patientId ? await db.select().from(imagingOrdersTable).where(eq(imagingOrdersTable.patientId, patientId)).orderBy(desc(imagingOrdersTable.requestedAt)) : await db.select().from(imagingOrdersTable).orderBy(desc(imagingOrdersTable.requestedAt));
+    if (status) rows = rows.filter((r) => r.status === status);
+    if (modality) rows = rows.filter((r) => r.modality === modality);
+    const mapped = await Promise.all(rows.map(mapOrder2));
+    res.json(mapped);
+  } catch (err) {
+    console.error("GET /imaging/orders error:", err);
+    res.status(500).json({ error: "Failed to fetch imaging orders" });
+  }
 });
 router12.post("/imaging/orders", async (req, res) => {
-  const parsed = ImagingOrderInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = ImagingOrderInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(imagingOrdersTable).values({
+      patientId: parsed.data.patientId,
+      consultationId: parsed.data.consultationId ?? null,
+      requestedBy: parsed.data.requestedBy ?? null,
+      modality: parsed.data.modality,
+      bodyPart: parsed.data.bodyPart ?? null,
+      clinicalIndication: parsed.data.clinicalIndication ?? null,
+      priority: parsed.data.priority ?? "routine",
+      notes: parsed.data.notes ?? null
+    }).returning();
+    logAudit(req, "create_imaging_order", { entityType: "imaging_order", entityId: row.id, details: `${parsed.data.modality}${parsed.data.bodyPart ? " \u2014 " + parsed.data.bodyPart : ""}` }).catch(() => {
+    });
+    res.status(201).json(await mapOrder2(row));
+  } catch (err) {
+    console.error("POST /imaging/orders error:", err);
+    res.status(500).json({ error: "Failed to create imaging order" });
   }
-  const [row] = await db.insert(imagingOrdersTable).values({
-    patientId: parsed.data.patientId,
-    consultationId: parsed.data.consultationId ?? null,
-    requestedBy: parsed.data.requestedBy ?? null,
-    modality: parsed.data.modality,
-    bodyPart: parsed.data.bodyPart ?? null,
-    clinicalIndication: parsed.data.clinicalIndication ?? null,
-    priority: parsed.data.priority ?? "routine",
-    notes: parsed.data.notes ?? null
-  }).returning();
-  logAudit(req, "create_imaging_order", { entityType: "imaging_order", entityId: row.id, details: `${parsed.data.modality}${parsed.data.bodyPart ? " \u2014 " + parsed.data.bodyPart : ""}` }).catch(() => {
-  });
-  res.status(201).json(await mapOrder2(row));
 });
 router12.patch("/imaging/orders/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = ImagingOrderUpdateSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = ImagingOrderUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const updateData = {};
+    if (parsed.data.status) {
+      updateData.status = parsed.data.status;
+      if (parsed.data.status === "completed") updateData.completedAt = /* @__PURE__ */ new Date();
+    }
+    if (parsed.data.findings !== void 0) updateData.findings = parsed.data.findings;
+    if (parsed.data.impression !== void 0) updateData.impression = parsed.data.impression;
+    if (parsed.data.reportedBy !== void 0) updateData.reportedBy = parsed.data.reportedBy;
+    if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
+    const [row] = await db.update(imagingOrdersTable).set(updateData).where(eq(imagingOrdersTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    if (parsed.data.status) {
+      logAudit(req, "update_imaging_order_status", { entityType: "imaging_order", entityId: row.id, details: `${row.modality} \u2192 ${parsed.data.status}` }).catch(() => {
+      });
+    }
+    res.json(await mapOrder2(row));
+  } catch (err) {
+    console.error("PATCH /imaging/orders/:id error:", err);
+    res.status(500).json({ error: "Failed to update imaging order" });
   }
-  const updateData = {};
-  if (parsed.data.status) {
-    updateData.status = parsed.data.status;
-    if (parsed.data.status === "completed") updateData.completedAt = /* @__PURE__ */ new Date();
-  }
-  if (parsed.data.findings !== void 0) updateData.findings = parsed.data.findings;
-  if (parsed.data.impression !== void 0) updateData.impression = parsed.data.impression;
-  if (parsed.data.reportedBy !== void 0) updateData.reportedBy = parsed.data.reportedBy;
-  if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
-  const [row] = await db.update(imagingOrdersTable).set(updateData).where(eq(imagingOrdersTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  if (parsed.data.status) {
-    logAudit(req, "update_imaging_order_status", { entityType: "imaging_order", entityId: row.id, details: `${row.modality} \u2192 ${parsed.data.status}` }).catch(() => {
-    });
-  }
-  res.json(await mapOrder2(row));
 });
 router12.delete("/imaging/orders/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.delete(imagingOrdersTable).where(eq(imagingOrdersTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.delete(imagingOrdersTable).where(eq(imagingOrdersTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    logAudit(req, "delete_imaging_order", { entityType: "imaging_order", entityId: row.id, details: `${row.modality}${row.bodyPart ? " \u2014 " + row.bodyPart : ""}` }).catch(() => {
+    });
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /imaging/orders/:id error:", err);
+    res.status(500).json({ error: "Failed to delete imaging order" });
   }
-  logAudit(req, "delete_imaging_order", { entityType: "imaging_order", entityId: row.id, details: `${row.modality}${row.bodyPart ? " \u2014 " + row.bodyPart : ""}` }).catch(() => {
-  });
-  res.sendStatus(204);
 });
 var imaging_default = router12;
 
@@ -90526,197 +90707,107 @@ function mapEntry(e) {
   };
 }
 router16.get("/queue", async (req, res) => {
-  const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-  const date6 = typeof req.query.date === "string" ? req.query.date : today;
-  const entries = await db.select().from(patientQueueTable).where(eq(patientQueueTable.queueDate, date6)).orderBy(patientQueueTable.arrivalOrder);
-  res.json(entries.map(mapEntry));
+  try {
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    const date6 = typeof req.query.date === "string" ? req.query.date : today;
+    const entries = await db.select().from(patientQueueTable).where(eq(patientQueueTable.queueDate, date6)).orderBy(patientQueueTable.arrivalOrder);
+    res.json(entries.map(mapEntry));
+  } catch (err) {
+    console.error("GET /queue error:", err);
+    res.status(500).json({ error: "Failed to fetch queue" });
+  }
 });
 router16.post("/queue", async (req, res) => {
-  const parsed = QueueEntryInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-  const queueDate = parsed.data.queueDate ?? today;
-  let patientName = parsed.data.patientName;
-  let notificationPhone = parsed.data.notificationPhone ?? null;
-  if (parsed.data.patientId) {
-    const patient = await db.select({ fullName: patientsTable.fullName, phone: patientsTable.phone }).from(patientsTable).where(eq(patientsTable.id, parsed.data.patientId)).then((r) => r[0]);
-    if (patient) {
-      patientName = patient.fullName;
-      if (!notificationPhone) notificationPhone = patient.phone;
+  try {
+    const parsed = QueueEntryInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
     }
-  }
-  let staffName = null;
-  if (parsed.data.staffId) {
-    const staff = await db.select({ name: adminsTable.name }).from(adminsTable).where(eq(adminsTable.id, parsed.data.staffId)).then((r) => r[0]);
-    if (staff) staffName = staff.name;
-  }
-  const arrivalOrder = await getNextArrivalOrder(queueDate);
-  const [entry] = await db.insert(patientQueueTable).values({
-    patientId: parsed.data.patientId ?? null,
-    patientName,
-    queueDate,
-    status: "waiting",
-    arrivalOrder,
-    staffId: parsed.data.staffId ?? null,
-    staffName,
-    priority: parsed.data.priority ?? "normal",
-    notes: parsed.data.notes ?? null,
-    referralSource: parsed.data.referralSource ?? "home",
-    referralFacility: parsed.data.referralFacility ?? null,
-    department: parsed.data.department ?? "general",
-    notificationPhone,
-    vitalsSnapshot: parsed.data.vitalsSnapshot ?? null,
-    labInvestigations: parsed.data.labInvestigations ?? null,
-    imagingInvestigations: parsed.data.imagingInvestigations ?? null,
-    managementPlan: parsed.data.managementPlan ?? null,
-    diagnosis: parsed.data.diagnosis ?? null,
-    triageNursingNotes: parsed.data.triageNursingNotes ?? null
-  }).returning();
-  const isUrgent = entry.priority === "emergency" || entry.priority === "urgent";
-  void createAndBroadcast({
-    type: "queue",
-    title: isUrgent ? `${entry.priority === "emergency" ? "EMERGENCY" : "Urgent"}: ${patientName} in Queue` : `New Patient in Queue: ${patientName}`,
-    body: `${entry.department ?? "General"} \u2014 ${entry.priority} priority. Queue #${arrivalOrder}.`,
-    severity: entry.priority === "emergency" ? "urgent" : entry.priority === "urgent" ? "warning" : "info",
-    relatedId: entry.id
-  });
-  if (parsed.data.labInvestigations && parsed.data.patientId) {
-    let labTests = [];
-    try {
-      labTests = JSON.parse(parsed.data.labInvestigations);
-    } catch {
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    const queueDate = parsed.data.queueDate ?? today;
+    let patientName = parsed.data.patientName;
+    let notificationPhone = parsed.data.notificationPhone ?? null;
+    if (parsed.data.patientId) {
+      const patient = await db.select({ fullName: patientsTable.fullName, phone: patientsTable.phone }).from(patientsTable).where(eq(patientsTable.id, parsed.data.patientId)).then((r) => r[0]);
+      if (patient) {
+        patientName = patient.fullName;
+        if (!notificationPhone) notificationPhone = patient.phone;
+      }
     }
-    if (labTests.length > 0) {
-      const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
-      await db.insert(labOrdersTable).values(
-        labTests.map((test) => ({
-          patientId: parsed.data.patientId,
-          testName: test,
-          testCategory: "routine",
-          priority: patientPriority,
-          status: "pending",
-          clinicalInfo: parsed.data.notes ?? null,
-          orderedBy: parsed.data.staffId ?? null
-        }))
-      );
-    }
-  }
-  if (parsed.data.imagingInvestigations && parsed.data.patientId) {
-    let imagingStudies = [];
-    try {
-      imagingStudies = JSON.parse(parsed.data.imagingInvestigations);
-    } catch {
-    }
-    if (imagingStudies.length > 0) {
-      const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
-      await db.insert(imagingOrdersTable).values(
-        imagingStudies.map((study) => {
-          const { modality, bodyPart } = parseImagingStudyString(study);
-          return {
-            patientId: parsed.data.patientId,
-            queueEntryId: entry.id,
-            modality,
-            bodyPart,
-            clinicalIndication: parsed.data.notes ?? null,
-            priority: patientPriority,
-            status: "requested"
-          };
-        })
-      );
-    }
-  }
-  res.status(201).json(mapEntry(entry));
-});
-router16.patch("/queue/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
-  }
-  const parsed = QueueEntryUpdateSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const updateData = {
-    updatedAt: /* @__PURE__ */ new Date()
-  };
-  if (parsed.data.status !== void 0) updateData.status = parsed.data.status;
-  if (parsed.data.priority !== void 0) updateData.priority = parsed.data.priority;
-  if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
-  if (parsed.data.department !== void 0) updateData.department = parsed.data.department;
-  if (parsed.data.transferNote !== void 0) updateData.transferNote = parsed.data.transferNote;
-  if (parsed.data.managementPlan !== void 0) updateData.managementPlan = parsed.data.managementPlan;
-  if (parsed.data.vitalsSnapshot !== void 0) updateData.vitalsSnapshot = parsed.data.vitalsSnapshot;
-  if (parsed.data.notificationPhone !== void 0) updateData.notificationPhone = parsed.data.notificationPhone;
-  if (parsed.data.diagnosis !== void 0) updateData.diagnosis = parsed.data.diagnosis;
-  if (parsed.data.labInvestigations !== void 0) updateData.labInvestigations = parsed.data.labInvestigations;
-  if (parsed.data.imagingInvestigations !== void 0) updateData.imagingInvestigations = parsed.data.imagingInvestigations;
-  if (parsed.data.triageNursingNotes !== void 0) updateData.triageNursingNotes = parsed.data.triageNursingNotes;
-  if (parsed.data.staffId !== void 0) {
-    updateData.staffId = parsed.data.staffId;
+    let staffName = null;
     if (parsed.data.staffId) {
       const staff = await db.select({ name: adminsTable.name }).from(adminsTable).where(eq(adminsTable.id, parsed.data.staffId)).then((r) => r[0]);
-      updateData.staffName = staff?.name ?? null;
-    } else {
-      updateData.staffName = null;
+      if (staff) staffName = staff.name;
     }
-  }
-  const [entry] = await db.update(patientQueueTable).set(updateData).where(eq(patientQueueTable.id, id)).returning();
-  if (!entry) {
-    res.status(404).json({ error: "Queue entry not found" });
-    return;
-  }
-  if (parsed.data.department && parsed.data.department !== entry.department) {
+    const arrivalOrder = await getNextArrivalOrder(queueDate);
+    const [entry] = await db.insert(patientQueueTable).values({
+      patientId: parsed.data.patientId ?? null,
+      patientName,
+      queueDate,
+      status: "waiting",
+      arrivalOrder,
+      staffId: parsed.data.staffId ?? null,
+      staffName,
+      priority: parsed.data.priority ?? "normal",
+      notes: parsed.data.notes ?? null,
+      referralSource: parsed.data.referralSource ?? "home",
+      referralFacility: parsed.data.referralFacility ?? null,
+      department: parsed.data.department ?? "general",
+      notificationPhone,
+      vitalsSnapshot: parsed.data.vitalsSnapshot ?? null,
+      labInvestigations: parsed.data.labInvestigations ?? null,
+      imagingInvestigations: parsed.data.imagingInvestigations ?? null,
+      managementPlan: parsed.data.managementPlan ?? null,
+      diagnosis: parsed.data.diagnosis ?? null,
+      triageNursingNotes: parsed.data.triageNursingNotes ?? null
+    }).returning();
+    const isUrgent = entry.priority === "emergency" || entry.priority === "urgent";
     void createAndBroadcast({
-      type: "transfer",
-      title: `Patient Transferred to ${parsed.data.department}`,
-      body: `${entry.patientName} has been transferred from ${entry.department} to ${parsed.data.department}`,
-      severity: "info",
+      type: "queue",
+      title: isUrgent ? `${entry.priority === "emergency" ? "EMERGENCY" : "Urgent"}: ${patientName} in Queue` : `New Patient in Queue: ${patientName}`,
+      body: `${entry.department ?? "General"} \u2014 ${entry.priority} priority. Queue #${arrivalOrder}.`,
+      severity: entry.priority === "emergency" ? "urgent" : entry.priority === "urgent" ? "warning" : "info",
       relatedId: entry.id
     });
-  }
-  if (parsed.data.status && entry.patientId) {
-    void (async () => {
-      const patient = await db.select({ email: patientsTable.email, fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, entry.patientId)).then((r) => r[0]);
-      if (patient?.email) {
-        await sendQueueStatusUpdateToPatient({
-          patientName: patient.fullName,
-          email: patient.email,
-          status: parsed.data.status,
-          department: entry.department,
-          diagnosis: parsed.data.diagnosis ?? entry.diagnosis
-        });
+    if (parsed.data.labInvestigations && parsed.data.patientId) {
+      let labTests = [];
+      try {
+        labTests = JSON.parse(parsed.data.labInvestigations);
+      } catch {
       }
-    })();
-  }
-  if (parsed.data.imagingInvestigations && entry.patientId) {
-    let studies = [];
-    try {
-      studies = JSON.parse(parsed.data.imagingInvestigations);
-    } catch {
+      if (labTests.length > 0) {
+        const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
+        await db.insert(labOrdersTable).values(
+          labTests.map((test) => ({
+            patientId: parsed.data.patientId,
+            testName: test,
+            testCategory: "routine",
+            priority: patientPriority,
+            status: "pending",
+            clinicalInfo: parsed.data.notes ?? null,
+            orderedBy: parsed.data.staffId ?? null
+          }))
+        );
+      }
     }
-    if (studies.length > 0) {
-      const existing = await db.select({ bodyPart: imagingOrdersTable.bodyPart }).from(imagingOrdersTable).where(and(
-        eq(imagingOrdersTable.queueEntryId, id),
-        eq(imagingOrdersTable.patientId, entry.patientId)
-      ));
-      const alreadyOrdered = new Set(existing.map((r) => r.bodyPart ?? ""));
-      const toCreate = studies.filter((s) => !alreadyOrdered.has(s));
-      if (toCreate.length > 0) {
+    if (parsed.data.imagingInvestigations && parsed.data.patientId) {
+      let imagingStudies = [];
+      try {
+        imagingStudies = JSON.parse(parsed.data.imagingInvestigations);
+      } catch {
+      }
+      if (imagingStudies.length > 0) {
         const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
         await db.insert(imagingOrdersTable).values(
-          toCreate.map((study) => {
+          imagingStudies.map((study) => {
             const { modality, bodyPart } = parseImagingStudyString(study);
             return {
-              patientId: entry.patientId,
-              queueEntryId: id,
+              patientId: parsed.data.patientId,
+              queueEntryId: entry.id,
               modality,
               bodyPart,
-              clinicalIndication: entry.diagnosis || entry.notes || null,
+              clinicalIndication: parsed.data.notes ?? null,
               priority: patientPriority,
               status: "requested"
             };
@@ -90724,21 +90815,129 @@ router16.patch("/queue/:id", async (req, res) => {
         );
       }
     }
+    res.status(201).json(mapEntry(entry));
+  } catch (err) {
+    console.error("POST /queue error:", err);
+    res.status(500).json({ error: "Failed to add patient to queue" });
   }
-  res.json(mapEntry(entry));
+});
+router16.patch("/queue/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+    const parsed = QueueEntryUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const updateData = { updatedAt: /* @__PURE__ */ new Date() };
+    if (parsed.data.status !== void 0) updateData.status = parsed.data.status;
+    if (parsed.data.priority !== void 0) updateData.priority = parsed.data.priority;
+    if (parsed.data.notes !== void 0) updateData.notes = parsed.data.notes;
+    if (parsed.data.department !== void 0) updateData.department = parsed.data.department;
+    if (parsed.data.transferNote !== void 0) updateData.transferNote = parsed.data.transferNote;
+    if (parsed.data.managementPlan !== void 0) updateData.managementPlan = parsed.data.managementPlan;
+    if (parsed.data.vitalsSnapshot !== void 0) updateData.vitalsSnapshot = parsed.data.vitalsSnapshot;
+    if (parsed.data.notificationPhone !== void 0) updateData.notificationPhone = parsed.data.notificationPhone;
+    if (parsed.data.diagnosis !== void 0) updateData.diagnosis = parsed.data.diagnosis;
+    if (parsed.data.labInvestigations !== void 0) updateData.labInvestigations = parsed.data.labInvestigations;
+    if (parsed.data.imagingInvestigations !== void 0) updateData.imagingInvestigations = parsed.data.imagingInvestigations;
+    if (parsed.data.triageNursingNotes !== void 0) updateData.triageNursingNotes = parsed.data.triageNursingNotes;
+    if (parsed.data.staffId !== void 0) {
+      updateData.staffId = parsed.data.staffId;
+      if (parsed.data.staffId) {
+        const staff = await db.select({ name: adminsTable.name }).from(adminsTable).where(eq(adminsTable.id, parsed.data.staffId)).then((r) => r[0]);
+        updateData.staffName = staff?.name ?? null;
+      } else {
+        updateData.staffName = null;
+      }
+    }
+    const [entry] = await db.update(patientQueueTable).set(updateData).where(eq(patientQueueTable.id, id)).returning();
+    if (!entry) {
+      res.status(404).json({ error: "Queue entry not found" });
+      return;
+    }
+    if (parsed.data.department && parsed.data.department !== entry.department) {
+      void createAndBroadcast({
+        type: "transfer",
+        title: `Patient Transferred to ${parsed.data.department}`,
+        body: `${entry.patientName} has been transferred from ${entry.department} to ${parsed.data.department}`,
+        severity: "info",
+        relatedId: entry.id
+      });
+    }
+    if (parsed.data.status && entry.patientId) {
+      void (async () => {
+        const patient = await db.select({ email: patientsTable.email, fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, entry.patientId)).then((r) => r[0]);
+        if (patient?.email) {
+          await sendQueueStatusUpdateToPatient({
+            patientName: patient.fullName,
+            email: patient.email,
+            status: parsed.data.status,
+            department: entry.department,
+            diagnosis: parsed.data.diagnosis ?? entry.diagnosis
+          });
+        }
+      })();
+    }
+    if (parsed.data.imagingInvestigations && entry.patientId) {
+      let studies = [];
+      try {
+        studies = JSON.parse(parsed.data.imagingInvestigations);
+      } catch {
+      }
+      if (studies.length > 0) {
+        const existing = await db.select({ bodyPart: imagingOrdersTable.bodyPart }).from(imagingOrdersTable).where(and(
+          eq(imagingOrdersTable.queueEntryId, id),
+          eq(imagingOrdersTable.patientId, entry.patientId)
+        ));
+        const alreadyOrdered = new Set(existing.map((r) => r.bodyPart ?? ""));
+        const toCreate = studies.filter((s) => !alreadyOrdered.has(s));
+        if (toCreate.length > 0) {
+          const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
+          await db.insert(imagingOrdersTable).values(
+            toCreate.map((study) => {
+              const { modality, bodyPart } = parseImagingStudyString(study);
+              return {
+                patientId: entry.patientId,
+                queueEntryId: id,
+                modality,
+                bodyPart,
+                clinicalIndication: entry.diagnosis || entry.notes || null,
+                priority: patientPriority,
+                status: "requested"
+              };
+            })
+          );
+        }
+      }
+    }
+    res.json(mapEntry(entry));
+  } catch (err) {
+    console.error("PATCH /queue/:id error:", err);
+    res.status(500).json({ error: "Failed to update queue entry" });
+  }
 });
 router16.delete("/queue/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+    const [entry] = await db.delete(patientQueueTable).where(eq(patientQueueTable.id, id)).returning();
+    if (!entry) {
+      res.status(404).json({ error: "Queue entry not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /queue/:id error:", err);
+    res.status(500).json({ error: "Failed to remove queue entry" });
   }
-  const [entry] = await db.delete(patientQueueTable).where(eq(patientQueueTable.id, id)).returning();
-  if (!entry) {
-    res.status(404).json({ error: "Queue entry not found" });
-    return;
-  }
-  res.sendStatus(204);
 });
 var queue_default = router16;
 
@@ -91042,7 +91241,6 @@ router21.patch("/triage/:id", async (req, res) => {
     const updates = { ...parsed.data, updatedAt: /* @__PURE__ */ new Date() };
     if (parsed.data.triageTime) {
       updates.triageTime = new Date(parsed.data.triageTime);
-      delete updates.triageTime;
     }
     const [updated] = await db.update(triageTable).set(updates).where(eq(triageTable.id, id)).returning();
     if (!updated) {
@@ -92279,29 +92477,39 @@ async function getAdmissionContext(admissionId) {
   return { ...adm, patient: patient ?? null };
 }
 router27.get("/inpatient/summary/:admissionId", async (req, res) => {
-  const id = parseInt(req.params.admissionId, 10);
-  const ctx = await getAdmissionContext(id);
-  if (!ctx) {
-    res.status(404).json({ error: "Admission not found" });
-    return;
+  try {
+    const id = parseInt(req.params.admissionId, 10);
+    const ctx = await getAdmissionContext(id);
+    if (!ctx) {
+      res.status(404).json({ error: "Admission not found" });
+      return;
+    }
+    const [rounds, drugs, nurseNotes] = await Promise.all([
+      db.select().from(wardRoundNotesTable).where(eq(wardRoundNotesTable.admissionId, id)).orderBy(desc(wardRoundNotesTable.roundDate)),
+      db.select().from(inpatientDrugChartTable).where(eq(inpatientDrugChartTable.admissionId, id)).orderBy(inpatientDrugChartTable.startDate),
+      db.select().from(nursingNotesTable).where(eq(nursingNotesTable.admissionId, id)).orderBy(desc(nursingNotesTable.noteDate), desc(nursingNotesTable.noteTime))
+    ]);
+    res.json({
+      admission: { ...ctx, createdAt: ctx.createdAt.toISOString() },
+      wardRounds: rounds.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })),
+      drugChart: drugs.map((d) => ({ ...d, createdAt: d.createdAt.toISOString(), updatedAt: d.updatedAt.toISOString() })),
+      nursingNotes: nurseNotes.map((n) => ({ ...n, createdAt: n.createdAt.toISOString() }))
+    });
+  } catch (err) {
+    console.error("GET /inpatient/summary/:id error:", err);
+    res.status(500).json({ error: "Failed to fetch inpatient summary" });
   }
-  const [rounds, drugs, nurseNotes] = await Promise.all([
-    db.select().from(wardRoundNotesTable).where(eq(wardRoundNotesTable.admissionId, id)).orderBy(desc(wardRoundNotesTable.roundDate)),
-    db.select().from(inpatientDrugChartTable).where(eq(inpatientDrugChartTable.admissionId, id)).orderBy(inpatientDrugChartTable.startDate),
-    db.select().from(nursingNotesTable).where(eq(nursingNotesTable.admissionId, id)).orderBy(desc(nursingNotesTable.noteDate), desc(nursingNotesTable.noteTime))
-  ]);
-  res.json({
-    admission: { ...ctx, createdAt: ctx.createdAt.toISOString() },
-    wardRounds: rounds.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })),
-    drugChart: drugs.map((d) => ({ ...d, createdAt: d.createdAt.toISOString(), updatedAt: d.updatedAt.toISOString() })),
-    nursingNotes: nurseNotes.map((n) => ({ ...n, createdAt: n.createdAt.toISOString() }))
-  });
 });
 router27.get("/inpatient/ward-rounds", async (req, res) => {
-  const admissionId = req.query.admissionId ? parseInt(String(req.query.admissionId), 10) : void 0;
-  let rows = await db.select().from(wardRoundNotesTable).orderBy(desc(wardRoundNotesTable.roundDate));
-  if (admissionId) rows = rows.filter((r) => r.admissionId === admissionId);
-  res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })));
+  try {
+    const admissionId = req.query.admissionId ? parseInt(String(req.query.admissionId), 10) : void 0;
+    let rows = await db.select().from(wardRoundNotesTable).orderBy(desc(wardRoundNotesTable.roundDate));
+    if (admissionId) rows = rows.filter((r) => r.admissionId === admissionId);
+    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })));
+  } catch (err) {
+    console.error("GET /inpatient/ward-rounds error:", err);
+    res.status(500).json({ error: "Failed to fetch ward rounds" });
+  }
 });
 var WardRoundSchema = external_exports.object({
   admissionId: external_exports.number().int(),
@@ -92323,40 +92531,60 @@ var WardRoundSchema = external_exports.object({
   writtenByRole: external_exports.string().optional()
 });
 router27.post("/inpatient/ward-rounds", async (req, res) => {
-  const parsed = WardRoundSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = WardRoundSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(wardRoundNotesTable).values(parsed.data).returning();
+    logAudit(req, "ward_round_note", { entityType: "ward_round", entityId: row.id }).catch(() => {
+    });
+    res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error("POST /inpatient/ward-rounds error:", err);
+    res.status(500).json({ error: "Failed to save ward round note" });
   }
-  const [row] = await db.insert(wardRoundNotesTable).values(parsed.data).returning();
-  logAudit(req, "ward_round_note", { entityType: "ward_round", entityId: row.id }).catch(() => {
-  });
-  res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 router27.patch("/inpatient/ward-rounds/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = WardRoundSchema.partial().omit({ admissionId: true, patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = WardRoundSchema.partial().omit({ admissionId: true, patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(wardRoundNotesTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(wardRoundNotesTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error("PATCH /inpatient/ward-rounds/:id error:", err);
+    res.status(500).json({ error: "Failed to update ward round note" });
   }
-  const [row] = await db.update(wardRoundNotesTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(wardRoundNotesTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 router27.delete("/inpatient/ward-rounds/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await db.delete(wardRoundNotesTable).where(eq(wardRoundNotesTable.id, id));
-  res.sendStatus(204);
+  try {
+    const id = parseInt(req.params.id, 10);
+    await db.delete(wardRoundNotesTable).where(eq(wardRoundNotesTable.id, id));
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /inpatient/ward-rounds/:id error:", err);
+    res.status(500).json({ error: "Failed to delete ward round note" });
+  }
 });
 router27.get("/inpatient/drug-chart", async (req, res) => {
-  const admissionId = req.query.admissionId ? parseInt(String(req.query.admissionId), 10) : void 0;
-  let rows = await db.select().from(inpatientDrugChartTable).orderBy(inpatientDrugChartTable.startDate);
-  if (admissionId) rows = rows.filter((r) => r.admissionId === admissionId);
-  res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })));
+  try {
+    const admissionId = req.query.admissionId ? parseInt(String(req.query.admissionId), 10) : void 0;
+    let rows = await db.select().from(inpatientDrugChartTable).orderBy(inpatientDrugChartTable.startDate);
+    if (admissionId) rows = rows.filter((r) => r.admissionId === admissionId);
+    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })));
+  } catch (err) {
+    console.error("GET /inpatient/drug-chart error:", err);
+    res.status(500).json({ error: "Failed to fetch drug chart" });
+  }
 });
 var DrugSchema = external_exports.object({
   admissionId: external_exports.number().int(),
@@ -92373,40 +92601,60 @@ var DrugSchema = external_exports.object({
   notes: external_exports.string().optional()
 });
 router27.post("/inpatient/drug-chart", async (req, res) => {
-  const parsed = DrugSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = DrugSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(inpatientDrugChartTable).values(parsed.data).returning();
+    logAudit(req, "prescribe_drug", { entityType: "drug_chart", entityId: row.id, details: `${parsed.data.drugName} ${parsed.data.dose}` }).catch(() => {
+    });
+    res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error("POST /inpatient/drug-chart error:", err);
+    res.status(500).json({ error: "Failed to prescribe drug" });
   }
-  const [row] = await db.insert(inpatientDrugChartTable).values(parsed.data).returning();
-  logAudit(req, "prescribe_drug", { entityType: "drug_chart", entityId: row.id, details: `${parsed.data.drugName} ${parsed.data.dose}` }).catch(() => {
-  });
-  res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 router27.patch("/inpatient/drug-chart/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = DrugSchema.partial().omit({ admissionId: true, patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = DrugSchema.partial().omit({ admissionId: true, patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(inpatientDrugChartTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(inpatientDrugChartTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error("PATCH /inpatient/drug-chart/:id error:", err);
+    res.status(500).json({ error: "Failed to update drug chart" });
   }
-  const [row] = await db.update(inpatientDrugChartTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(inpatientDrugChartTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 router27.delete("/inpatient/drug-chart/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await db.delete(inpatientDrugChartTable).where(eq(inpatientDrugChartTable.id, id));
-  res.sendStatus(204);
+  try {
+    const id = parseInt(req.params.id, 10);
+    await db.delete(inpatientDrugChartTable).where(eq(inpatientDrugChartTable.id, id));
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /inpatient/drug-chart/:id error:", err);
+    res.status(500).json({ error: "Failed to delete drug from chart" });
+  }
 });
 router27.get("/inpatient/nursing-notes", async (req, res) => {
-  const admissionId = req.query.admissionId ? parseInt(String(req.query.admissionId), 10) : void 0;
-  let rows = await db.select().from(nursingNotesTable).orderBy(desc(nursingNotesTable.noteDate), desc(nursingNotesTable.noteTime));
-  if (admissionId) rows = rows.filter((r) => r.admissionId === admissionId);
-  res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  try {
+    const admissionId = req.query.admissionId ? parseInt(String(req.query.admissionId), 10) : void 0;
+    let rows = await db.select().from(nursingNotesTable).orderBy(desc(nursingNotesTable.noteDate), desc(nursingNotesTable.noteTime));
+    if (admissionId) rows = rows.filter((r) => r.admissionId === admissionId);
+    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  } catch (err) {
+    console.error("GET /inpatient/nursing-notes error:", err);
+    res.status(500).json({ error: "Failed to fetch nursing notes" });
+  }
 });
 var NursingNoteSchema = external_exports.object({
   admissionId: external_exports.number().int(),
@@ -92426,66 +92674,86 @@ var NursingNoteSchema = external_exports.object({
   writtenByName: external_exports.string().optional()
 });
 router27.post("/inpatient/nursing-notes", async (req, res) => {
-  const parsed = NursingNoteSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = NursingNoteSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(nursingNotesTable).values(parsed.data).returning();
+    logAudit(req, "nursing_note", { entityType: "nursing_note", entityId: row.id }).catch(() => {
+    });
+    res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
+  } catch (err) {
+    console.error("POST /inpatient/nursing-notes error:", err);
+    res.status(500).json({ error: "Failed to save nursing note" });
   }
-  const [row] = await db.insert(nursingNotesTable).values(parsed.data).returning();
-  logAudit(req, "nursing_note", { entityType: "nursing_note", entityId: row.id }).catch(() => {
-  });
-  res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 router27.patch("/inpatient/nursing-notes/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = NursingNoteSchema.partial().omit({ admissionId: true, patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = NursingNoteSchema.partial().omit({ admissionId: true, patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(nursingNotesTable).set(parsed.data).where(eq(nursingNotesTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString() });
+  } catch (err) {
+    console.error("PATCH /inpatient/nursing-notes/:id error:", err);
+    res.status(500).json({ error: "Failed to update nursing note" });
   }
-  const [row] = await db.update(nursingNotesTable).set(parsed.data).where(eq(nursingNotesTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 router27.delete("/inpatient/nursing-notes/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await db.delete(nursingNotesTable).where(eq(nursingNotesTable.id, id));
-  res.sendStatus(204);
+  try {
+    const id = parseInt(req.params.id, 10);
+    await db.delete(nursingNotesTable).where(eq(nursingNotesTable.id, id));
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /inpatient/nursing-notes/:id error:", err);
+    res.status(500).json({ error: "Failed to delete nursing note" });
+  }
 });
 router27.get("/inpatient/ward-patients", async (req, res) => {
-  const ward = typeof req.query.ward === "string" ? req.query.ward : void 0;
-  let rows = await db.select({
-    id: admissionsTable.id,
-    patientId: admissionsTable.patientId,
-    ward: admissionsTable.ward,
-    bedNumber: admissionsTable.bedNumber,
-    diagnosis: admissionsTable.diagnosis,
-    admissionType: admissionsTable.admissionType,
-    admittedByName: admissionsTable.admittedByName,
-    createdAt: admissionsTable.createdAt
-  }).from(admissionsTable).where(eq(admissionsTable.status, "active"));
-  if (ward) rows = rows.filter((r) => r.ward === ward);
-  const enriched = await Promise.all(rows.map(async (r) => {
-    const [p] = await db.select({ fullName: patientsTable.fullName, age: patientsTable.age, gender: patientsTable.gender, bloodType: patientsTable.bloodType, allergies: patientsTable.allergies }).from(patientsTable).where(eq(patientsTable.id, r.patientId));
-    const [lastRound] = await db.select({ roundDate: wardRoundNotesTable.roundDate, writtenByName: wardRoundNotesTable.writtenByName }).from(wardRoundNotesTable).where(eq(wardRoundNotesTable.admissionId, r.id)).orderBy(desc(wardRoundNotesTable.roundDate)).limit(1);
-    const drugCount = await db.select({ id: inpatientDrugChartTable.id }).from(inpatientDrugChartTable).where(and(eq(inpatientDrugChartTable.admissionId, r.id), eq(inpatientDrugChartTable.status, "active"))).then((x) => x.length);
-    return {
-      ...r,
-      createdAt: r.createdAt.toISOString(),
-      patientName: p?.fullName ?? "Unknown",
-      patientAge: p?.age ?? null,
-      patientGender: p?.gender ?? null,
-      bloodType: p?.bloodType ?? null,
-      allergies: p?.allergies ?? null,
-      lastRoundDate: lastRound?.roundDate ?? null,
-      lastRoundBy: lastRound?.writtenByName ?? null,
-      activeDrugs: drugCount
-    };
-  }));
-  res.json(enriched);
+  try {
+    const ward = typeof req.query.ward === "string" ? req.query.ward : void 0;
+    let rows = await db.select({
+      id: admissionsTable.id,
+      patientId: admissionsTable.patientId,
+      ward: admissionsTable.ward,
+      bedNumber: admissionsTable.bedNumber,
+      diagnosis: admissionsTable.diagnosis,
+      admissionType: admissionsTable.admissionType,
+      admittedByName: admissionsTable.admittedByName,
+      createdAt: admissionsTable.createdAt
+    }).from(admissionsTable).where(eq(admissionsTable.status, "active"));
+    if (ward) rows = rows.filter((r) => r.ward === ward);
+    const enriched = await Promise.all(rows.map(async (r) => {
+      const [p] = await db.select({ fullName: patientsTable.fullName, age: patientsTable.age, gender: patientsTable.gender, bloodType: patientsTable.bloodType, allergies: patientsTable.allergies }).from(patientsTable).where(eq(patientsTable.id, r.patientId));
+      const [lastRound] = await db.select({ roundDate: wardRoundNotesTable.roundDate, writtenByName: wardRoundNotesTable.writtenByName }).from(wardRoundNotesTable).where(eq(wardRoundNotesTable.admissionId, r.id)).orderBy(desc(wardRoundNotesTable.roundDate)).limit(1);
+      const drugCount = await db.select({ id: inpatientDrugChartTable.id }).from(inpatientDrugChartTable).where(and(eq(inpatientDrugChartTable.admissionId, r.id), eq(inpatientDrugChartTable.status, "active"))).then((x) => x.length);
+      return {
+        ...r,
+        createdAt: r.createdAt.toISOString(),
+        patientName: p?.fullName ?? "Unknown",
+        patientAge: p?.age ?? null,
+        patientGender: p?.gender ?? null,
+        bloodType: p?.bloodType ?? null,
+        allergies: p?.allergies ?? null,
+        lastRoundDate: lastRound?.roundDate ?? null,
+        lastRoundBy: lastRound?.writtenByName ?? null,
+        activeDrugs: drugCount
+      };
+    }));
+    res.json(enriched);
+  } catch (err) {
+    console.error("GET /inpatient/ward-patients error:", err);
+    res.status(500).json({ error: "Failed to fetch ward patients" });
+  }
 });
 var inpatient_default = router27;
 

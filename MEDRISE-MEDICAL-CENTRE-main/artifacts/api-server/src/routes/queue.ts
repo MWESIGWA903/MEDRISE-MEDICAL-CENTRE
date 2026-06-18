@@ -81,251 +81,128 @@ function mapEntry(e: typeof patientQueueTable.$inferSelect) {
 }
 
 router.get("/queue", async (req, res): Promise<void> => {
-  const today = new Date().toISOString().slice(0, 10);
-  const date = typeof req.query.date === "string" ? req.query.date : today;
-
-  const entries = await db
-    .select()
-    .from(patientQueueTable)
-    .where(eq(patientQueueTable.queueDate, date))
-    .orderBy(patientQueueTable.arrivalOrder);
-
-  res.json(entries.map(mapEntry));
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const date = typeof req.query.date === "string" ? req.query.date : today;
+    const entries = await db
+      .select()
+      .from(patientQueueTable)
+      .where(eq(patientQueueTable.queueDate, date))
+      .orderBy(patientQueueTable.arrivalOrder);
+    res.json(entries.map(mapEntry));
+  } catch (err) {
+    console.error("GET /queue error:", err);
+    res.status(500).json({ error: "Failed to fetch queue" });
+  }
 });
 
 router.post("/queue", async (req, res): Promise<void> => {
-  const parsed = QueueEntryInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
-  const queueDate = parsed.data.queueDate ?? today;
-
-  let patientName = parsed.data.patientName;
-  let notificationPhone = parsed.data.notificationPhone ?? null;
-
-  if (parsed.data.patientId) {
-    const patient = await db
-      .select({ fullName: patientsTable.fullName, phone: patientsTable.phone })
-      .from(patientsTable)
-      .where(eq(patientsTable.id, parsed.data.patientId))
-      .then((r) => r[0]);
-    if (patient) {
-      patientName = patient.fullName;
-      if (!notificationPhone) notificationPhone = patient.phone;
+  try {
+    const parsed = QueueEntryInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
     }
-  }
 
-  let staffName: string | null = null;
-  if (parsed.data.staffId) {
-    const staff = await db
-      .select({ name: adminsTable.name })
-      .from(adminsTable)
-      .where(eq(adminsTable.id, parsed.data.staffId))
-      .then((r) => r[0]);
-    if (staff) staffName = staff.name;
-  }
+    const today = new Date().toISOString().slice(0, 10);
+    const queueDate = parsed.data.queueDate ?? today;
 
-  const arrivalOrder = await getNextArrivalOrder(queueDate);
+    let patientName = parsed.data.patientName;
+    let notificationPhone = parsed.data.notificationPhone ?? null;
 
-  const [entry] = await db
-    .insert(patientQueueTable)
-    .values({
-      patientId: parsed.data.patientId ?? null,
-      patientName,
-      queueDate,
-      status: "waiting",
-      arrivalOrder,
-      staffId: parsed.data.staffId ?? null,
-      staffName,
-      priority: parsed.data.priority ?? "normal",
-      notes: parsed.data.notes ?? null,
-      referralSource: parsed.data.referralSource ?? "home",
-      referralFacility: parsed.data.referralFacility ?? null,
-      department: parsed.data.department ?? "general",
-      notificationPhone,
-      vitalsSnapshot: parsed.data.vitalsSnapshot ?? null,
-      labInvestigations: parsed.data.labInvestigations ?? null,
-      imagingInvestigations: parsed.data.imagingInvestigations ?? null,
-      managementPlan: parsed.data.managementPlan ?? null,
-      diagnosis: parsed.data.diagnosis ?? null,
-      triageNursingNotes: parsed.data.triageNursingNotes ?? null,
-    })
-    .returning();
-
-  const isUrgent = entry.priority === "emergency" || entry.priority === "urgent";
-  void createAndBroadcast({
-    type: "queue",
-    title: isUrgent
-      ? `${entry.priority === "emergency" ? "EMERGENCY" : "Urgent"}: ${patientName} in Queue`
-      : `New Patient in Queue: ${patientName}`,
-    body: `${entry.department ?? "General"} — ${entry.priority} priority. Queue #${arrivalOrder}.`,
-    severity: entry.priority === "emergency" ? "urgent" : entry.priority === "urgent" ? "warning" : "info",
-    relatedId: entry.id,
-  });
-
-  // Auto-create lab_orders when lab investigations are set at triage for a known patient
-  if (parsed.data.labInvestigations && parsed.data.patientId) {
-    let labTests: string[] = [];
-    try { labTests = JSON.parse(parsed.data.labInvestigations); } catch { /* not JSON */ }
-    if (labTests.length > 0) {
-      const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
-      await db.insert(labOrdersTable).values(
-        labTests.map(test => ({
-          patientId: parsed.data.patientId!,
-          testName: test,
-          testCategory: "routine",
-          priority: patientPriority,
-          status: "pending",
-          clinicalInfo: parsed.data.notes ?? null,
-          orderedBy: parsed.data.staffId ?? null,
-        }))
-      );
+    if (parsed.data.patientId) {
+      const patient = await db
+        .select({ fullName: patientsTable.fullName, phone: patientsTable.phone })
+        .from(patientsTable)
+        .where(eq(patientsTable.id, parsed.data.patientId))
+        .then((r) => r[0]);
+      if (patient) {
+        patientName = patient.fullName;
+        if (!notificationPhone) notificationPhone = patient.phone;
+      }
     }
-  }
 
-  // Auto-create imaging_orders when imaging investigations are set at triage for a known patient
-  if (parsed.data.imagingInvestigations && parsed.data.patientId) {
-    let imagingStudies: string[] = [];
-    try { imagingStudies = JSON.parse(parsed.data.imagingInvestigations); } catch { /* not JSON */ }
-    if (imagingStudies.length > 0) {
-      const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
-      await db.insert(imagingOrdersTable).values(
-        imagingStudies.map(study => {
-          const { modality, bodyPart } = parseImagingStudyString(study);
-          return {
-            patientId: parsed.data.patientId!,
-            queueEntryId: entry.id,
-            modality,
-            bodyPart,
-            clinicalIndication: parsed.data.notes ?? null,
-            priority: patientPriority,
-            status: "requested" as const,
-          };
-        })
-      );
-    }
-  }
-
-  res.status(201).json(mapEntry(entry));
-});
-
-router.patch("/queue/:id", async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
-  }
-
-  const parsed = QueueEntryUpdateSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  const updateData: Partial<typeof patientQueueTable.$inferInsert> = {
-    updatedAt: new Date(),
-  };
-
-  if (parsed.data.status !== undefined) updateData.status = parsed.data.status;
-  if (parsed.data.priority !== undefined) updateData.priority = parsed.data.priority;
-  if (parsed.data.notes !== undefined) updateData.notes = parsed.data.notes;
-  if (parsed.data.department !== undefined) updateData.department = parsed.data.department;
-  if (parsed.data.transferNote !== undefined) updateData.transferNote = parsed.data.transferNote;
-  if (parsed.data.managementPlan !== undefined) updateData.managementPlan = parsed.data.managementPlan;
-  if (parsed.data.vitalsSnapshot !== undefined) updateData.vitalsSnapshot = parsed.data.vitalsSnapshot;
-  if (parsed.data.notificationPhone !== undefined) updateData.notificationPhone = parsed.data.notificationPhone;
-  if (parsed.data.diagnosis !== undefined) updateData.diagnosis = parsed.data.diagnosis;
-  if (parsed.data.labInvestigations !== undefined) updateData.labInvestigations = parsed.data.labInvestigations;
-  if (parsed.data.imagingInvestigations !== undefined) updateData.imagingInvestigations = parsed.data.imagingInvestigations;
-  if (parsed.data.triageNursingNotes !== undefined) (updateData as any).triageNursingNotes = parsed.data.triageNursingNotes;
-
-  if (parsed.data.staffId !== undefined) {
-    updateData.staffId = parsed.data.staffId;
+    let staffName: string | null = null;
     if (parsed.data.staffId) {
       const staff = await db
         .select({ name: adminsTable.name })
         .from(adminsTable)
         .where(eq(adminsTable.id, parsed.data.staffId))
         .then((r) => r[0]);
-      updateData.staffName = staff?.name ?? null;
-    } else {
-      updateData.staffName = null;
+      if (staff) staffName = staff.name;
     }
-  }
 
-  const [entry] = await db
-    .update(patientQueueTable)
-    .set(updateData)
-    .where(eq(patientQueueTable.id, id))
-    .returning();
+    const arrivalOrder = await getNextArrivalOrder(queueDate);
 
-  if (!entry) {
-    res.status(404).json({ error: "Queue entry not found" });
-    return;
-  }
+    const [entry] = await db
+      .insert(patientQueueTable)
+      .values({
+        patientId: parsed.data.patientId ?? null,
+        patientName,
+        queueDate,
+        status: "waiting",
+        arrivalOrder,
+        staffId: parsed.data.staffId ?? null,
+        staffName,
+        priority: parsed.data.priority ?? "normal",
+        notes: parsed.data.notes ?? null,
+        referralSource: parsed.data.referralSource ?? "home",
+        referralFacility: parsed.data.referralFacility ?? null,
+        department: parsed.data.department ?? "general",
+        notificationPhone,
+        vitalsSnapshot: parsed.data.vitalsSnapshot ?? null,
+        labInvestigations: parsed.data.labInvestigations ?? null,
+        imagingInvestigations: parsed.data.imagingInvestigations ?? null,
+        managementPlan: parsed.data.managementPlan ?? null,
+        diagnosis: parsed.data.diagnosis ?? null,
+        triageNursingNotes: parsed.data.triageNursingNotes ?? null,
+      })
+      .returning();
 
-  // Department Transfer Automation
-  // When department changes, ensure patient appears in target department workflow
-  if (parsed.data.department && parsed.data.department !== entry.department) {
-    // Create notification for target department
+    const isUrgent = entry.priority === "emergency" || entry.priority === "urgent";
     void createAndBroadcast({
-      type: "transfer",
-      title: `Patient Transferred to ${parsed.data.department}`,
-      body: `${entry.patientName} has been transferred from ${entry.department} to ${parsed.data.department}`,
-      severity: "info",
+      type: "queue",
+      title: isUrgent
+        ? `${entry.priority === "emergency" ? "EMERGENCY" : "Urgent"}: ${patientName} in Queue`
+        : `New Patient in Queue: ${patientName}`,
+      body: `${entry.department ?? "General"} — ${entry.priority} priority. Queue #${arrivalOrder}.`,
+      severity: entry.priority === "emergency" ? "urgent" : entry.priority === "urgent" ? "warning" : "info",
       relatedId: entry.id,
     });
-  }
 
-  // Email patient on status change if they have a linked patient record with an email address
-  if (parsed.data.status && entry.patientId) {
-    void (async () => {
-      const patient = await db
-        .select({ email: patientsTable.email, fullName: patientsTable.fullName })
-        .from(patientsTable)
-        .where(eq(patientsTable.id, entry.patientId!))
-        .then((r) => r[0]);
-      if (patient?.email) {
-        await sendQueueStatusUpdateToPatient({
-          patientName: patient.fullName,
-          email: patient.email,
-          status: parsed.data.status!,
-          department: entry.department,
-          diagnosis: parsed.data.diagnosis ?? entry.diagnosis,
-        });
+    if (parsed.data.labInvestigations && parsed.data.patientId) {
+      let labTests: string[] = [];
+      try { labTests = JSON.parse(parsed.data.labInvestigations); } catch { /* not JSON */ }
+      if (labTests.length > 0) {
+        const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
+        await db.insert(labOrdersTable).values(
+          labTests.map(test => ({
+            patientId: parsed.data.patientId!,
+            testName: test,
+            testCategory: "routine",
+            priority: patientPriority,
+            status: "pending",
+            clinicalInfo: parsed.data.notes ?? null,
+            orderedBy: parsed.data.staffId ?? null,
+          }))
+        );
       }
-    })();
-  }
+    }
 
-  // Auto-create imaging_orders when imaging investigations are recorded for a known patient
-  if (parsed.data.imagingInvestigations && entry.patientId) {
-    let studies: string[] = [];
-    try { studies = JSON.parse(parsed.data.imagingInvestigations); } catch { /* not JSON */ }
-    if (studies.length > 0) {
-      // Find existing imaging orders for this queue entry to avoid duplicates
-      const existing = await db
-        .select({ bodyPart: imagingOrdersTable.bodyPart })
-        .from(imagingOrdersTable)
-        .where(and(
-          eq(imagingOrdersTable.queueEntryId, id),
-          eq(imagingOrdersTable.patientId, entry.patientId),
-        ));
-      const alreadyOrdered = new Set(existing.map(r => r.bodyPart ?? ""));
-      const toCreate = studies.filter(s => !alreadyOrdered.has(s));
-      if (toCreate.length > 0) {
+    if (parsed.data.imagingInvestigations && parsed.data.patientId) {
+      let imagingStudies: string[] = [];
+      try { imagingStudies = JSON.parse(parsed.data.imagingInvestigations); } catch { /* not JSON */ }
+      if (imagingStudies.length > 0) {
         const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
         await db.insert(imagingOrdersTable).values(
-          toCreate.map(study => {
+          imagingStudies.map(study => {
             const { modality, bodyPart } = parseImagingStudyString(study);
             return {
-              patientId: entry.patientId!,
-              queueEntryId: id,
+              patientId: parsed.data.patientId!,
+              queueEntryId: entry.id,
               modality,
               bodyPart,
-              clinicalIndication: entry.diagnosis || entry.notes || null,
+              clinicalIndication: parsed.data.notes ?? null,
               priority: patientPriority,
               status: "requested" as const,
             };
@@ -333,29 +210,141 @@ router.patch("/queue/:id", async (req, res): Promise<void> => {
         );
       }
     }
-  }
 
-  res.json(mapEntry(entry));
+    res.status(201).json(mapEntry(entry));
+  } catch (err) {
+    console.error("POST /queue error:", err);
+    res.status(500).json({ error: "Failed to add patient to queue" });
+  }
+});
+
+router.patch("/queue/:id", async (req, res): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+    const parsed = QueueEntryUpdateSchema.safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+
+    const updateData: Partial<typeof patientQueueTable.$inferInsert> = { updatedAt: new Date() };
+
+    if (parsed.data.status !== undefined) updateData.status = parsed.data.status;
+    if (parsed.data.priority !== undefined) updateData.priority = parsed.data.priority;
+    if (parsed.data.notes !== undefined) updateData.notes = parsed.data.notes;
+    if (parsed.data.department !== undefined) updateData.department = parsed.data.department;
+    if (parsed.data.transferNote !== undefined) updateData.transferNote = parsed.data.transferNote;
+    if (parsed.data.managementPlan !== undefined) updateData.managementPlan = parsed.data.managementPlan;
+    if (parsed.data.vitalsSnapshot !== undefined) updateData.vitalsSnapshot = parsed.data.vitalsSnapshot;
+    if (parsed.data.notificationPhone !== undefined) updateData.notificationPhone = parsed.data.notificationPhone;
+    if (parsed.data.diagnosis !== undefined) updateData.diagnosis = parsed.data.diagnosis;
+    if (parsed.data.labInvestigations !== undefined) updateData.labInvestigations = parsed.data.labInvestigations;
+    if (parsed.data.imagingInvestigations !== undefined) updateData.imagingInvestigations = parsed.data.imagingInvestigations;
+    if (parsed.data.triageNursingNotes !== undefined) (updateData as any).triageNursingNotes = parsed.data.triageNursingNotes;
+
+    if (parsed.data.staffId !== undefined) {
+      updateData.staffId = parsed.data.staffId;
+      if (parsed.data.staffId) {
+        const staff = await db
+          .select({ name: adminsTable.name })
+          .from(adminsTable)
+          .where(eq(adminsTable.id, parsed.data.staffId))
+          .then((r) => r[0]);
+        updateData.staffName = staff?.name ?? null;
+      } else {
+        updateData.staffName = null;
+      }
+    }
+
+    const [entry] = await db
+      .update(patientQueueTable)
+      .set(updateData)
+      .where(eq(patientQueueTable.id, id))
+      .returning();
+
+    if (!entry) { res.status(404).json({ error: "Queue entry not found" }); return; }
+
+    if (parsed.data.department && parsed.data.department !== entry.department) {
+      void createAndBroadcast({
+        type: "transfer",
+        title: `Patient Transferred to ${parsed.data.department}`,
+        body: `${entry.patientName} has been transferred from ${entry.department} to ${parsed.data.department}`,
+        severity: "info",
+        relatedId: entry.id,
+      });
+    }
+
+    if (parsed.data.status && entry.patientId) {
+      void (async () => {
+        const patient = await db
+          .select({ email: patientsTable.email, fullName: patientsTable.fullName })
+          .from(patientsTable)
+          .where(eq(patientsTable.id, entry.patientId!))
+          .then((r) => r[0]);
+        if (patient?.email) {
+          await sendQueueStatusUpdateToPatient({
+            patientName: patient.fullName,
+            email: patient.email,
+            status: parsed.data.status!,
+            department: entry.department,
+            diagnosis: parsed.data.diagnosis ?? entry.diagnosis,
+          });
+        }
+      })();
+    }
+
+    if (parsed.data.imagingInvestigations && entry.patientId) {
+      let studies: string[] = [];
+      try { studies = JSON.parse(parsed.data.imagingInvestigations); } catch { /* not JSON */ }
+      if (studies.length > 0) {
+        const existing = await db
+          .select({ bodyPart: imagingOrdersTable.bodyPart })
+          .from(imagingOrdersTable)
+          .where(and(
+            eq(imagingOrdersTable.queueEntryId, id),
+            eq(imagingOrdersTable.patientId, entry.patientId),
+          ));
+        const alreadyOrdered = new Set(existing.map(r => r.bodyPart ?? ""));
+        const toCreate = studies.filter(s => !alreadyOrdered.has(s));
+        if (toCreate.length > 0) {
+          const patientPriority = entry.priority === "emergency" ? "stat" : entry.priority === "urgent" ? "urgent" : "routine";
+          await db.insert(imagingOrdersTable).values(
+            toCreate.map(study => {
+              const { modality, bodyPart } = parseImagingStudyString(study);
+              return {
+                patientId: entry.patientId!,
+                queueEntryId: id,
+                modality,
+                bodyPart,
+                clinicalIndication: entry.diagnosis || entry.notes || null,
+                priority: patientPriority,
+                status: "requested" as const,
+              };
+            })
+          );
+        }
+      }
+    }
+
+    res.json(mapEntry(entry));
+  } catch (err) {
+    console.error("PATCH /queue/:id error:", err);
+    res.status(500).json({ error: "Failed to update queue entry" });
+  }
 });
 
 router.delete("/queue/:id", async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+    const [entry] = await db.delete(patientQueueTable).where(eq(patientQueueTable.id, id)).returning();
+    if (!entry) { res.status(404).json({ error: "Queue entry not found" }); return; }
+
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("DELETE /queue/:id error:", err);
+    res.status(500).json({ error: "Failed to remove queue entry" });
   }
-
-  const [entry] = await db
-    .delete(patientQueueTable)
-    .where(eq(patientQueueTable.id, id))
-    .returning();
-
-  if (!entry) {
-    res.status(404).json({ error: "Queue entry not found" });
-    return;
-  }
-
-  res.sendStatus(204);
 });
 
 export default router;

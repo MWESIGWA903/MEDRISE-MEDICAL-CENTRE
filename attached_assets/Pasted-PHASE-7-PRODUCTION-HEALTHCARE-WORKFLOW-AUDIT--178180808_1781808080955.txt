@@ -1,0 +1,152 @@
+PHASE 7 – PRODUCTION HEALTHCARE WORKFLOW AUDIT
+
+==================================================
+24. COMPLETE DEPARTMENT AUDIT
+
+Verify every department is fully functional:
+
+- Registration
+- Queue
+- Waiting
+- Triage
+- Consultation
+- Laboratory
+- Radiology
+- Imaging
+- Pharmacy
+- Admissions
+- Theatre
+- Recovery Room
+- Dental
+- ANC
+- Maternity
+- Follow-Up
+- EHR
+- Patient Database
+
+Repair any failures discovered.
+
+==================================================
+25. STAFF ACCOUNT AUDIT
+
+Verify:
+
+- Staff creation works.
+- Staff editing works.
+- Password changes work.
+- Login works.
+- Permissions work.
+- Role restrictions work.
+- Staff synchronization works.
+
+Verify all staff appear where required:
+
+- Public Appointment Dashboard
+- Assign Staff Dropdowns
+- Department Assignment Lists
+
+==================================================
+26. PATIENT JOURNEY VALIDATION
+
+Test complete patient journeys:
+
+Adult Patient
+Pediatric Patient
+ANC Patient
+Dental Patient
+Emergency Patient
+Admission Patient
+Theatre Patient
+
+Verify no workflow interruptions occur.
+
+==================================================
+27. DOCUMENT GENERATION AUDIT
+
+Generate and test:
+
+- Laboratory Reports
+- Imaging Reports
+- Prescriptions
+- Referral Letters
+- Discharge Summaries
+- Sick Leave Forms
+- Birth Certificates
+- Death Notification Forms
+- Admission Notes
+- Theatre Notes
+- Recovery Notes
+- ANC Reports
+- Follow-Up Reports
+
+Verify all documents contain:
+
+- Patient Name
+- Patient ID
+- Age
+- Sex
+- Department
+- Date
+- Time
+- Clinician
+
+==================================================
+28. CROSS-DEPARTMENT AUTOMATION AUDIT
+
+Verify automatic workflow:
+
+Triage
+→ Laboratory
+
+Triage
+→ Imaging
+
+Triage
+→ Pharmacy
+
+Consultation
+→ Laboratory
+
+Consultation
+→ Imaging
+
+Consultation
+→ Pharmacy
+
+Consultation
+→ Admission
+
+Consultation
+→ Theatre
+
+Consultation
+→ Follow-Up
+
+Ensure requests appear automatically in the receiving department.
+
+==================================================
+29. DATA PERSISTENCE AUDIT
+
+Verify:
+
+- Auto-save functions correctly.
+- Data survives refresh.
+- Data survives logout/login.
+- Data survives deployment.
+- No information disappears.
+
+==================================================
+30. FINAL PRODUCTION READINESS CHECK
+
+Confirm:
+
+- No frontend errors.
+- No backend errors.
+- No console errors.
+- No broken links.
+- No missing routes.
+- No failed API requests.
+- No database write failures.
+- No deployment warnings affecting functionality.
+
+All issues discovered during this audit must be repaired before proceeding to deployment.
