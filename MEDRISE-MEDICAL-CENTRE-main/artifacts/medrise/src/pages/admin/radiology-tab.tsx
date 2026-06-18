@@ -547,6 +547,8 @@ export default function RadiologyTab({ adminId }: { adminId?: number }) {
                           onClick={() =>
                             printImagingReport({
                               patientName: order.patientName ?? `Patient #${order.patientId}`,
+                              patientId: order.patientId,
+                              department: 'Radiology / Imaging',
                               patientDob: order.patientDob,
                               modality: order.modality,
                               bodyPart: order.bodyPart,

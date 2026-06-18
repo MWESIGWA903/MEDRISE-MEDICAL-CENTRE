@@ -1,0 +1,244 @@
+MEDRISE MEDICAL CENTRE – FINAL IMPLEMENTATION, STABILIZATION AND DEPLOYMENT
+
+IMPORTANT
+
+Proceed directly to implementation.
+
+Do not generate reports.
+
+Do not generate audits.
+
+Do not generate investigations.
+
+Do not generate timelines.
+
+Do not stop at analysis.
+
+Implement, test, fix, verify, commit and deploy.
+
+Maintain all existing departments exactly as currently configured.
+
+Do not rename departments.
+
+Do not remove departments.
+
+Do not merge departments.
+
+Do not alter any functionality that is already working correctly.
+
+==================================================
+PHASE 1 – CONSULTATION CONTINUITY
+
+Add a Triage Nursing Notes panel inside Consultation.
+
+The doctor must automatically see:
+
+- Presenting Complaint(s)
+- Brief Medical History
+- Blood Group
+- Emergency Investigations Requested
+- Investigation Results
+- Uploaded Laboratory Results
+- Uploaded Imaging Results
+- Emergency / Initial Treatment Given
+
+The doctor must continue patient care without re-entering information.
+
+==================================================
+PHASE 2 – PHARMACY AUTOMATION VERIFICATION
+
+Verify and fix if necessary.
+
+Whenever a prescription is created by:
+
+- Triage Nurse
+- Doctor
+
+Automatically create Pharmacy task.
+
+Pharmacy must immediately receive:
+
+- Drug
+- Dose
+- Frequency
+- Duration
+- Instructions
+
+No duplicate entry required.
+
+==================================================
+PHASE 3 – DEPARTMENT TRANSFER AUTOMATION
+
+Verify and fix.
+
+Whenever a patient is transferred from Consultation to:
+
+- Laboratory
+- Radiology
+- Imaging
+- Theatre
+- Admission
+- Follow-Up
+- Any Department
+
+The patient must automatically appear in the destination department.
+
+No re-registration.
+
+No duplicate entry.
+
+==================================================
+PHASE 4 – EHR AUTOMATION
+
+Verify and complete.
+
+Automatically populate:
+
+- EHR
+- Patient Database
+
+with:
+
+- Triage Notes
+- Consultation Notes
+- Investigations
+- Results
+- Prescriptions
+- Follow-Up Plans
+- Transfers
+
+==================================================
+PHASE 5 – AUTO SAVE
+
+Verify and complete auto-save functionality.
+
+Apply to:
+
+- Triage
+- Consultation
+- Laboratory
+- Radiology
+- Theatre
+- Recovery Room
+- Admission Notes
+- Follow-Up Notes
+
+No information should disappear after refresh.
+
+No information should disappear after navigation.
+
+==================================================
+PHASE 6 – DOCUMENT STANDARDIZATION
+
+Verify and complete.
+
+All printable and downloadable documents must automatically include:
+
+- Patient Name
+- Age
+- Sex
+- Patient Identifier
+- Department
+- Date
+- Time
+- Attending Clinician
+
+Apply to:
+
+- Laboratory Reports
+- Imaging Reports
+- Prescriptions
+- Referral Notes
+- Admission Notes
+- Discharge Summaries
+- Follow-Up Forms
+- Sick Leave Forms
+- Death Notification Forms
+- Theatre Reports
+- All Patient Documents
+
+No document should print without these details.
+
+==================================================
+PHASE 7 – FULL SYSTEM CLEANUP
+
+Perform a complete system cleanup.
+
+Remove:
+
+- Broken workflows
+- Duplicate logic
+- Dead code
+- Unused components
+- Unused API calls
+- Unused database queries
+- Console errors
+- Runtime warnings
+- Build warnings
+
+Verify:
+
+- No TypeScript errors
+- No build errors
+- No deployment errors
+- No broken routes
+- No broken forms
+
+==================================================
+PHASE 8 – END-TO-END TESTING
+
+Verify the complete workflow:
+
+Appointment
+→ Queue
+→ Waiting
+→ Triage
+→ Consultation
+→ Laboratory
+→ Imaging
+→ Pharmacy
+→ Admission (if needed)
+→ Follow-Up (if needed)
+→ Completion
+
+Verify all data continuity throughout the workflow.
+
+==================================================
+PHASE 9 – FINAL DEPLOYMENT
+
+After all fixes are completed:
+
+1. Run full build verification.
+2. Resolve all build errors.
+3. Resolve all runtime errors.
+4. Verify production readiness.
+
+Then:
+
+- Commit all changes.
+- Push all changes to GitHub main branch.
+
+Ensure automatic deployment succeeds on:
+
+- Render
+- Vercel
+- Netlify
+
+Verify deployments complete successfully.
+
+==================================================
+FINAL REQUIREMENT
+
+The objective is a stable, production-ready MedRise Medical Centre system.
+
+Only consider the task complete when:
+
+- Functionality is implemented.
+- Bugs are fixed.
+- Data continuity works.
+- Build passes.
+- GitHub is updated.
+- Render deployment succeeds.
+- Vercel deployment succeeds.
+- Netlify deployment succeeds.
+- The live website functions correctly without workflow-breaking issues.

@@ -448,6 +448,8 @@ export default function LabTab({ adminId }: { adminId?: number }) {
                       onClick={() =>
                         printLabResult({
                           patientName: order.patientName ?? `Patient #${order.patientId}`,
+                          patientId: order.patientId,
+                          department: 'Laboratory',
                           testName: order.testName,
                           orderedAt: String(order.orderedAt),
                           orderedTime: new Date(String(order.orderedAt)).toLocaleTimeString(

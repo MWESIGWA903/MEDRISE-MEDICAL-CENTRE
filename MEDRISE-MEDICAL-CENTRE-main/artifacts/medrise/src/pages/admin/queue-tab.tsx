@@ -608,6 +608,7 @@ interface QueueEntry {
   imagingInvestigations?: string | null;
   managementPlan?: string | null;
   vitalsSnapshot?: string | null;
+  triageNursingNotes?: string | null;
   notificationPhone?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -1215,7 +1216,36 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          // Also persist to EHR consultations table (enables pharmacy + lab/imaging automation)
+          if (entry.patientId) {
+            try {
+              // Parse lab/imaging JSON arrays → comma-separated strings for the API
+              let labStr = '';
+              let imagingStr = '';
+              try { const arr = JSON.parse(data.labInvest || '[]'); labStr = Array.isArray(arr) ? arr.filter((x: string) => !x.startsWith('Note:')).join(', ') : ''; } catch { labStr = ''; }
+              try { const arr = JSON.parse(data.imagingInvest || '[]'); imagingStr = Array.isArray(arr) ? arr.filter((x: string) => !x.startsWith('Note:')).join(', ') : ''; } catch { imagingStr = ''; }
+              // Extract chief complaint from history note
+              const ccMatch = data.history?.match(/^CC:\s*(.+?)(?:\n|$)/m);
+              const chiefComplaint = ccMatch ? ccMatch[1].trim() : (entry.notes || undefined);
+              await fetch('/api/consultations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  patientId: entry.patientId,
+                  staffId: entry.staffId ?? undefined,
+                  visitDate: new Date().toISOString().slice(0, 10),
+                  chiefComplaint: chiefComplaint || undefined,
+                  diagnosis: data.diagnosis || undefined,
+                  treatmentPlan: data.mgmtPlan || undefined,
+                  prescriptions: data.mgmtPlan || undefined,
+                  notes: data.history || undefined,
+                  labInvestigations: labStr || undefined,
+                  imagingInvestigations: imagingStr || undefined,
+                }),
+              });
+            } catch { /* non-fatal — queue entry already saved */ }
+          }
           toast({ title: 'Consultation saved successfully' });
           setConsultOpen(null);
           invalidate();
@@ -3503,6 +3533,72 @@ function ConsultationDialog({
                 </div>
               )}
 
+              {/* ── Triage Nursing Notes (from queue entry) ── */}
+              {entry.triageNursingNotes &&
+                (() => {
+                  try {
+                    const nn = JSON.parse(entry.triageNursingNotes!) as {
+                      presentingComplaint?: string;
+                      briefMedicalHistory?: string;
+                      emergencyInvestigationsRequested?: string;
+                      investigationResults?: string;
+                      labResultsNote?: string;
+                      imagingResultsNote?: string;
+                    };
+                    const hasAny = Object.values(nn).some(Boolean);
+                    if (!hasAny) return null;
+                    return (
+                      <div className="border border-blue-200 rounded-lg overflow-hidden">
+                        <div className="bg-blue-50 px-3 py-2">
+                          <span className="text-xs font-semibold text-blue-800">
+                            📋 Triage Nursing Notes
+                          </span>
+                        </div>
+                        <div className="p-3 space-y-2.5 bg-white">
+                          {nn.presentingComplaint && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 mb-1">Presenting Complaint(s)</p>
+                              <p className="text-sm text-gray-800 bg-blue-50 border border-blue-100 rounded p-2 italic whitespace-pre-wrap">{nn.presentingComplaint}</p>
+                            </div>
+                          )}
+                          {nn.briefMedicalHistory && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 mb-1">Brief Medical History</p>
+                              <p className="text-sm text-gray-800 bg-teal-50 border border-teal-100 rounded p-2 whitespace-pre-wrap">{nn.briefMedicalHistory}</p>
+                            </div>
+                          )}
+                          {nn.emergencyInvestigationsRequested && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 mb-1">Emergency Investigations Requested</p>
+                              <p className="text-sm text-gray-800 bg-purple-50 border border-purple-100 rounded p-2 whitespace-pre-wrap">{nn.emergencyInvestigationsRequested}</p>
+                            </div>
+                          )}
+                          {nn.investigationResults && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 mb-1">Investigation Results</p>
+                              <p className="text-sm text-gray-800 bg-amber-50 border border-amber-100 rounded p-2 whitespace-pre-wrap">{nn.investigationResults}</p>
+                            </div>
+                          )}
+                          {nn.labResultsNote && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 mb-1">Uploaded Laboratory Results</p>
+                              <p className="text-sm text-gray-800 bg-green-50 border border-green-100 rounded p-2 whitespace-pre-wrap">{nn.labResultsNote}</p>
+                            </div>
+                          )}
+                          {nn.imagingResultsNote && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 mb-1">Uploaded Imaging Results</p>
+                              <p className="text-sm text-gray-800 bg-orange-50 border border-orange-100 rounded p-2 whitespace-pre-wrap">{nn.imagingResultsNote}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  } catch {
+                    return null;
+                  }
+                })()}
+
               {/* ── Formal triage assessment records ── */}
               {triageRecords && triageRecords.length > 0
                 ? triageRecords.map((t, idx) => (
@@ -4222,6 +4318,12 @@ function ConsultationDialog({
                 PRN=as needed · IM=intramuscular · IV=intravenous · PO=oral · SC=subcutaneous
                 <br />
                 STAT=immediately · AC=before meals · PC=after meals
+              </div>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-2.5 text-xs text-purple-800">
+                <strong>💊 Auto-Pharmacy:</strong> Lines formatted as{' '}
+                <code className="bg-purple-100 px-1 rounded">Drug Name | Dose | Frequency | Duration | Instructions</code>{' '}
+                will automatically create Pharmacy tasks when you save. Example:{' '}
+                <code className="bg-purple-100 px-1 rounded">Tab Paracetamol | 500mg | TDS | 5 days | After meals</code>
               </div>
             </div>
           )}
