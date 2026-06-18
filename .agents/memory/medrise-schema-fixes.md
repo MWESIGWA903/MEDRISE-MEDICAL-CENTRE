@@ -31,7 +31,35 @@ This silently discarded triageTime updates.
 
 ## Appointment status must include "checked_in"
 
-**Rule:** All appointment status enums in api-zod must include `"checked_in"` alongside `"pending"`, `"confirmed"`, `"cancelled"`, `"completed"`.
+**Rule:** All appointment status enums in api-zod (`api.ts`) AND api-client-react (`api.schemas.ts`) AND api-zod type files (`appointmentStatus.ts`, `appointmentStatusUpdateStatus.ts`) must include `"checked_in"`.
+
+**How to apply:** Both `AppointmentStatus` and `AppointmentStatusUpdateStatus` const objects must have `checked_in: 'checked_in'`.
+
+## Admission route must use getSessionFromRequestAsync
+
+**Rule:** All auth checks in `admissions.ts` (POST, PATCH, DELETE) must use `getSessionFromRequestAsync(req)` (async DB lookup), not `getSessionFromRequest(req)` (sync in-memory cache).
+
+**Why:** After server restart, the in-memory session cache is empty. The sync version returns null for valid sessions that exist in the DB but not yet in memory → 401 Unauthorized on all admission mutations.
+
+**How to apply:** Every route that does auth after a server restart risk must use `await getSessionFromRequestAsync(req)`.
+
+## PROFESSIONAL_ROLES must include dashboard-used roles
+
+**Rule:** `PROFESSIONAL_ROLES` in `lib/db/src/schema/admins.ts` must include all roles the dashboard uses, including: `lab_technician`, `billing_officer`, `records_officer`, `owner`.
+
+**Why:** Staff creation returns 400 if the role isn't in PROFESSIONAL_ROLES. Dashboard uses `lab_technician` (not `laboratory_technician`), `billing_officer`, `records_officer` — these weren't in the original list.
+
+## Age fields — all schemas need ageWeeks
+
+**Rule:** Patient schemas in api-zod (`api.ts`), api-zod type files, and api-client-react (`api.schemas.ts`) must include `ageWeeks` alongside `age`, `ageMonths`, `ageDays`.
+
+**How to apply:** Add `ageWeeks?: number` (optional) to `PatientInput`, and `ageWeeks?: number | null` to `Patient` and all response schemas. Also add to queue-tab.tsx registration state and UI.
+
+## DB push command
+
+**Rule:** To push schema changes, run `pnpm --filter @workspace/db run push-force` from `MEDRISE-MEDICAL-CENTRE-main/`.
+
+**Why:** The script is named `push-force` in `lib/db/package.json`, not `drizzle-kit push` directly. `drizzle-kit push` at monorepo root fails.
 
 ## Public paths requiring no auth
 

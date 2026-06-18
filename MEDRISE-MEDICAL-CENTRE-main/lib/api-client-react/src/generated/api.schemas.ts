@@ -47,6 +47,7 @@ export const AppointmentStatus = {
   confirmed: 'confirmed',
   cancelled: 'cancelled',
   completed: 'completed',
+  checked_in: 'checked_in',
 } as const;
 
 export interface Appointment {
@@ -60,6 +61,9 @@ export interface Appointment {
   preferredDate: string;
   preferredTime: string;
   preferredDoctor?: string | null;
+  assignedStaffId?: number | null;
+  assignedDoctorName?: string | null;
+  checkinTime?: string | null;
   /** @nullable */
   message?: string | null;
   status: AppointmentStatus;
@@ -88,10 +92,13 @@ export const AppointmentStatusUpdateStatus = {
   confirmed: 'confirmed',
   cancelled: 'cancelled',
   completed: 'completed',
+  checked_in: 'checked_in',
 } as const;
 
 export interface AppointmentStatusUpdate {
   status: AppointmentStatusUpdateStatus;
+  assignedStaffId?: number | null;
+  assignedDoctorName?: string | null;
 }
 
 export interface AppointmentStats {
@@ -306,6 +313,12 @@ export interface Patient {
   /** @nullable */
   age?: number | null;
   /** @nullable */
+  ageMonths?: number | null;
+  /** @nullable */
+  ageWeeks?: number | null;
+  /** @nullable */
+  ageDays?: number | null;
+  /** @nullable */
   gender?: string | null;
   /** @nullable */
   address?: string | null;
@@ -363,6 +376,7 @@ export interface PatientInput {
   dateOfBirth?: string;
   age?: number;
   ageMonths?: number;
+  ageWeeks?: number;
   ageDays?: number;
   gender?: PatientInputGender;
   address?: string;

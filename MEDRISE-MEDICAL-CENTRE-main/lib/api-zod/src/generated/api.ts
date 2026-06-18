@@ -180,6 +180,9 @@ export const ListAppointmentsResponseItem = zod.object({
   "preferredDate": zod.string(),
   "preferredTime": zod.string(),
   "preferredDoctor": zod.string().nullish(),
+  "assignedStaffId": zod.number().nullish(),
+  "assignedDoctorName": zod.string().nullish(),
+  "checkinTime": zod.string().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'cancelled', 'completed', 'checked_in']),
   "createdAt": zod.string()
@@ -226,6 +229,9 @@ export const GetAppointmentResponse = zod.object({
   "preferredDate": zod.string(),
   "preferredTime": zod.string(),
   "preferredDoctor": zod.string().nullish(),
+  "assignedStaffId": zod.number().nullish(),
+  "assignedDoctorName": zod.string().nullish(),
+  "checkinTime": zod.string().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'cancelled', 'completed', 'checked_in']),
   "createdAt": zod.string()
@@ -240,7 +246,9 @@ export const UpdateAppointmentStatusParams = zod.object({
 })
 
 export const UpdateAppointmentStatusBody = zod.object({
-  "status": zod.enum(['pending', 'confirmed', 'cancelled', 'completed', 'checked_in'])
+  "status": zod.enum(['pending', 'confirmed', 'cancelled', 'completed', 'checked_in']),
+  "assignedStaffId": zod.number().nullish(),
+  "assignedDoctorName": zod.string().nullish()
 })
 
 export const UpdateAppointmentStatusResponse = zod.object({
@@ -254,6 +262,9 @@ export const UpdateAppointmentStatusResponse = zod.object({
   "preferredDate": zod.string(),
   "preferredTime": zod.string(),
   "preferredDoctor": zod.string().nullish(),
+  "assignedStaffId": zod.number().nullish(),
+  "assignedDoctorName": zod.string().nullish(),
+  "checkinTime": zod.string().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'cancelled', 'completed', 'checked_in']),
   "createdAt": zod.string()
@@ -521,6 +532,7 @@ export const ListPatientsResponseItem = zod.object({
   "dateOfBirth": zod.string().nullish(),
   "age": zod.number().nullish(),
   "ageMonths": zod.number().nullish(),
+  "ageWeeks": zod.number().nullish(),
   "ageDays": zod.number().nullish(),
   "gender": zod.string().nullish(),
   "address": zod.string().nullish(),
@@ -553,6 +565,7 @@ export const CreatePatientBody = zod.object({
   "dateOfBirth": zod.string().optional(),
   "age": zod.number().optional(),
   "ageMonths": zod.number().optional(),
+  "ageWeeks": zod.number().optional(),
   "ageDays": zod.number().optional(),
   "gender": zod.string().optional(),
   "address": zod.string().optional(),
@@ -583,6 +596,7 @@ export const GetPatientResponse = zod.object({
   "dateOfBirth": zod.string().nullish(),
   "age": zod.number().nullish(),
   "ageMonths": zod.number().nullish(),
+  "ageWeeks": zod.number().nullish(),
   "ageDays": zod.number().nullish(),
   "gender": zod.string().nullish(),
   "address": zod.string().nullish(),
@@ -618,6 +632,7 @@ export const UpdatePatientBody = zod.object({
   "dateOfBirth": zod.string().optional(),
   "age": zod.number().optional(),
   "ageMonths": zod.number().optional(),
+  "ageWeeks": zod.number().optional(),
   "ageDays": zod.number().optional(),
   "gender": zod.string().optional(),
   "address": zod.string().optional(),
@@ -640,6 +655,7 @@ export const UpdatePatientResponse = zod.object({
   "dateOfBirth": zod.string().nullish(),
   "age": zod.number().nullish(),
   "ageMonths": zod.number().nullish(),
+  "ageWeeks": zod.number().nullish(),
   "ageDays": zod.number().nullish(),
   "gender": zod.string().nullish(),
   "address": zod.string().nullish(),

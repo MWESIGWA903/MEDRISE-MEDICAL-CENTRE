@@ -1,0 +1,444 @@
+My deployed Medrise Medical Centre system requires a complete audit, bug fix, workflow improvement, testing, deployment, and GitHub synchronization.
+
+DO NOT stop after identifying issues. Fix, test, redeploy, commit, push to GitHub, and provide a final implementation report.
+
+CRITICAL SYSTEM AUDIT
+
+Perform a complete end-to-end audit of:
+
+- Frontend forms
+- Submit handlers
+- API routes
+- Server actions
+- Database operations
+- Shared services
+- Shared utilities
+- Authentication
+- Permissions
+- Vercel deployment logs
+- Environment variables
+- Database schema
+- Queue management
+- Appointment workflows
+- Admission workflows
+- Staff assignment workflows
+
+Investigate shared backend services first because multiple modules are failing and may be affected by a common issue.
+
+---
+
+1. NOT_FOUND ERRORS
+
+The following modules fail when saving records:
+
+- Surgery Booking
+- Maternity Registration
+- Dental Visit Creation
+
+Error:
+
+Error
+The page could not be found
+NOT_FOUND
+
+Investigate:
+
+- Frontend submit handlers
+- API endpoints
+- Server actions
+- Database functions
+- Shared create-record services
+- Deployment logs
+
+Search the entire codebase for:
+
+- notFound()
+- notFound(
+- status: 404
+- NOT_FOUND
+- throw new Error
+
+Find the exact source of the error and fix it.
+
+Verify successful creation, saving, editing, retrieval, and viewing of:
+
+- Surgery records
+- Maternity records
+- Dental records
+
+---
+
+2. SURGERY MODULE
+
+Completely audit Surgery functionality.
+
+Verify:
+
+- Surgery booking
+- Surgery scheduling
+- Surgery assignment
+- Surgery record creation
+- Surgery record editing
+- Surgery record retrieval
+
+Fix all NOT_FOUND errors.
+
+Ensure surgery records save correctly.
+
+---
+
+3. STAFF NOT APPEARING IN PUBLIC APPOINTMENTS
+
+On the public appointment booking page, patients cannot select staff.
+
+Fix so that:
+
+- All active staff appear automatically.
+- Dr. Mwesigwa Hannington appears.
+- Every newly created staff member automatically becomes available for appointment booking.
+- No hardcoded staff lists remain.
+- Staff list comes directly from the database.
+
+---
+
+4. STAFF AVAILABILITY SYSTEM-WIDE
+
+Wherever staff selection is required, all active staff must appear automatically.
+
+Apply this to:
+
+- Appointments
+- Surgery
+- Dental
+- Maternity
+- Admissions
+- Laboratory
+- Radiology
+- Pharmacy
+- Referrals
+- Inpatient
+- Any future modules
+
+Use one centralized staff source.
+
+---
+
+5. QUEUE MANAGEMENT FAILURE
+
+Under:
+
+Add Patient To Queue
+
+Current error:
+
+Failed to add patient
+
+Investigate and fix:
+
+- Queue API routes
+- Queue database operations
+- Validation
+- Permissions
+- Shared utilities
+
+Verify patients can successfully be added to queue.
+
+---
+
+6. APPOINTMENT CHECK-IN FAILURE
+
+Under Appointment Management:
+
+Current error:
+
+Failed to check in appointment
+
+Fix the complete workflow.
+
+Expected workflow:
+
+Appointment Created
+→ Appointment Confirmed
+→ Appointment Assigned
+→ Appointment Checked In
+→ Patient Added To Queue
+→ Assigned Staff Receives Patient
+
+Verify the workflow functions correctly.
+
+---
+
+7. APPOINTMENT ASSIGNMENT SYSTEM
+
+Implement role-based appointment management.
+
+MEDICAL DIRECTOR:
+
+- View all appointments
+- Assign appointments
+- Reassign appointments
+- Manage all appointments
+
+ADMIN:
+
+- View all appointments
+- Assign appointments
+- Reassign appointments
+- Manage all appointments
+
+STAFF:
+
+- View only appointments assigned to them
+- Cannot view appointments assigned to other staff
+- Can manage only their assigned appointments
+
+Implement proper role filtering throughout the system.
+
+---
+
+8. ADMISSION FAILURE
+
+Current error:
+
+Failed to admit patient
+
+Investigate:
+
+- Admission forms
+- API routes
+- Database inserts
+- Validation
+- Permissions
+- Shared create-record services
+
+Expected workflow:
+
+Patient Registration
+→ Consultation
+→ Admission Request
+→ Patient Admitted
+→ Admission Record Created
+→ Patient Appears In Inpatient Department
+
+Verify admission works successfully.
+
+---
+
+9. PAEDIATRIC AGE ENTRY
+
+Under Paediatrics replace single age fields with:
+
+Years
+Months
+Weeks
+Days
+
+Example:
+
+Years: __
+Months: __
+Weeks: __
+Days: __
+
+---
+
+10. UNIVERSAL AGE SYSTEM
+
+Apply age entry everywhere age is captured.
+
+Including:
+
+- Registration
+- OPD
+- Paediatrics
+- Surgery
+- Dental
+- Admissions
+- Maternity
+- Laboratory
+- Pharmacy
+- Radiology
+- Inpatient
+- All departments
+
+Support:
+
+- Newborns
+- Infants
+- Children
+- Adults
+- Elderly patients
+
+Maintain accurate calculations.
+
+---
+
+11. AUTOSAVE SYSTEM
+
+Implement autosave throughout the entire system.
+
+Requirements:
+
+- Save while typing
+- Save when fields change
+- Periodic autosave
+- Draft recovery after refresh
+- Recovery after browser closure
+- Recovery after internet failure
+- Recovery after power failure
+
+Apply to:
+
+- Registration
+- OPD
+- Surgery
+- Dental
+- Maternity
+- Admissions
+- Appointments
+- Queue
+- Inpatient
+- Laboratory
+- Pharmacy
+- Radiology
+- All departments
+
+Use a proper draft-saving architecture.
+
+---
+
+12. STAFF RELATIONSHIP AUDIT
+
+Audit all tables that reference staff.
+
+Verify foreign-key integrity between:
+
+- Staff
+- Appointments
+- Queue
+- Admissions
+- Surgery
+- Consultations
+- Departments
+
+Use consistent staff IDs throughout the application.
+
+---
+
+13. DEBUGGING
+
+Add detailed logging before every create operation.
+
+Examples:
+
+console.log("Surgery submit:", data)
+console.log("Maternity submit:", data)
+console.log("Dental submit:", data)
+console.log("Admission submit:", data)
+console.log("Queue submit:", data)
+
+Also log:
+
+console.log("API route reached")
+console.log("Database insert starting")
+console.log("Database insert successful")
+
+Log all caught errors.
+
+---
+
+14. COMPLETE CREATE-RECORD AUDIT
+
+Audit every module that creates records.
+
+Verify:
+
+- API routes exist
+- Server actions exist
+- Database tables exist
+- Insert operations work
+- Validation works
+- Permissions work
+- Vercel deployment supports the routes
+
+Fix any additional failures discovered.
+
+---
+
+15. TESTING
+
+After fixes, test and verify:
+
+- Public appointment booking
+- Staff selection
+- Appointment assignment
+- Appointment confirmation
+- Appointment check-in
+- Queue addition
+- Admission
+- Surgery booking
+- Maternity registration
+- Dental visit creation
+- Autosave
+- Age entry system
+- Role-based access
+
+Document all test results.
+
+---
+
+16. DEPLOYMENT
+
+After all fixes:
+
+- Deploy successfully to Vercel.
+- Verify all workflows function on production.
+- Verify no deployment errors remain.
+
+---
+
+17. GITHUB SYNCHRONIZATION
+
+After all fixes are completed:
+
+1. Review all modified files.
+2. Commit all changes.
+3. Push all changes to the connected GitHub repository.
+4. Verify GitHub contains the latest version.
+5. Ensure no local changes remain uncommitted.
+
+Use commit message:
+
+Fix NOT_FOUND errors, admission workflow, queue management, appointment assignment, autosave system, universal age fields, staff management, and system-wide workflow improvements
+
+Provide:
+
+- Git commit hash
+- GitHub repository URL
+- Confirmation that push succeeded
+
+---
+
+FINAL REPORT REQUIRED
+
+Provide:
+
+1. Root causes discovered
+2. Files modified
+3. Database changes
+4. API changes
+5. New features implemented
+6. Test results
+7. Vercel deployment URL
+8. GitHub repository URL
+9. Git commit hash
+10. Confirmation all changes were pushed successfully
+11. Any remaining issues
+
+The task is complete only when:
+
+✓ All bugs are fixed
+✓ All workflows are tested
+✓ Production deployment succeeds
+✓ GitHub contains the latest code
+✓ Final report is provided

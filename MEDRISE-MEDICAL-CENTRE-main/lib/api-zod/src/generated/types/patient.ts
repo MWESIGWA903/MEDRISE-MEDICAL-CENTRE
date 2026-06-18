@@ -17,6 +17,12 @@ export interface Patient {
   /** @nullable */
   age?: number | null;
   /** @nullable */
+  ageMonths?: number | null;
+  /** @nullable */
+  ageWeeks?: number | null;
+  /** @nullable */
+  ageDays?: number | null;
+  /** @nullable */
   gender?: string | null;
   /** @nullable */
   address?: string | null;

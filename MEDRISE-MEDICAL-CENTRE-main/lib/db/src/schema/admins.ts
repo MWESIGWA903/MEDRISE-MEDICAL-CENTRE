@@ -4,19 +4,22 @@ import { z } from "zod";
 
 export const PROFESSIONAL_ROLES = [
   "medical_director",
+  "owner",
+  "admin",
   "doctor",
   "clinical_officer",
   "nurse",
   "midwife",
   "laboratory_technician",
+  "lab_technician",
   "radiographer",
   "sonographer",
   "pharmacist",
   "dispenser",
   "receptionist",
   "administrator",
-  "owner",
-  "admin",
+  "billing_officer",
+  "records_officer",
   "staff",
 ] as const;
 

@@ -13,8 +13,11 @@ export const appointmentsTable = pgTable("appointments", {
   preferredDate: text("preferred_date").notNull(),
   preferredTime: text("preferred_time").notNull(),
   preferredDoctor: text("preferred_doctor"),
+  assignedStaffId: integer("assigned_staff_id"),
+  assignedDoctorName: text("assigned_doctor_name"),
   message: text("message"),
   status: text("status").notNull().default("pending"),
+  checkinTime: timestamp("checkin_time"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

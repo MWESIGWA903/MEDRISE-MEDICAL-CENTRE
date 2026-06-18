@@ -663,6 +663,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const [regName, setRegName] = useState('');
   const [regAge, setRegAge] = useState('');
   const [regAgeMonths, setRegAgeMonths] = useState('');
+  const [regAgeWeeks, setRegAgeWeeks] = useState('');
   const [regAgeDays, setRegAgeDays] = useState('');
   const [regDob, setRegDob] = useState('');
   const [regSex, setRegSex] = useState('');
@@ -714,6 +715,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
     setRegName('');
     setRegAge('');
     setRegAgeMonths('');
+    setRegAgeWeeks('');
     setRegAgeDays('');
     setRegDob('');
     setRegSex('');
@@ -756,14 +758,15 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const computedDob = React.useMemo(() => {
     const years = parseInt(regAge) || 0;
     const months = parseInt(regAgeMonths) || 0;
+    const weeks = parseInt(regAgeWeeks) || 0;
     const days = parseInt(regAgeDays) || 0;
-    if (!years && !months && !days) return '';
+    if (!years && !months && !weeks && !days) return '';
     const d = new Date();
     d.setFullYear(d.getFullYear() - years);
     d.setMonth(d.getMonth() - months);
-    d.setDate(d.getDate() - days);
+    d.setDate(d.getDate() - (weeks * 7 + days));
     return d.toISOString().slice(0, 10);
-  }, [regAge, regAgeMonths, regAgeDays]);
+  }, [regAge, regAgeMonths, regAgeWeeks, regAgeDays]);
 
   // Auto BMI from triage weight/height
   const triageBmi = React.useMemo(() => {
@@ -799,6 +802,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
           email: regEmail.trim() || undefined,
           age: regAge ? parseInt(regAge) : undefined,
           ageMonths: regAgeMonths ? parseInt(regAgeMonths) : undefined,
+          ageWeeks: regAgeWeeks ? parseInt(regAgeWeeks) : undefined,
           ageDays: regAgeDays ? parseInt(regAgeDays) : undefined,
           dateOfBirth: (regDob || computedDob) || undefined,
           gender: (regSex || undefined) as 'male' | 'female' | 'other' | undefined,
@@ -1447,9 +1451,20 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                         <div className="flex-1">
                           <Input
                             type="number"
+                            placeholder="Wk"
+                            min={0}
+                            max={4}
+                            value={regAgeWeeks}
+                            onChange={(e) => setRegAgeWeeks(e.target.value)}
+                          />
+                          <p className="text-[10px] text-gray-400 mt-0.5 text-center">Weeks</p>
+                        </div>
+                        <div className="flex-1">
+                          <Input
+                            type="number"
                             placeholder="Dy"
                             min={0}
-                            max={30}
+                            max={6}
                             value={regAgeDays}
                             onChange={(e) => setRegAgeDays(e.target.value)}
                           />

@@ -18,6 +18,9 @@ export interface Appointment {
   preferredDate: string;
   preferredTime: string;
   preferredDoctor?: string | null;
+  assignedStaffId?: number | null;
+  assignedDoctorName?: string | null;
+  checkinTime?: string | null;
   /** @nullable */
   message?: string | null;
   status: AppointmentStatus;

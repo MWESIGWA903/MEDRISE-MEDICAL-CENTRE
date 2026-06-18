@@ -168,9 +168,21 @@ router.patch("/appointments/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  // Build update set — include optional assignment + check-in fields
+  const updateSet: Record<string, unknown> = { status: body.data.status };
+  if ((req.body as Record<string, unknown>).assignedStaffId !== undefined) {
+    updateSet.assignedStaffId = (req.body as Record<string, unknown>).assignedStaffId || null;
+  }
+  if ((req.body as Record<string, unknown>).assignedDoctorName !== undefined) {
+    updateSet.assignedDoctorName = (req.body as Record<string, unknown>).assignedDoctorName || null;
+  }
+  if (body.data.status === "checked_in") {
+    updateSet.checkinTime = new Date();
+  }
+
   const [appointment] = await db
     .update(appointmentsTable)
-    .set({ status: body.data.status })
+    .set(updateSet)
     .where(eq(appointmentsTable.id, params.data.id))
     .returning();
 

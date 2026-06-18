@@ -16,6 +16,7 @@ export interface PatientInput {
   dateOfBirth?: string;
   age?: number;
   ageMonths?: number;
+  ageWeeks?: number;
   ageDays?: number;
   gender?: PatientInputGender;
   address?: string;

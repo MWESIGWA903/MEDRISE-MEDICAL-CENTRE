@@ -10,6 +10,7 @@ export const patientsTable = pgTable("patients", {
   dateOfBirth: text("date_of_birth"),
   age: integer("age"),
   ageMonths: integer("age_months"),
+  ageWeeks: integer("age_weeks"),
   ageDays: integer("age_days"),
   gender: text("gender"),
   department: text("department"),

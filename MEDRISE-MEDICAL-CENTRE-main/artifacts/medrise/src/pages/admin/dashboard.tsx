@@ -1139,6 +1139,12 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
   );
 
   const [checkingInId, setCheckingInId] = useState<number | null>(null);
+  const [confirmApptDialog, setConfirmApptDialog] = useState<{
+    id: number;
+    patientName: string;
+    service: string;
+  } | null>(null);
+  const [assignStaffId, setAssignStaffId] = useState<string>('');
 
   const updateStatusMutation = useUpdateAppointmentStatus();
   const deleteApptMutation = useDeleteAppointment();
@@ -1206,6 +1212,34 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
           queryClient.invalidateQueries({ queryKey: getGetAppointmentStatsQueryKey() });
         },
         onError: () => toast({ title: 'Failed to update status', variant: 'destructive' }),
+      },
+    );
+  };
+
+  const handleConfirmWithStaff = () => {
+    if (!confirmApptDialog) return;
+    const staffMember = staffList?.find((s) => String(s.id) === assignStaffId);
+    updateStatusMutation.mutate(
+      {
+        id: confirmApptDialog.id,
+        data: {
+          status: 'confirmed',
+          assignedStaffId: staffMember ? staffMember.id : null,
+          assignedDoctorName: staffMember ? staffMember.name : null,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: `Appointment confirmed`,
+            description: staffMember ? `Assigned to ${staffMember.name}` : 'No staff assigned',
+          });
+          queryClient.invalidateQueries({ queryKey: getListAppointmentsQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetAppointmentStatsQueryKey() });
+          setConfirmApptDialog(null);
+          setAssignStaffId('');
+        },
+        onError: () => toast({ title: 'Failed to confirm appointment', variant: 'destructive' }),
       },
     );
   };
@@ -1586,6 +1620,69 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
         </DialogContent>
       </Dialog>
 
+      {/* ── Confirm Appointment + Assign Staff Dialog ── */}
+      <Dialog
+        open={!!confirmApptDialog}
+        onOpenChange={(open) => {
+          if (!open) { setConfirmApptDialog(null); setAssignStaffId(''); }
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Confirm Appointment</DialogTitle>
+            <DialogDescription>
+              Optionally assign a staff member to this appointment before confirming.
+            </DialogDescription>
+          </DialogHeader>
+          {confirmApptDialog && (
+            <div className="space-y-4 pt-1">
+              <div className="bg-blue-50 rounded-md px-3 py-2 text-sm">
+                <p className="font-medium text-blue-900">{confirmApptDialog.patientName}</p>
+                <p className="text-blue-700 text-xs">{confirmApptDialog.service}</p>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-700">Assign Staff (Optional)</label>
+                <Select value={assignStaffId} onValueChange={setAssignStaffId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="No staff assigned (walk-in)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {staffList
+                      ?.filter((s) =>
+                        ['medical_director', 'owner', 'doctor', 'clinical_officer', 'nurse', 'midwife'].includes(s.role ?? '')
+                      )
+                      .map((s) => (
+                        <SelectItem key={s.id} value={String(s.id)}>
+                          {s.name}
+                          {s.title ? ` — ${s.title}` : ''}
+                          <span className="ml-1 text-xs text-gray-400 capitalize">
+                            ({(s.role ?? '').replace(/_/g, ' ')})
+                          </span>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Button
+                  className="flex-1"
+                  onClick={handleConfirmWithStaff}
+                  disabled={updateStatusMutation.isPending}
+                >
+                  Confirm Appointment
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => { setConfirmApptDialog(null); setAssignStaffId(''); }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -1877,7 +1974,15 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
                                 <div className="text-xs text-gray-400">{app.email}</div>
                               )}
                             </TableCell>
-                            <TableCell className="text-gray-700">{app.service}</TableCell>
+                            <TableCell className="text-gray-700">
+                              <div>{app.service}</div>
+                              {app.assignedDoctorName && (
+                                <div className="text-xs text-indigo-600 mt-0.5 flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {app.assignedDoctorName}
+                                </div>
+                              )}
+                            </TableCell>
                             <TableCell>
                               <div className="flex items-center text-gray-900 font-medium text-sm">
                                 <CalendarIcon className="h-3.5 w-3.5 mr-1.5 text-gray-400" />
@@ -1917,7 +2022,13 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
                                       variant="outline"
                                       size="sm"
                                       className="h-8 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
-                                      onClick={() => handleStatusUpdate(app.id, 'confirmed')}
+                                      onClick={() =>
+                                        setConfirmApptDialog({
+                                          id: app.id,
+                                          patientName: app.patientName,
+                                          service: app.service,
+                                        })
+                                      }
                                       disabled={updateStatusMutation.isPending}
                                     >
                                       Confirm

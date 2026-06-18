@@ -60143,8 +60143,11 @@ var init_appointments = __esm({
       preferredDate: text("preferred_date").notNull(),
       preferredTime: text("preferred_time").notNull(),
       preferredDoctor: text("preferred_doctor"),
+      assignedStaffId: integer("assigned_staff_id"),
+      assignedDoctorName: text("assigned_doctor_name"),
       message: text("message"),
       status: text("status").notNull().default("pending"),
+      checkinTime: timestamp("checkin_time"),
       createdAt: timestamp("created_at").defaultNow().notNull()
     });
     insertAppointmentSchema = createInsertSchema(appointmentsTable).omit({
@@ -60164,19 +60167,22 @@ var init_admins = __esm({
     init_zod();
     PROFESSIONAL_ROLES = [
       "medical_director",
+      "owner",
+      "admin",
       "doctor",
       "clinical_officer",
       "nurse",
       "midwife",
       "laboratory_technician",
+      "lab_technician",
       "radiographer",
       "sonographer",
       "pharmacist",
       "dispenser",
       "receptionist",
       "administrator",
-      "owner",
-      "admin",
+      "billing_officer",
+      "records_officer",
       "staff"
     ];
     professionalRoleEnum = external_exports.enum(PROFESSIONAL_ROLES);
@@ -60217,6 +60223,7 @@ var init_patients = __esm({
       dateOfBirth: text("date_of_birth"),
       age: integer("age"),
       ageMonths: integer("age_months"),
+      ageWeeks: integer("age_weeks"),
       ageDays: integer("age_days"),
       gender: text("gender"),
       department: text("department"),
@@ -80396,6 +80403,9 @@ var ListAppointmentsResponseItem = objectType({
   "preferredDate": stringType(),
   "preferredTime": stringType(),
   "preferredDoctor": stringType().nullish(),
+  "assignedStaffId": numberType().nullish(),
+  "assignedDoctorName": stringType().nullish(),
+  "checkinTime": stringType().nullish(),
   "message": stringType().nullish(),
   "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"]),
   "createdAt": stringType()
@@ -80428,6 +80438,9 @@ var GetAppointmentResponse = objectType({
   "preferredDate": stringType(),
   "preferredTime": stringType(),
   "preferredDoctor": stringType().nullish(),
+  "assignedStaffId": numberType().nullish(),
+  "assignedDoctorName": stringType().nullish(),
+  "checkinTime": stringType().nullish(),
   "message": stringType().nullish(),
   "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"]),
   "createdAt": stringType()
@@ -80436,7 +80449,9 @@ var UpdateAppointmentStatusParams = objectType({
   "id": coerce.number()
 });
 var UpdateAppointmentStatusBody = objectType({
-  "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"])
+  "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"]),
+  "assignedStaffId": numberType().nullish(),
+  "assignedDoctorName": stringType().nullish()
 });
 var UpdateAppointmentStatusResponse = objectType({
   "id": numberType(),
@@ -80449,6 +80464,9 @@ var UpdateAppointmentStatusResponse = objectType({
   "preferredDate": stringType(),
   "preferredTime": stringType(),
   "preferredDoctor": stringType().nullish(),
+  "assignedStaffId": numberType().nullish(),
+  "assignedDoctorName": stringType().nullish(),
+  "checkinTime": stringType().nullish(),
   "message": stringType().nullish(),
   "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"]),
   "createdAt": stringType()
@@ -80633,6 +80651,7 @@ var ListPatientsResponseItem = objectType({
   "dateOfBirth": stringType().nullish(),
   "age": numberType().nullish(),
   "ageMonths": numberType().nullish(),
+  "ageWeeks": numberType().nullish(),
   "ageDays": numberType().nullish(),
   "gender": stringType().nullish(),
   "address": stringType().nullish(),
@@ -80657,6 +80676,7 @@ var CreatePatientBody = objectType({
   "dateOfBirth": stringType().optional(),
   "age": numberType().optional(),
   "ageMonths": numberType().optional(),
+  "ageWeeks": numberType().optional(),
   "ageDays": numberType().optional(),
   "gender": stringType().optional(),
   "address": stringType().optional(),
@@ -80681,6 +80701,7 @@ var GetPatientResponse = objectType({
   "dateOfBirth": stringType().nullish(),
   "age": numberType().nullish(),
   "ageMonths": numberType().nullish(),
+  "ageWeeks": numberType().nullish(),
   "ageDays": numberType().nullish(),
   "gender": stringType().nullish(),
   "address": stringType().nullish(),
@@ -80707,6 +80728,7 @@ var UpdatePatientBody = objectType({
   "dateOfBirth": stringType().optional(),
   "age": numberType().optional(),
   "ageMonths": numberType().optional(),
+  "ageWeeks": numberType().optional(),
   "ageDays": numberType().optional(),
   "gender": stringType().optional(),
   "address": stringType().optional(),
@@ -80728,6 +80750,7 @@ var UpdatePatientResponse = objectType({
   "dateOfBirth": stringType().nullish(),
   "age": numberType().nullish(),
   "ageMonths": numberType().nullish(),
+  "ageWeeks": numberType().nullish(),
   "ageDays": numberType().nullish(),
   "gender": stringType().nullish(),
   "address": stringType().nullish(),
@@ -87026,7 +87049,17 @@ router2.patch("/appointments/:id", async (req, res) => {
     res.status(400).json({ error: body.error.message });
     return;
   }
-  const [appointment] = await db.update(appointmentsTable).set({ status: body.data.status }).where(eq(appointmentsTable.id, params.data.id)).returning();
+  const updateSet = { status: body.data.status };
+  if (req.body.assignedStaffId !== void 0) {
+    updateSet.assignedStaffId = req.body.assignedStaffId || null;
+  }
+  if (req.body.assignedDoctorName !== void 0) {
+    updateSet.assignedDoctorName = req.body.assignedDoctorName || null;
+  }
+  if (body.data.status === "checked_in") {
+    updateSet.checkinTime = /* @__PURE__ */ new Date();
+  }
+  const [appointment] = await db.update(appointmentsTable).set(updateSet).where(eq(appointmentsTable.id, params.data.id)).returning();
   if (!appointment) {
     res.status(404).json({ error: "Appointment not found" });
     return;
@@ -88960,6 +88993,7 @@ router4.post("/patients", async (req, res) => {
       dateOfBirth: parsed.data.dateOfBirth ?? null,
       age: parsed.data.age ?? null,
       ageMonths: parsed.data.ageMonths ?? null,
+      ageWeeks: parsed.data.ageWeeks ?? null,
       ageDays: parsed.data.ageDays ?? null,
       gender: parsed.data.gender ?? null,
       address: parsed.data.address ?? null,
@@ -91342,7 +91376,7 @@ router22.get("/admissions", async (req, res) => {
   }
 });
 router22.post("/admissions", async (req, res) => {
-  const session = getSessionFromRequest(req);
+  const session = await getSessionFromRequestAsync(req);
   if (!session) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -91370,7 +91404,7 @@ router22.post("/admissions", async (req, res) => {
   }
 });
 router22.patch("/admissions/:id", async (req, res) => {
-  const session = getSessionFromRequest(req);
+  const session = await getSessionFromRequestAsync(req);
   if (!session) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -91409,7 +91443,7 @@ router22.patch("/admissions/:id", async (req, res) => {
   }
 });
 router22.delete("/admissions/:id", async (req, res) => {
-  const session = getSessionFromRequest(req);
+  const session = await getSessionFromRequestAsync(req);
   if (!session) {
     res.status(401).json({ error: "Unauthorized" });
     return;

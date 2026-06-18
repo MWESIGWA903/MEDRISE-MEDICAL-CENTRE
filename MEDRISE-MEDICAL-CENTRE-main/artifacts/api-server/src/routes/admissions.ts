@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { db, admissionsTable, patientsTable } from "@workspace/db";
 import { eq, desc, and, sql } from "drizzle-orm";
-import { getSessionFromRequest } from "../lib/session";
+import { getSessionFromRequestAsync } from "../lib/session";
 import { logAudit } from "../lib/audit";
 
 const router = Router();
@@ -101,7 +101,7 @@ router.get("/admissions", async (req, res) => {
 });
 
 router.post("/admissions", async (req, res): Promise<void> => {
-  const session = getSessionFromRequest(req);
+  const session = await getSessionFromRequestAsync(req);
   if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const parsed = AdmissionInputSchema.safeParse(req.body);
@@ -131,7 +131,7 @@ router.post("/admissions", async (req, res): Promise<void> => {
 });
 
 router.patch("/admissions/:id", async (req, res): Promise<void> => {
-  const session = getSessionFromRequest(req);
+  const session = await getSessionFromRequestAsync(req);
   if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const id = Number(req.params.id);
@@ -173,7 +173,7 @@ router.patch("/admissions/:id", async (req, res): Promise<void> => {
 });
 
 router.delete("/admissions/:id", async (req, res): Promise<void> => {
-  const session = getSessionFromRequest(req);
+  const session = await getSessionFromRequestAsync(req);
   if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const id = Number(req.params.id);

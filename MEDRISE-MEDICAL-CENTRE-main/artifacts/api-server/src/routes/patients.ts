@@ -71,6 +71,7 @@ router.post("/patients", async (req, res): Promise<void> => {
         dateOfBirth: parsed.data.dateOfBirth ?? null,
         age: parsed.data.age ?? null,
         ageMonths: parsed.data.ageMonths ?? null,
+        ageWeeks: parsed.data.ageWeeks ?? null,
         ageDays: parsed.data.ageDays ?? null,
         gender: parsed.data.gender ?? null,
         address: parsed.data.address ?? null,
