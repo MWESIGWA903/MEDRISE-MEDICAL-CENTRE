@@ -1,0 +1,15 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "Medrise Medical Centre is a healthcare management platform designed to help patients and administrators manage medical services efficiently.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pnpm": "^10.34.3"
+  }
+}
