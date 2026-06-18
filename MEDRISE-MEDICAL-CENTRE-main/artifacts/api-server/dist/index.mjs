@@ -80293,6 +80293,7 @@ var ListQueueResponseItem = objectType({
   "managementPlan": stringType().nullish(),
   "vitalsSnapshot": stringType().nullish(),
   "notificationPhone": stringType().nullish(),
+  "triageNursingNotes": stringType().nullish(),
   "createdAt": stringType(),
   "updatedAt": stringType()
 });
@@ -80307,7 +80308,13 @@ var AddToQueueBody = objectType({
   "referralSource": enumType(["home", "facility_referral", "self_referral"]).optional(),
   "referralFacility": stringType().optional(),
   "department": stringType().optional(),
-  "notificationPhone": stringType().optional()
+  "notificationPhone": stringType().optional(),
+  "vitalsSnapshot": stringType().optional(),
+  "managementPlan": stringType().optional(),
+  "labInvestigations": stringType().optional(),
+  "imagingInvestigations": stringType().optional(),
+  "triageNursingNotes": stringType().optional(),
+  "diagnosis": stringType().optional()
 });
 var UpdateQueueEntryParams = objectType({
   "id": coerce.number()
@@ -80324,7 +80331,8 @@ var UpdateQueueEntryBody = objectType({
   "imagingInvestigations": stringType().optional(),
   "managementPlan": stringType().optional(),
   "vitalsSnapshot": stringType().optional(),
-  "notificationPhone": stringType().optional()
+  "notificationPhone": stringType().optional(),
+  "triageNursingNotes": stringType().optional()
 });
 var UpdateQueueEntryResponse = objectType({
   "id": numberType(),
@@ -80347,6 +80355,7 @@ var UpdateQueueEntryResponse = objectType({
   "managementPlan": stringType().nullish(),
   "vitalsSnapshot": stringType().nullish(),
   "notificationPhone": stringType().nullish(),
+  "triageNursingNotes": stringType().nullish(),
   "createdAt": stringType(),
   "updatedAt": stringType()
 });
@@ -80388,7 +80397,7 @@ var ListAppointmentsResponseItem = objectType({
   "preferredTime": stringType(),
   "preferredDoctor": stringType().nullish(),
   "message": stringType().nullish(),
-  "status": enumType(["pending", "confirmed", "cancelled", "completed"]),
+  "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"]),
   "createdAt": stringType()
 });
 var ListAppointmentsResponse = arrayType(ListAppointmentsResponseItem);
@@ -80396,7 +80405,7 @@ var createAppointmentBodyPatientNameMin = 2;
 var CreateAppointmentBody = objectType({
   "patientName": stringType().min(createAppointmentBodyPatientNameMin),
   "phone": stringType(),
-  "email": stringType().email(),
+  "email": stringType().email().or(literalType("")).optional(),
   "age": numberType().optional(),
   "sex": stringType().optional(),
   "service": stringType(),
@@ -80420,14 +80429,14 @@ var GetAppointmentResponse = objectType({
   "preferredTime": stringType(),
   "preferredDoctor": stringType().nullish(),
   "message": stringType().nullish(),
-  "status": enumType(["pending", "confirmed", "cancelled", "completed"]),
+  "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"]),
   "createdAt": stringType()
 });
 var UpdateAppointmentStatusParams = objectType({
   "id": coerce.number()
 });
 var UpdateAppointmentStatusBody = objectType({
-  "status": enumType(["pending", "confirmed", "cancelled", "completed"])
+  "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"])
 });
 var UpdateAppointmentStatusResponse = objectType({
   "id": numberType(),
@@ -80441,7 +80450,7 @@ var UpdateAppointmentStatusResponse = objectType({
   "preferredTime": stringType(),
   "preferredDoctor": stringType().nullish(),
   "message": stringType().nullish(),
-  "status": enumType(["pending", "confirmed", "cancelled", "completed"]),
+  "status": enumType(["pending", "confirmed", "cancelled", "completed", "checked_in"]),
   "createdAt": stringType()
 });
 var DeleteAppointmentParams = objectType({
@@ -80623,6 +80632,8 @@ var ListPatientsResponseItem = objectType({
   "email": stringType().nullish(),
   "dateOfBirth": stringType().nullish(),
   "age": numberType().nullish(),
+  "ageMonths": numberType().nullish(),
+  "ageDays": numberType().nullish(),
   "gender": stringType().nullish(),
   "address": stringType().nullish(),
   "bloodType": stringType().nullish(),
@@ -80669,6 +80680,8 @@ var GetPatientResponse = objectType({
   "email": stringType().nullish(),
   "dateOfBirth": stringType().nullish(),
   "age": numberType().nullish(),
+  "ageMonths": numberType().nullish(),
+  "ageDays": numberType().nullish(),
   "gender": stringType().nullish(),
   "address": stringType().nullish(),
   "bloodType": stringType().nullish(),
@@ -80714,6 +80727,8 @@ var UpdatePatientResponse = objectType({
   "email": stringType().nullish(),
   "dateOfBirth": stringType().nullish(),
   "age": numberType().nullish(),
+  "ageMonths": numberType().nullish(),
+  "ageDays": numberType().nullish(),
   "gender": stringType().nullish(),
   "address": stringType().nullish(),
   "bloodType": stringType().nullish(),
@@ -86912,7 +86927,7 @@ router2.post("/appointments", async (req, res) => {
   const [appointment] = await db.insert(appointmentsTable).values({
     patientName: parsed.data.patientName,
     phone: parsed.data.phone,
-    email: parsed.data.email,
+    email: parsed.data.email ?? "",
     age: parsed.data.age ?? null,
     sex: parsed.data.sex ?? null,
     service: parsed.data.service,
@@ -90484,7 +90499,7 @@ var QueueEntryInputSchema = external_exports.object({
   triageNursingNotes: external_exports.string().optional()
 });
 var QueueEntryUpdateSchema = external_exports.object({
-  status: external_exports.enum(["queue", "waiting", "in-consultation", "nursing", "theatre", "done", "skipped"]).optional(),
+  status: external_exports.enum(["waiting", "in-consultation", "nursing", "theatre", "done", "skipped"]).optional(),
   priority: external_exports.enum(PRIORITY_VALUES).optional(),
   staffId: external_exports.number().int().optional().nullable(),
   notes: external_exports.string().optional(),
@@ -91254,35 +91269,50 @@ async function enrichRecord(r) {
   };
 }
 router23.get("/maternity/records", async (req, res) => {
-  const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
-  const status = typeof req.query.status === "string" ? req.query.status : void 0;
-  let rows = await db.select().from(maternityRecordsTable).orderBy(desc(maternityRecordsTable.createdAt));
-  if (patientId) rows = rows.filter((r) => r.patientId === patientId);
-  if (status) rows = rows.filter((r) => r.status === status);
-  const enriched = await Promise.all(rows.map(enrichRecord));
-  res.json(enriched);
+  try {
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
+    const status = typeof req.query.status === "string" ? req.query.status : void 0;
+    let rows = await db.select().from(maternityRecordsTable).orderBy(desc(maternityRecordsTable.createdAt));
+    if (patientId) rows = rows.filter((r) => r.patientId === patientId);
+    if (status) rows = rows.filter((r) => r.status === status);
+    const enriched = await Promise.all(rows.map(enrichRecord));
+    res.json(enriched);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch maternity records" });
+  }
 });
 router23.get("/maternity/records/stats", async (_req, res) => {
-  const all = await db.select().from(maternityRecordsTable);
-  const deliveries = await db.select().from(deliveryRecordsTable);
-  res.json({
-    total: all.length,
-    active: all.filter((r) => r.status === "active").length,
-    highRisk: all.filter((r) => r.isHighRisk).length,
-    delivered: all.filter((r) => r.status === "delivered").length,
-    totalDeliveries: deliveries.length,
-    svd: deliveries.filter((d) => d.deliveryMode === "SVD").length,
-    cs: deliveries.filter((d) => d.deliveryMode === "CS").length
-  });
+  try {
+    const all = await db.select().from(maternityRecordsTable);
+    const deliveries = await db.select().from(deliveryRecordsTable);
+    res.json({
+      total: all.length,
+      active: all.filter((r) => r.status === "active").length,
+      highRisk: all.filter((r) => r.isHighRisk).length,
+      delivered: all.filter((r) => r.status === "delivered").length,
+      totalDeliveries: deliveries.length,
+      svd: deliveries.filter((d) => d.deliveryMode === "SVD").length,
+      cs: deliveries.filter((d) => d.deliveryMode === "CS").length
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch maternity stats" });
+  }
 });
 router23.get("/maternity/records/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.select().from(maternityRecordsTable).where(eq(maternityRecordsTable.id, id));
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(maternityRecordsTable).where(eq(maternityRecordsTable.id, id));
+    if (!row) {
+      res.status(404).json({ error: "Maternity record not found" });
+      return;
+    }
+    res.json(await enrichRecord(row));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch maternity record" });
   }
-  res.json(await enrichRecord(row));
 });
 var MaternityRecordSchema = external_exports.object({
   patientId: external_exports.number().int(),
@@ -91307,54 +91337,74 @@ var MaternityRecordSchema = external_exports.object({
   attendedByName: external_exports.string().optional()
 });
 router23.post("/maternity/records", async (req, res) => {
-  const parsed = MaternityRecordSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = MaternityRecordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const adminId = await getToken(req);
+    const [row] = await db.insert(maternityRecordsTable).values({
+      ...parsed.data,
+      attendedBy: adminId ?? void 0,
+      attendedByName: parsed.data.attendedByName ?? null
+    }).returning();
+    logAudit(req, "create_maternity_record", { entityType: "maternity_record", entityId: row.id, details: `Patient ID ${row.patientId}` }).catch(() => {
+    });
+    res.status(201).json(await enrichRecord(row));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to register maternity patient" });
   }
-  const adminId = await getToken(req);
-  const [row] = await db.insert(maternityRecordsTable).values({
-    ...parsed.data,
-    attendedBy: adminId ?? void 0,
-    attendedByName: parsed.data.attendedByName ?? null
-  }).returning();
-  logAudit(req, "create_maternity_record", { entityType: "maternity_record", entityId: row.id, details: `Patient ID ${row.patientId}` }).catch(() => {
-  });
-  res.status(201).json(await enrichRecord(row));
 });
 router23.patch("/maternity/records/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = MaternityRecordSchema.partial().omit({ patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = MaternityRecordSchema.partial().omit({ patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(maternityRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(maternityRecordsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Maternity record not found" });
+      return;
+    }
+    logAudit(req, "update_maternity_record", { entityType: "maternity_record", entityId: id, details: JSON.stringify(parsed.data) }).catch(() => {
+    });
+    res.json(await enrichRecord(row));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update maternity record" });
   }
-  const [row] = await db.update(maternityRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(maternityRecordsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  logAudit(req, "update_maternity_record", { entityType: "maternity_record", entityId: id, details: JSON.stringify(parsed.data) }).catch(() => {
-  });
-  res.json(await enrichRecord(row));
 });
 router23.delete("/maternity/records/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await db.delete(partographEntriesTable).where(eq(partographEntriesTable.maternityRecordId, id));
-  await db.delete(ancVisitsTable).where(eq(ancVisitsTable.maternityRecordId, id));
-  await db.delete(deliveryRecordsTable).where(eq(deliveryRecordsTable.maternityRecordId, id));
-  const [row] = await db.delete(maternityRecordsTable).where(eq(maternityRecordsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    await db.delete(partographEntriesTable).where(eq(partographEntriesTable.maternityRecordId, id));
+    await db.delete(ancVisitsTable).where(eq(ancVisitsTable.maternityRecordId, id));
+    await db.delete(deliveryRecordsTable).where(eq(deliveryRecordsTable.maternityRecordId, id));
+    const [row] = await db.delete(maternityRecordsTable).where(eq(maternityRecordsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Maternity record not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete maternity record" });
   }
-  res.sendStatus(204);
 });
 router23.get("/maternity/anc-visits", async (req, res) => {
-  const recordId = req.query.maternityRecordId ? parseInt(String(req.query.maternityRecordId), 10) : void 0;
-  let rows = await db.select().from(ancVisitsTable).orderBy(ancVisitsTable.visitNumber);
-  if (recordId) rows = rows.filter((r) => r.maternityRecordId === recordId);
-  res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  try {
+    const recordId = req.query.maternityRecordId ? parseInt(String(req.query.maternityRecordId), 10) : void 0;
+    let rows = await db.select().from(ancVisitsTable).orderBy(ancVisitsTable.visitNumber);
+    if (recordId) rows = rows.filter((r) => r.maternityRecordId === recordId);
+    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch ANC visits" });
+  }
 });
 var AncVisitSchema = external_exports.object({
   maternityRecordId: external_exports.number().int(),
@@ -91389,57 +91439,77 @@ var AncVisitSchema = external_exports.object({
   attendedByName: external_exports.string().optional()
 });
 router23.post("/maternity/anc-visits", async (req, res) => {
-  const parsed = AncVisitSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = AncVisitSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const existing = await db.select({ id: ancVisitsTable.id }).from(ancVisitsTable).where(eq(ancVisitsTable.maternityRecordId, parsed.data.maternityRecordId));
+    const visitNumber = existing.length + 1;
+    const adminId = await getToken(req);
+    const adminName = parsed.data.attendedByName ?? (adminId ? await db.select({ name: adminsTable.name }).from(adminsTable).where(eq(adminsTable.id, adminId)).then((r) => r[0]?.name ?? null) : null);
+    const [row] = await db.insert(ancVisitsTable).values({
+      ...parsed.data,
+      visitNumber,
+      attendedBy: adminId ?? void 0,
+      attendedByName: adminName
+    }).returning();
+    logAudit(req, "create_anc_visit", { entityType: "anc_visit", entityId: row.id, details: `Visit #${visitNumber} for maternity record ${parsed.data.maternityRecordId}` }).catch(() => {
+    });
+    res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create ANC visit" });
   }
-  const existing = await db.select({ id: ancVisitsTable.id }).from(ancVisitsTable).where(eq(ancVisitsTable.maternityRecordId, parsed.data.maternityRecordId));
-  const visitNumber = existing.length + 1;
-  const adminId = await getToken(req);
-  const adminName = parsed.data.attendedByName ?? (adminId ? await db.select({ name: adminsTable.name }).from(adminsTable).where(eq(adminsTable.id, adminId)).then((r) => r[0]?.name ?? null) : null);
-  const [row] = await db.insert(ancVisitsTable).values({
-    ...parsed.data,
-    visitNumber,
-    attendedBy: adminId ?? void 0,
-    attendedByName: adminName
-  }).returning();
-  logAudit(req, "create_anc_visit", { entityType: "anc_visit", entityId: row.id, details: `Visit #${visitNumber} for maternity record ${parsed.data.maternityRecordId}` }).catch(() => {
-  });
-  res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 router23.patch("/maternity/anc-visits/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = AncVisitSchema.partial().omit({ maternityRecordId: true, patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = AncVisitSchema.partial().omit({ maternityRecordId: true, patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(ancVisitsTable).set(parsed.data).where(eq(ancVisitsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "ANC visit not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update ANC visit" });
   }
-  const [row] = await db.update(ancVisitsTable).set(parsed.data).where(eq(ancVisitsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 router23.delete("/maternity/anc-visits/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.delete(ancVisitsTable).where(eq(ancVisitsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.delete(ancVisitsTable).where(eq(ancVisitsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "ANC visit not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete ANC visit" });
   }
-  res.sendStatus(204);
 });
 router23.get("/maternity/deliveries", async (req, res) => {
-  const recordId = req.query.maternityRecordId ? parseInt(String(req.query.maternityRecordId), 10) : void 0;
-  let rows = await db.select().from(deliveryRecordsTable).orderBy(desc(deliveryRecordsTable.createdAt));
-  if (recordId) rows = rows.filter((r) => r.maternityRecordId === recordId);
-  const enriched = await Promise.all(rows.map(async (r) => {
-    const patient = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, r.patientId)).then((x) => x[0]);
-    return { ...r, patientName: patient?.fullName ?? "Unknown", createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() };
-  }));
-  res.json(enriched);
+  try {
+    const recordId = req.query.maternityRecordId ? parseInt(String(req.query.maternityRecordId), 10) : void 0;
+    let rows = await db.select().from(deliveryRecordsTable).orderBy(desc(deliveryRecordsTable.createdAt));
+    if (recordId) rows = rows.filter((r) => r.maternityRecordId === recordId);
+    const enriched = await Promise.all(rows.map(async (r) => {
+      const patient = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, r.patientId)).then((x) => x[0]);
+      return { ...r, patientName: patient?.fullName ?? "Unknown", createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() };
+    }));
+    res.json(enriched);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch delivery records" });
+  }
 });
 var DeliverySchema = external_exports.object({
   maternityRecordId: external_exports.number().int(),
@@ -91469,40 +91539,55 @@ var DeliverySchema = external_exports.object({
   notes: external_exports.string().optional()
 });
 router23.post("/maternity/deliveries", async (req, res) => {
-  const parsed = DeliverySchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = DeliverySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const adminId = await getToken(req);
+    const [row] = await db.insert(deliveryRecordsTable).values({
+      ...parsed.data,
+      attendantId: adminId ?? void 0
+    }).returning();
+    await db.update(maternityRecordsTable).set({ status: "delivered", updatedAt: /* @__PURE__ */ new Date() }).where(eq(maternityRecordsTable.id, parsed.data.maternityRecordId));
+    logAudit(req, "create_delivery_record", { entityType: "delivery_record", entityId: row.id, details: `Delivery for maternity record ${parsed.data.maternityRecordId}` }).catch(() => {
+    });
+    res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to record delivery" });
   }
-  const adminId = await getToken(req);
-  const [row] = await db.insert(deliveryRecordsTable).values({
-    ...parsed.data,
-    attendantId: adminId ?? void 0
-  }).returning();
-  await db.update(maternityRecordsTable).set({ status: "delivered", updatedAt: /* @__PURE__ */ new Date() }).where(eq(maternityRecordsTable.id, parsed.data.maternityRecordId));
-  logAudit(req, "create_delivery_record", { entityType: "delivery_record", entityId: row.id, details: `Delivery for maternity record ${parsed.data.maternityRecordId}` }).catch(() => {
-  });
-  res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 router23.patch("/maternity/deliveries/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = DeliverySchema.partial().omit({ maternityRecordId: true, patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = DeliverySchema.partial().omit({ maternityRecordId: true, patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(deliveryRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(deliveryRecordsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Delivery record not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update delivery record" });
   }
-  const [row] = await db.update(deliveryRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(deliveryRecordsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 router23.get("/maternity/partograph", async (req, res) => {
-  const recordId = req.query.maternityRecordId ? parseInt(String(req.query.maternityRecordId), 10) : void 0;
-  let rows = await db.select().from(partographEntriesTable).orderBy(partographEntriesTable.entryDate, partographEntriesTable.entryTime);
-  if (recordId) rows = rows.filter((r) => r.maternityRecordId === recordId);
-  res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  try {
+    const recordId = req.query.maternityRecordId ? parseInt(String(req.query.maternityRecordId), 10) : void 0;
+    let rows = await db.select().from(partographEntriesTable).orderBy(partographEntriesTable.entryDate, partographEntriesTable.entryTime);
+    if (recordId) rows = rows.filter((r) => r.maternityRecordId === recordId);
+    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch partograph entries" });
+  }
 });
 var PartographSchema = external_exports.object({
   maternityRecordId: external_exports.number().int(),
@@ -91529,42 +91614,57 @@ var PartographSchema = external_exports.object({
   recordedByName: external_exports.string().optional()
 });
 router23.post("/maternity/partograph", async (req, res) => {
-  const parsed = PartographSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = PartographSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const adminId = await getToken(req);
+    const adminName = parsed.data.recordedByName ?? (adminId ? await db.select({ name: adminsTable.name }).from(adminsTable).where(eq(adminsTable.id, adminId)).then((r) => r[0]?.name ?? null) : null);
+    const [row] = await db.insert(partographEntriesTable).values({
+      ...parsed.data,
+      recordedBy: adminId ?? void 0,
+      recordedByName: adminName
+    }).returning();
+    res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create partograph entry" });
   }
-  const adminId = await getToken(req);
-  const adminName = parsed.data.recordedByName ?? (adminId ? await db.select({ name: adminsTable.name }).from(adminsTable).where(eq(adminsTable.id, adminId)).then((r) => r[0]?.name ?? null) : null);
-  const [row] = await db.insert(partographEntriesTable).values({
-    ...parsed.data,
-    recordedBy: adminId ?? void 0,
-    recordedByName: adminName
-  }).returning();
-  res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 router23.patch("/maternity/partograph/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = PartographSchema.partial().omit({ maternityRecordId: true, patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = PartographSchema.partial().omit({ maternityRecordId: true, patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(partographEntriesTable).set(parsed.data).where(eq(partographEntriesTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Partograph entry not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update partograph entry" });
   }
-  const [row] = await db.update(partographEntriesTable).set(parsed.data).where(eq(partographEntriesTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 router23.delete("/maternity/partograph/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.delete(partographEntriesTable).where(eq(partographEntriesTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.delete(partographEntriesTable).where(eq(partographEntriesTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Partograph entry not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete partograph entry" });
   }
-  res.sendStatus(204);
 });
 var maternity_default = router23;
 
@@ -91590,37 +91690,52 @@ async function enrichBooking(b) {
   };
 }
 router24.get("/theatre/stats", async (_req, res) => {
-  const all = await db.select().from(theatreBookingsTable);
-  const ops = await db.select().from(operativeRecordsTable);
-  const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-  res.json({
-    total: all.length,
-    scheduledToday: all.filter((b) => b.bookedDate === today && b.status === "scheduled").length,
-    inProgress: all.filter((b) => b.status === "in_progress").length,
-    completedTotal: all.filter((b) => b.status === "completed").length,
-    cancelled: all.filter((b) => b.status === "cancelled").length,
-    emergency: all.filter((b) => b.priority === "emergency").length,
-    elective: all.filter((b) => b.priority === "elective").length,
-    totalOperativeNotes: ops.length
-  });
+  try {
+    const all = await db.select().from(theatreBookingsTable);
+    const ops = await db.select().from(operativeRecordsTable);
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    res.json({
+      total: all.length,
+      scheduledToday: all.filter((b) => b.bookedDate === today && b.status === "scheduled").length,
+      inProgress: all.filter((b) => b.status === "in_progress").length,
+      completedTotal: all.filter((b) => b.status === "completed").length,
+      cancelled: all.filter((b) => b.status === "cancelled").length,
+      emergency: all.filter((b) => b.priority === "emergency").length,
+      elective: all.filter((b) => b.priority === "elective").length,
+      totalOperativeNotes: ops.length
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch theatre stats" });
+  }
 });
 router24.get("/theatre/bookings", async (req, res) => {
-  const status = typeof req.query.status === "string" ? req.query.status : void 0;
-  const date6 = typeof req.query.date === "string" ? req.query.date : void 0;
-  let rows = await db.select().from(theatreBookingsTable).orderBy(theatreBookingsTable.bookedDate, theatreBookingsTable.bookedTime);
-  if (status && status !== "all") rows = rows.filter((r) => r.status === status);
-  if (date6) rows = rows.filter((r) => r.bookedDate === date6);
-  const enriched = await Promise.all(rows.map(enrichBooking));
-  res.json(enriched);
+  try {
+    const status = typeof req.query.status === "string" ? req.query.status : void 0;
+    const date6 = typeof req.query.date === "string" ? req.query.date : void 0;
+    let rows = await db.select().from(theatreBookingsTable).orderBy(theatreBookingsTable.bookedDate, theatreBookingsTable.bookedTime);
+    if (status && status !== "all") rows = rows.filter((r) => r.status === status);
+    if (date6) rows = rows.filter((r) => r.bookedDate === date6);
+    const enriched = await Promise.all(rows.map(enrichBooking));
+    res.json(enriched);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch theatre bookings" });
+  }
 });
 router24.get("/theatre/bookings/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.select().from(theatreBookingsTable).where(eq(theatreBookingsTable.id, id));
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(theatreBookingsTable).where(eq(theatreBookingsTable.id, id));
+    if (!row) {
+      res.status(404).json({ error: "Booking not found" });
+      return;
+    }
+    res.json(await enrichBooking(row));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch theatre booking" });
   }
-  res.json(await enrichBooking(row));
 });
 var BookingSchema = external_exports.object({
   patientId: external_exports.number().int(),
@@ -91643,61 +91758,86 @@ var BookingSchema = external_exports.object({
   createdByName: external_exports.string().optional()
 });
 router24.post("/theatre/bookings", async (req, res) => {
-  const parsed = BookingSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = BookingSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(theatreBookingsTable).values(parsed.data).returning();
+    logAudit(req, "create_theatre_booking", { entityType: "theatre_booking", entityId: row.id, details: `${parsed.data.surgeryType} \u2014 ${parsed.data.bookedDate}` }).catch(() => {
+    });
+    res.status(201).json(await enrichBooking(row));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create theatre booking" });
   }
-  const [row] = await db.insert(theatreBookingsTable).values(parsed.data).returning();
-  logAudit(req, "create_theatre_booking", { entityType: "theatre_booking", entityId: row.id, details: `${parsed.data.surgeryType} \u2014 ${parsed.data.bookedDate}` }).catch(() => {
-  });
-  res.status(201).json(await enrichBooking(row));
 });
 router24.patch("/theatre/bookings/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = BookingSchema.partial().omit({ patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = BookingSchema.partial().omit({ patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(theatreBookingsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(theatreBookingsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Booking not found" });
+      return;
+    }
+    logAudit(req, "update_theatre_booking", { entityType: "theatre_booking", entityId: id, details: JSON.stringify(parsed.data) }).catch(() => {
+    });
+    res.json(await enrichBooking(row));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update theatre booking" });
   }
-  const [row] = await db.update(theatreBookingsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(theatreBookingsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  logAudit(req, "update_theatre_booking", { entityType: "theatre_booking", entityId: id, details: JSON.stringify(parsed.data) }).catch(() => {
-  });
-  res.json(await enrichBooking(row));
 });
 router24.delete("/theatre/bookings/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await db.delete(operativeRecordsTable).where(eq(operativeRecordsTable.bookingId, id));
-  const [row] = await db.delete(theatreBookingsTable).where(eq(theatreBookingsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    await db.delete(operativeRecordsTable).where(eq(operativeRecordsTable.bookingId, id));
+    const [row] = await db.delete(theatreBookingsTable).where(eq(theatreBookingsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Booking not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete theatre booking" });
   }
-  res.sendStatus(204);
 });
 router24.get("/theatre/operative-records", async (req, res) => {
-  const bookingId = req.query.bookingId ? parseInt(String(req.query.bookingId), 10) : void 0;
-  let rows = await db.select().from(operativeRecordsTable).orderBy(desc(operativeRecordsTable.createdAt));
-  if (bookingId) rows = rows.filter((r) => r.bookingId === bookingId);
-  const enriched = await Promise.all(rows.map(async (r) => {
-    const p = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, r.patientId)).then((x) => x[0]);
-    return { ...r, patientName: p?.fullName ?? "Unknown", createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() };
-  }));
-  res.json(enriched);
+  try {
+    const bookingId = req.query.bookingId ? parseInt(String(req.query.bookingId), 10) : void 0;
+    let rows = await db.select().from(operativeRecordsTable).orderBy(desc(operativeRecordsTable.createdAt));
+    if (bookingId) rows = rows.filter((r) => r.bookingId === bookingId);
+    const enriched = await Promise.all(rows.map(async (r) => {
+      const p = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, r.patientId)).then((x) => x[0]);
+      return { ...r, patientName: p?.fullName ?? "Unknown", createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() };
+    }));
+    res.json(enriched);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch operative records" });
+  }
 });
 router24.get("/theatre/operative-records/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.select().from(operativeRecordsTable).where(eq(operativeRecordsTable.id, id));
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(operativeRecordsTable).where(eq(operativeRecordsTable.id, id));
+    if (!row) {
+      res.status(404).json({ error: "Operative record not found" });
+      return;
+    }
+    const p = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, row.patientId)).then((x) => x[0]);
+    res.json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch operative record" });
   }
-  const p = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, row.patientId)).then((x) => x[0]);
-  res.json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 var OperativeSchema = external_exports.object({
   bookingId: external_exports.number().int(),
@@ -91727,31 +91867,41 @@ var OperativeSchema = external_exports.object({
   condition: external_exports.string().optional()
 });
 router24.post("/theatre/operative-records", async (req, res) => {
-  const parsed = OperativeSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = OperativeSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(operativeRecordsTable).values(parsed.data).returning();
+    await db.update(theatreBookingsTable).set({ status: "completed", updatedAt: /* @__PURE__ */ new Date() }).where(eq(theatreBookingsTable.id, parsed.data.bookingId));
+    logAudit(req, "create_operative_record", { entityType: "operative_record", entityId: row.id, details: parsed.data.operationPerformed }).catch(() => {
+    });
+    const p = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, row.patientId)).then((x) => x[0]);
+    res.status(201).json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create operative record" });
   }
-  const [row] = await db.insert(operativeRecordsTable).values(parsed.data).returning();
-  await db.update(theatreBookingsTable).set({ status: "completed", updatedAt: /* @__PURE__ */ new Date() }).where(eq(theatreBookingsTable.id, parsed.data.bookingId));
-  logAudit(req, "create_operative_record", { entityType: "operative_record", entityId: row.id, details: parsed.data.operationPerformed }).catch(() => {
-  });
-  const p = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, row.patientId)).then((x) => x[0]);
-  res.status(201).json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 router24.patch("/theatre/operative-records/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = OperativeSchema.partial().omit({ bookingId: true, patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = OperativeSchema.partial().omit({ bookingId: true, patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(operativeRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(operativeRecordsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Operative record not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update operative record" });
   }
-  const [row] = await db.update(operativeRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(operativeRecordsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
 });
 var theatre_default = router24;
 
@@ -91925,25 +92075,35 @@ async function enrichDentalRecord(r) {
   };
 }
 router26.get("/dental/stats", async (_req, res) => {
-  const records = await db.select().from(dentalRecordsTable);
-  const procs = await db.select().from(dentalProceduresTable);
-  const unique2 = new Set(records.map((r) => r.patientId));
-  const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-  res.json({
-    totalPatients: unique2.size,
-    totalVisits: records.length,
-    visitToday: records.filter((r) => r.visitDate === today).length,
-    totalProcedures: procs.length,
-    xraysTaken: records.filter((r) => r.xrayTaken).length,
-    extractionCount: procs.filter((p) => p.procedureName.toLowerCase().includes("extract")).length,
-    fillingCount: procs.filter((p) => p.procedureName.toLowerCase().includes("fill") || p.procedureName.toLowerCase().includes("restoration")).length
-  });
+  try {
+    const records = await db.select().from(dentalRecordsTable);
+    const procs = await db.select().from(dentalProceduresTable);
+    const unique2 = new Set(records.map((r) => r.patientId));
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    res.json({
+      totalPatients: unique2.size,
+      totalVisits: records.length,
+      visitToday: records.filter((r) => r.visitDate === today).length,
+      totalProcedures: procs.length,
+      xraysTaken: records.filter((r) => r.xrayTaken).length,
+      extractionCount: procs.filter((p) => p.procedureName.toLowerCase().includes("extract")).length,
+      fillingCount: procs.filter((p) => p.procedureName.toLowerCase().includes("fill") || p.procedureName.toLowerCase().includes("restoration")).length
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch dental stats" });
+  }
 });
 router26.get("/dental/records", async (req, res) => {
-  const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
-  let rows = await db.select().from(dentalRecordsTable).orderBy(desc(dentalRecordsTable.visitDate));
-  if (patientId) rows = rows.filter((r) => r.patientId === patientId);
-  res.json(await Promise.all(rows.map(enrichDentalRecord)));
+  try {
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
+    let rows = await db.select().from(dentalRecordsTable).orderBy(desc(dentalRecordsTable.visitDate));
+    if (patientId) rows = rows.filter((r) => r.patientId === patientId);
+    res.json(await Promise.all(rows.map(enrichDentalRecord)));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch dental records" });
+  }
 });
 var DentalRecordSchema = external_exports.object({
   patientId: external_exports.number().int(),
@@ -91962,45 +92122,65 @@ var DentalRecordSchema = external_exports.object({
   dentistName: external_exports.string().optional()
 });
 router26.post("/dental/records", async (req, res) => {
-  const parsed = DentalRecordSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = DentalRecordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(dentalRecordsTable).values(parsed.data).returning();
+    logAudit(req, "create_dental_record", { entityType: "dental_record", entityId: row.id, details: `Patient ${parsed.data.patientId}` }).catch(() => {
+    });
+    res.status(201).json(await enrichDentalRecord(row));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create dental record" });
   }
-  const [row] = await db.insert(dentalRecordsTable).values(parsed.data).returning();
-  logAudit(req, "create_dental_record", { entityType: "dental_record", entityId: row.id, details: `Patient ${parsed.data.patientId}` }).catch(() => {
-  });
-  res.status(201).json(await enrichDentalRecord(row));
 });
 router26.patch("/dental/records/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = DentalRecordSchema.partial().omit({ patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = DentalRecordSchema.partial().omit({ patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(dentalRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(dentalRecordsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Dental record not found" });
+      return;
+    }
+    res.json(await enrichDentalRecord(row));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update dental record" });
   }
-  const [row] = await db.update(dentalRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(dentalRecordsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json(await enrichDentalRecord(row));
 });
 router26.delete("/dental/records/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await db.delete(dentalProceduresTable).where(eq(dentalProceduresTable.dentalRecordId, id));
-  const [row] = await db.delete(dentalRecordsTable).where(eq(dentalRecordsTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    await db.delete(dentalProceduresTable).where(eq(dentalProceduresTable.dentalRecordId, id));
+    const [row] = await db.delete(dentalRecordsTable).where(eq(dentalRecordsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Dental record not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete dental record" });
   }
-  res.sendStatus(204);
 });
 router26.get("/dental/procedures", async (req, res) => {
-  const recordId = req.query.dentalRecordId ? parseInt(String(req.query.dentalRecordId), 10) : void 0;
-  let rows = await db.select().from(dentalProceduresTable).orderBy(desc(dentalProceduresTable.procedureDate));
-  if (recordId) rows = rows.filter((r) => r.dentalRecordId === recordId);
-  res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  try {
+    const recordId = req.query.dentalRecordId ? parseInt(String(req.query.dentalRecordId), 10) : void 0;
+    let rows = await db.select().from(dentalProceduresTable).orderBy(desc(dentalProceduresTable.procedureDate));
+    if (recordId) rows = rows.filter((r) => r.dentalRecordId === recordId);
+    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch dental procedures" });
+  }
 });
 var ProcedureSchema = external_exports.object({
   dentalRecordId: external_exports.number().int(),
@@ -92020,38 +92200,53 @@ var ProcedureSchema = external_exports.object({
   performedByName: external_exports.string().optional()
 });
 router26.post("/dental/procedures", async (req, res) => {
-  const parsed = ProcedureSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = ProcedureSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.insert(dentalProceduresTable).values(parsed.data).returning();
+    logAudit(req, "create_dental_procedure", { entityType: "dental_procedure", entityId: row.id, details: `${parsed.data.procedureName} \u2014 teeth ${parsed.data.toothNumbers ?? "N/A"}` }).catch(() => {
+    });
+    res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create dental procedure" });
   }
-  const [row] = await db.insert(dentalProceduresTable).values(parsed.data).returning();
-  logAudit(req, "create_dental_procedure", { entityType: "dental_procedure", entityId: row.id, details: `${parsed.data.procedureName} \u2014 teeth ${parsed.data.toothNumbers ?? "N/A"}` }).catch(() => {
-  });
-  res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 router26.patch("/dental/procedures/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const parsed = ProcedureSchema.partial().omit({ dentalRecordId: true, patientId: true }).safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const parsed = ProcedureSchema.partial().omit({ dentalRecordId: true, patientId: true }).safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(dentalProceduresTable).set(parsed.data).where(eq(dentalProceduresTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Dental procedure not found" });
+      return;
+    }
+    res.json({ ...row, createdAt: row.createdAt.toISOString() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update dental procedure" });
   }
-  const [row] = await db.update(dentalProceduresTable).set(parsed.data).where(eq(dentalProceduresTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json({ ...row, createdAt: row.createdAt.toISOString() });
 });
 router26.delete("/dental/procedures/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [row] = await db.delete(dentalProceduresTable).where(eq(dentalProceduresTable.id, id)).returning();
-  if (!row) {
-    res.status(404).json({ error: "Not found" });
-    return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.delete(dentalProceduresTable).where(eq(dentalProceduresTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Dental procedure not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete dental procedure" });
   }
-  res.sendStatus(204);
 });
 var dental_default = router26;
 
@@ -92410,7 +92605,8 @@ var PUBLIC_PATHS = [
   { method: "GET", path: "/appointments" },
   { method: "POST", path: "/feedback" },
   { method: "GET", path: "/patients" },
-  { method: "GET", path: /^\/patients\/\d+$/ }
+  { method: "GET", path: /^\/patients\/\d+$/ },
+  { method: "GET", path: "/staff/public" }
 ];
 async function requireAuth(req, res, next) {
   const isPublic = PUBLIC_PATHS.some((p) => {

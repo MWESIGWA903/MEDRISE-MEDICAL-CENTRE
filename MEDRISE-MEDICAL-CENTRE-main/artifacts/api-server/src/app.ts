@@ -108,6 +108,7 @@ const PUBLIC_PATHS: Array<{ method: string; path: string | RegExp }> = [
   { method: "POST", path: "/feedback" },
   { method: "GET",  path: "/patients" },
   { method: "GET",  path: /^\/patients\/\d+$/ },
+  { method: "GET",  path: "/staff/public" },
 ];
 
 async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -1,0 +1,90 @@
+Priority 17 – Database Backup and Recovery
+Automatic daily database backups.
+Backup retention policy.
+One-click database restore.
+Verify backups can actually be restored.
+Prevent data loss during deployments.
+Priority 18 – Audit Trail
+Track:
+Who created a record.
+Who edited a record.
+What was changed.
+Date and time of change.
+Apply to:
+Patient records.
+Consultations.
+Prescriptions.
+Laboratory reports.
+Imaging reports.
+Admissions.
+Billing.
+This is important for medical-legal protection.
+Priority 19 – System Security
+Protect all API routes.
+Prevent unauthorized access.
+Validate all user inputs.
+Prevent SQL injection.
+Prevent XSS attacks.
+Protect patient information.
+Ensure role-based access control works correctly.
+Priority 20 – Performance Optimization
+Optimize database queries.
+Reduce loading times.
+Prevent duplicate API calls.
+Improve dashboard speed.
+Improve patient search speed.
+Priority 21 – Mobile Responsiveness
+Verify every page works on:
+Android phones.
+iPhones.
+Tablets.
+Small laptop screens.
+Many staff may use phones during clinical work.
+Priority 22 – Production Monitoring
+Implement:
+Error logging.
+Server monitoring.
+Database monitoring.
+Failed API request logging.
+This helps identify issues before users complain.
+Priority 23 – Billing and Financial Integrity
+Verify:
+Bills calculate correctly.
+Payments post correctly.
+Receipts generate correctly.
+Reports balance correctly.
+No duplicate charges.
+Priority 24 – Data Consistency Validation
+Verify:
+No duplicate patients.
+No orphan appointments.
+No broken references.
+No invalid patient IDs.
+Priority 25 – Final Production Acceptance Testing
+Test the complete workflow:
+Patient Registration → Appointment → Queue → Waiting → Triage → Consultation → Laboratory → Imaging → Pharmacy → Theatre → Admission → Recovery → Discharge → Follow-up
+for:
+Adult patients.
+Children.
+ANC patients.
+Dental patients.
+Theatre patients.
+Emergency patients.
+Priority 26 – Deployment Validation
+Before pushing to GitHub:
+Verify local build succeeds.
+Verify Render build succeeds.
+Verify Vercel build succeeds.
+Verify Netlify build succeeds.
+Verify environment variables exist.
+Verify no console errors.
+Verify no failed API requests.
+Priority 27 – Final GitHub Push
+Only after all tests pass:
+Commit changes.
+Push to GitHub.
+Verify GitHub receives latest commit.
+Verify Render deployment succeeds.
+Verify Vercel deployment succeeds.
+Verify Netlify deployment succeeds.
+Verify production environment functions correctly.

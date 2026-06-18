@@ -48,7 +48,7 @@ const QueueEntryInputSchema = z.object({
 });
 
 const QueueEntryUpdateSchema = z.object({
-  status: z.enum(["queue", "waiting", "in-consultation", "nursing", "theatre", "done", "skipped"]).optional(),
+  status: z.enum(["waiting", "in-consultation", "nursing", "theatre", "done", "skipped"]).optional(),
   priority: z.enum(PRIORITY_VALUES).optional(),
   staffId: z.number().int().optional().nullable(),
   notes: z.string().optional(),

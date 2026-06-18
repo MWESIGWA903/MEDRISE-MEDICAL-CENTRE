@@ -49,7 +49,7 @@ router.post("/appointments", async (req, res): Promise<void> => {
     .values({
       patientName: parsed.data.patientName,
       phone: parsed.data.phone,
-      email: parsed.data.email,
+      email: parsed.data.email ?? '',
       age: (parsed.data as { age?: number }).age ?? null,
       sex: (parsed.data as { sex?: string }).sex ?? null,
       service: parsed.data.service,

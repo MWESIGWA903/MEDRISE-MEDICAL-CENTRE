@@ -1,0 +1,384 @@
+MEDRISE MEDICAL CENTRE – CRITICAL SYSTEM REPAIR, DEBUGGING, VALIDATION, TESTING AND DEPLOYMENT
+
+IMPORTANT:
+
+Do not create implementation reports, plans, explanations, documentation, or summaries.
+
+Proceed directly to identifying, fixing, testing, validating, and deploying the actual functionality.
+
+Maintain all existing departments exactly as configured.
+
+Do not remove, rename, merge, or alter any department structure.
+
+Perform a full end-to-end audit of all API routes, frontend forms, backend handlers, database operations, authentication, permissions, workflow automation, and deployment configuration.
+
+The objective is a fully functional production-ready EMR/HMIS system with no broken workflows.
+
+==================================================
+PRIORITY 1 – PUBLIC APPOINTMENT STAFF DIRECTORY
+
+Current issue:
+
+No staff appear on the public appointment booking page.
+
+Required:
+
+- Display all active healthcare staff.
+- Include Medical Director Dr. Mwesigwa Hannington.
+- Include doctors.
+- Include clinical officers.
+- Include nurses.
+- Include midwives.
+- Include all active clinical personnel.
+- Staff list must load dynamically from database.
+- No hardcoded names.
+- New staff added to system must automatically appear.
+- Staff deactivated from system must automatically disappear.
+
+Verify functionality on:
+
+- Vercel
+- Render
+
+==================================================
+PRIORITY 2 – PATIENT REGISTRATION FAILURE
+
+Current issue:
+
+Register Patient returns:
+
+"Failed to register new patient"
+
+Required:
+
+Audit and repair:
+
+- Frontend request
+- API endpoint
+- Database insertion
+- Validation logic
+- Authentication middleware
+- Response handling
+
+Ensure patient registration works successfully on:
+
+- Render
+- Vercel
+
+Perform complete testing.
+
+==================================================
+PRIORITY 3 – ADD PATIENT TO QUEUE FAILURE
+
+Current issue:
+
+"Failed to add patient"
+
+Required:
+
+Audit:
+
+- Queue creation
+- Patient lookup
+- Staff assignment
+- Queue insertion
+- Database transactions
+
+Ensure successful queue creation.
+
+==================================================
+PRIORITY 4 – CHECK-IN FAILURE
+
+Current issue:
+
+Appointments → Add Patient To Queue → Check-in Failed
+
+Required:
+
+Repair:
+
+Appointment
+→ Check-in
+→ Queue
+→ Waiting
+
+workflow.
+
+Patient must successfully move through workflow.
+
+==================================================
+PRIORITY 5 – DEPARTMENT FORM FAILURES
+
+Current issues include:
+
+Theatre:
+
+- Save returns NOT FOUND
+
+Admissions:
+
+- Failed to admit patient
+
+Dental:
+
+- Failed to create record
+
+Maternity:
+
+- Failed to register ANC patient
+
+Required:
+
+Audit every department module.
+
+Verify:
+
+- Routes exist
+- API endpoints exist
+- Database writes succeed
+- Frontend requests match backend routes
+
+Repair all failures.
+
+==================================================
+PRIORITY 6 – JSON RESPONSE ERRORS
+
+Current issue on Render:
+
+"Unexpected end of JSON input"
+
+Required:
+
+Audit all API endpoints.
+
+Ensure:
+
+- Every endpoint returns valid JSON.
+- Every error returns valid JSON.
+- No empty responses.
+- No malformed responses.
+
+Add robust error handling.
+
+==================================================
+PRIORITY 7 – AGE ENTRY SYSTEM
+
+Required everywhere in system:
+
+Allow age entry directly as:
+
+- Years
+- Months
+- Weeks
+- Days
+
+Date of birth must auto-generate.
+
+Staff can override DOB manually if required.
+
+Apply to:
+
+- Registration
+- Queue
+- Admissions
+- Maternity
+- Dental
+- Theatre
+- Patient database
+- Follow-up forms
+- All patient creation forms
+
+==================================================
+PRIORITY 8 – DOCUMENT STANDARDIZATION
+
+Ensure every generated document automatically displays:
+
+- Patient Name
+- Age
+- Sex
+- Patient ID
+- Department
+- Date
+- Time
+- Attending Clinician
+
+Apply to:
+
+- Laboratory Reports
+- Imaging Reports
+- Prescriptions
+- Referral Letters
+- Discharge Summaries
+- Sick Leave Forms
+- Admission Notes
+- ANC Reports
+- Maternity Reports
+- Birth Certificates
+- Death Notification Forms
+- Theatre Notes
+- Recovery Notes
+- Follow-Up Notes
+- Any printable patient document
+
+No document should print without these details.
+
+==================================================
+PRIORITY 9 – EHR SYNCHRONIZATION
+
+Every patient interaction must automatically appear in EHR.
+
+Include:
+
+- Registration
+- Queue
+- Triage
+- Consultation
+- Pharmacy
+- Laboratory
+- Imaging
+- Theatre
+- Recovery
+- Admission
+- Follow-Up
+
+No duplication.
+
+No missing records.
+
+==================================================
+PRIORITY 10 – PHARMACY AUTOMATION
+
+Verify and repair:
+
+Nurse Prescription
+→ Pharmacy
+
+Doctor Prescription
+→ Pharmacy
+
+Automatically.
+
+Pharmacy must immediately receive:
+
+- Drug
+- Dose
+- Frequency
+- Duration
+- Instructions
+
+==================================================
+PRIORITY 11 – INVESTIGATION AUTOMATION
+
+Verify and repair:
+
+Nurse Request
+→ Laboratory
+
+Nurse Request
+→ Imaging
+
+Doctor Request
+→ Laboratory
+
+Doctor Request
+→ Imaging
+
+Automatically.
+
+No manual duplication required.
+
+==================================================
+PRIORITY 12 – TERMS AND PRIVACY PAGES
+
+Current issue:
+
+Privacy Policy and Terms pages do not work on Vercel.
+
+Required:
+
+Repair routing.
+
+Ensure pages open successfully.
+
+Verify on:
+
+- Vercel
+- Render
+
+==================================================
+PRIORITY 13 – FULL SYSTEM TESTING
+
+Perform complete end-to-end testing.
+
+Test:
+
+Registration
+→ Queue
+→ Waiting
+→ Triage
+→ Consultation
+→ Investigations
+→ Pharmacy
+→ Admission
+→ Theatre
+→ Recovery
+→ Discharge
+→ Follow-Up
+
+Repair all failures found.
+
+==================================================
+PRIORITY 14 – DATABASE INTEGRITY
+
+Audit:
+
+- Foreign keys
+- Patient IDs
+- Staff IDs
+- Queue IDs
+- Appointment IDs
+
+Ensure no broken references.
+
+==================================================
+PRIORITY 15 – PRODUCTION READINESS
+
+Remove:
+
+- Dead code
+- Unused imports
+- Broken routes
+- Duplicate handlers
+- Orphan API endpoints
+
+Ensure clean build.
+
+==================================================
+PRIORITY 16 – FINAL VALIDATION
+
+Before completion:
+
+Verify:
+
+- No frontend console errors
+- No backend runtime errors
+- No database write failures
+- No broken workflows
+- No NOT FOUND errors
+- No JSON parsing errors
+
+==================================================
+FINAL REQUIREMENT
+
+After all fixes are completed:
+
+1. Run full testing.
+2. Confirm functionality.
+3. Commit all changes.
+4. Push all changes to GitHub.
+5. Trigger deployment.
+6. Verify successful deployment on Render.
+7. Verify successful deployment on Vercel.
+8. Verify successful deployment on Netlify.
+9. Confirm system is production-ready.
+10. Report only completed functionality after actual implementation and deployment.
