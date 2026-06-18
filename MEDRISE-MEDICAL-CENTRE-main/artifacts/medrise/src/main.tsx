@@ -15,9 +15,10 @@ declare global {
   }
 }
 
-// Set API base URL from environment variables only (NO HARDCODED URLS)
-const _apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_RENDER_URL;
-if (!_apiUrl) {
+// Set API base URL — in dev the Vite proxy forwards /api to the API server,
+// so no base URL is needed. In production, VITE_API_URL or VITE_RENDER_URL must be set.
+const _apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_RENDER_URL || null;
+if (!_apiUrl && import.meta.env.PROD) {
   console.error('VITE_API_URL or VITE_RENDER_URL environment variable must be set');
   throw new Error('API base URL not configured. Please set VITE_API_URL or VITE_RENDER_URL environment variable.');
 }
