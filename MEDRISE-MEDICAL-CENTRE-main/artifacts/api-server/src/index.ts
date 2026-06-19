@@ -4,7 +4,7 @@ import { logger } from "./lib/logger";
 import { loadSessionsFromDb, pruneExpiredSessions } from "./lib/session";
 import { setupWebSocketServer } from "./lib/ws";
 import cron from "node-cron";
-import { db, appointmentsTable } from "@workspace/db";
+import { db, pool, appointmentsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { sendAppointmentReminderToPatient } from "./lib/email";
 
@@ -12,6 +12,47 @@ const rawPort = process.env["PORT"];
 if (!rawPort) throw new Error("PORT environment variable is required but was not provided.");
 const port = Number(rawPort);
 if (Number.isNaN(port) || port <= 0) throw new Error(`Invalid PORT value: "${rawPort}"`);
+
+async function runMigrations() {
+  const client = await pool.connect();
+  try {
+    logger.info("Running schema migrations...");
+    await client.query(`
+      ALTER TABLE "appointments" ADD COLUMN IF NOT EXISTS "assigned_staff_id" integer;
+      ALTER TABLE "appointments" ADD COLUMN IF NOT EXISTS "assigned_doctor_name" text;
+      ALTER TABLE "appointments" ADD COLUMN IF NOT EXISTS "checkin_time" timestamp;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "age_weeks" integer;
+      ALTER TABLE "patient_queue" ADD COLUMN IF NOT EXISTS "triage_nursing_notes" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "presenting_complaints" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "brief_medical_history" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "emergency_investigations_requested" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "investigation_results" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "laboratory_results_upload" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "imaging_results_upload" text;
+      ALTER TABLE "growth_records" ADD COLUMN IF NOT EXISTS "age_weeks" integer;
+      CREATE TABLE IF NOT EXISTS "pharmacy_orders" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "patient_id" integer NOT NULL,
+        "consultation_id" integer,
+        "drug_name" text NOT NULL,
+        "dose" text NOT NULL,
+        "frequency" text NOT NULL,
+        "duration" text NOT NULL,
+        "instructions" text NOT NULL,
+        "prescribed_by" integer,
+        "status" text DEFAULT 'pending' NOT NULL,
+        "priority" text DEFAULT 'routine' NOT NULL,
+        "created_at" timestamp DEFAULT now() NOT NULL,
+        "updated_at" timestamp DEFAULT now() NOT NULL
+      );
+    `);
+    logger.info("Schema migrations complete");
+  } catch (err) {
+    logger.error({ err }, "Migration error — continuing startup");
+  } finally {
+    client.release();
+  }
+}
 
 async function sendTodayAppointmentReminders() {
   const today = new Date().toISOString().slice(0, 10);
@@ -41,6 +82,8 @@ async function sendTodayAppointmentReminders() {
 }
 
 async function start() {
+  await runMigrations();
+
   try {
     await loadSessionsFromDb();
     logger.info("Sessions restored from database");
