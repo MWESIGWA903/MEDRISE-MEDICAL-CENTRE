@@ -1,24 +1,31 @@
 ---
-name: MedRise staff seed facts
-description: Staff accounts, queue table name, and auth behaviour for the MedRise ERP.
+name: MedRise staff/seed facts
+description: DB seeding, staff accounts, queue table, auth paths, and staff API schema quirks
 ---
 
-## Seeded staff accounts (admins table)
+## Seed account (fresh Replit DB)
+- Run `pnpm --filter @workspace/scripts run seed` from MEDRISE-MEDICAL-CENTRE-main
+- Creates: username `Hannington`, password `admin123`, role `medical_director`
+- DB starts EMPTY on a fresh Replit postgres — seed must be run before any staff login
+- Previous memory of 6 accounts (admin, mwesigwa, etc.) was stale; those were from a different DB instance
 
-| id | username  | role             | password    |
-|----|-----------|------------------|-------------|
-| 1  | admin     | admin            | Admin@1234  |
-| 2  | mwesigwa  | medical_director | Staff@1234  |
-| 3  | snakato   | doctor           | Staff@1234  |
-| 4  | analwoga  | nurse            | Staff@1234  |
-| 5  | jssempa   | clinical_officer | Staff@1234  |
-| 6  | gnamubiru | midwife          | Staff@1234  |
+## Staff API schema (api-zod patched)
+- `CreateStaffBody` role enum must include ALL 19 PROFESSIONAL_ROLES (not just 6)
+  Missing roles: medical_director, owner, clinical_officer, laboratory_technician, lab_technician,
+  radiographer, sonographer, pharmacist, dispenser, administrator, billing_officer, records_officer
+- `UpdateStaffBody` must include `department: zod.string().optional()` and `isActive: zod.boolean().optional()`
+- `ListStaffResponseItem` and `UpdateStaffResponse` must expose `department` and `isActive`
+- `mapStaff()` in staff.ts must return `department` and `isActive`
 
-## Key facts
+**Why:** api-zod is generated from OpenAPI spec but was generated with an incomplete role enum and missing fields. Manually patched in `lib/api-zod/src/generated/api.ts`. After any codegen run, these patches must be re-applied.
 
-- Queue table is `patient_queue` (not `queue_entries`).
-- `/api/queue` POST requires authentication — 401 for unauthenticated requests (correct behaviour).
-- `/api/staff/public` returns all 6 staff and is public (used by appointment booking page).
-- Role-based appointment visibility: CLINICAL_ONLY_ROLES filter by `assignedStaffId`; admin/medical_director/owner see all.
+## Queue
+- Table name: `patient_queue` (not `queue_entries`)
+- POST/PATCH/DELETE /queue require auth (not in PUBLIC_PATHS)
+- Role-based appointment visibility: CLINICAL_ONLY_ROLES filter by `assignedStaffId`; admin/medical_director/owner see all
 
-**Why:** Prevents confusion when testing queue via curl — always include a session cookie.
+## Public paths (no auth needed)
+- GET /patients, GET /patients/:id
+- POST /appointments, POST /feedback
+- GET /staff/public
+- POST /admin/login, POST /admin/password-reset/*

@@ -25,6 +25,8 @@ function mapStaff(a: typeof adminsTable.$inferSelect) {
     title: a.title ?? null,
     phone: a.phone ?? null,
     email: a.email ?? null,
+    department: a.department ?? null,
+    isActive: a.isActive,
   };
 }
 
@@ -82,6 +84,7 @@ router.post("/staff", async (req, res): Promise<void> => {
       title: parsed.data.title ?? null,
       phone: parsed.data.phone ?? null,
       email: parsed.data.email ?? null,
+      department: (parsed.data as any).department ?? null,
     }).returning();
 
     res.status(201).json(mapStaff(staff));
@@ -119,7 +122,8 @@ router.patch("/staff/:id", async (req, res): Promise<void> => {
     if (body.data.title !== undefined) updateData.title = body.data.title;
     if (body.data.phone !== undefined) updateData.phone = body.data.phone;
     if (body.data.email !== undefined) updateData.email = body.data.email;
-    if ((body.data as any).isActive !== undefined) (updateData as any).isActive = (body.data as any).isActive;
+    if (body.data.department !== undefined) updateData.department = body.data.department;
+    if (body.data.isActive !== undefined) updateData.isActive = body.data.isActive;
 
     const [staff] = await db.update(adminsTable).set(updateData).where(eq(adminsTable.id, params.data.id)).returning();
     if (!staff) { res.status(404).json({ error: "Staff not found" }); return; }

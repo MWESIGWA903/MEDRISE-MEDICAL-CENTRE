@@ -80588,7 +80588,9 @@ var ListStaffResponseItem = objectType({
   "role": stringType(),
   "title": stringType().nullish(),
   "phone": stringType().nullish(),
-  "email": stringType().nullish()
+  "email": stringType().nullish(),
+  "department": stringType().nullish(),
+  "isActive": booleanType().optional()
 });
 var ListStaffResponse = arrayType(ListStaffResponseItem);
 var createStaffBodyUsernameMin = 3;
@@ -80598,10 +80600,11 @@ var CreateStaffBody = objectType({
   "username": stringType().min(createStaffBodyUsernameMin),
   "password": stringType().min(createStaffBodyPasswordMin),
   "name": stringType().min(createStaffBodyNameMin),
-  "role": enumType(["admin", "doctor", "nurse", "midwife", "receptionist", "staff"]),
+  "role": enumType(["medical_director", "owner", "admin", "doctor", "clinical_officer", "nurse", "midwife", "laboratory_technician", "lab_technician", "radiographer", "sonographer", "pharmacist", "dispenser", "receptionist", "administrator", "billing_officer", "records_officer", "staff"]),
   "title": stringType().optional(),
   "phone": stringType().optional(),
-  "email": stringType().optional()
+  "email": stringType().optional(),
+  "department": stringType().optional()
 });
 var UpdateStaffParams = objectType({
   "id": coerce.number()
@@ -80611,10 +80614,12 @@ var updateStaffBodyPasswordMin = 6;
 var UpdateStaffBody = objectType({
   "name": stringType().min(updateStaffBodyNameMin).optional(),
   "password": stringType().min(updateStaffBodyPasswordMin).optional(),
-  "role": enumType(["admin", "doctor", "nurse", "midwife", "receptionist", "staff"]).optional(),
+  "role": enumType(["medical_director", "owner", "admin", "doctor", "clinical_officer", "nurse", "midwife", "laboratory_technician", "lab_technician", "radiographer", "sonographer", "pharmacist", "dispenser", "receptionist", "administrator", "billing_officer", "records_officer", "staff"]).optional(),
   "title": stringType().optional(),
   "phone": stringType().optional(),
-  "email": stringType().optional()
+  "email": stringType().optional(),
+  "department": stringType().optional(),
+  "isActive": booleanType().optional()
 });
 var UpdateStaffResponse = objectType({
   "id": numberType(),
@@ -80623,7 +80628,9 @@ var UpdateStaffResponse = objectType({
   "role": stringType(),
   "title": stringType().nullish(),
   "phone": stringType().nullish(),
-  "email": stringType().nullish()
+  "email": stringType().nullish(),
+  "department": stringType().nullish(),
+  "isActive": booleanType().optional()
 });
 var DeleteStaffParams = objectType({
   "id": coerce.number()
@@ -89143,7 +89150,9 @@ function mapStaff(a) {
     role: a.role,
     title: a.title ?? null,
     phone: a.phone ?? null,
-    email: a.email ?? null
+    email: a.email ?? null,
+    department: a.department ?? null,
+    isActive: a.isActive
   };
 }
 router5.get("/staff", async (req, res) => {
@@ -89202,7 +89211,8 @@ router5.post("/staff", async (req, res) => {
       role: parsed.data.role,
       title: parsed.data.title ?? null,
       phone: parsed.data.phone ?? null,
-      email: parsed.data.email ?? null
+      email: parsed.data.email ?? null,
+      department: parsed.data.department ?? null
     }).returning();
     res.status(201).json(mapStaff(staff));
   } catch (err) {
@@ -89243,6 +89253,7 @@ router5.patch("/staff/:id", async (req, res) => {
     if (body.data.title !== void 0) updateData.title = body.data.title;
     if (body.data.phone !== void 0) updateData.phone = body.data.phone;
     if (body.data.email !== void 0) updateData.email = body.data.email;
+    if (body.data.department !== void 0) updateData.department = body.data.department;
     if (body.data.isActive !== void 0) updateData.isActive = body.data.isActive;
     const [staff] = await db.update(adminsTable).set(updateData).where(eq(adminsTable.id, params.data.id)).returning();
     if (!staff) {

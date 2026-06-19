@@ -430,7 +430,9 @@ export const ListStaffResponseItem = zod.object({
   "role": zod.string(),
   "title": zod.string().nullish(),
   "phone": zod.string().nullish(),
-  "email": zod.string().nullish()
+  "email": zod.string().nullish(),
+  "department": zod.string().nullish(),
+  "isActive": zod.boolean().optional()
 })
 export const ListStaffResponse = zod.array(ListStaffResponseItem)
 
@@ -450,10 +452,11 @@ export const CreateStaffBody = zod.object({
   "username": zod.string().min(createStaffBodyUsernameMin),
   "password": zod.string().min(createStaffBodyPasswordMin),
   "name": zod.string().min(createStaffBodyNameMin),
-  "role": zod.enum(['admin', 'doctor', 'nurse', 'midwife', 'receptionist', 'staff']),
+  "role": zod.enum(['medical_director', 'owner', 'admin', 'doctor', 'clinical_officer', 'nurse', 'midwife', 'laboratory_technician', 'lab_technician', 'radiographer', 'sonographer', 'pharmacist', 'dispenser', 'receptionist', 'administrator', 'billing_officer', 'records_officer', 'staff']),
   "title": zod.string().optional(),
   "phone": zod.string().optional(),
-  "email": zod.string().optional()
+  "email": zod.string().optional(),
+  "department": zod.string().optional()
 })
 
 
@@ -473,10 +476,12 @@ export const updateStaffBodyPasswordMin = 6;
 export const UpdateStaffBody = zod.object({
   "name": zod.string().min(updateStaffBodyNameMin).optional(),
   "password": zod.string().min(updateStaffBodyPasswordMin).optional(),
-  "role": zod.enum(['admin', 'doctor', 'nurse', 'midwife', 'receptionist', 'staff']).optional(),
+  "role": zod.enum(['medical_director', 'owner', 'admin', 'doctor', 'clinical_officer', 'nurse', 'midwife', 'laboratory_technician', 'lab_technician', 'radiographer', 'sonographer', 'pharmacist', 'dispenser', 'receptionist', 'administrator', 'billing_officer', 'records_officer', 'staff']).optional(),
   "title": zod.string().optional(),
   "phone": zod.string().optional(),
-  "email": zod.string().optional()
+  "email": zod.string().optional(),
+  "department": zod.string().optional(),
+  "isActive": zod.boolean().optional()
 })
 
 export const UpdateStaffResponse = zod.object({
@@ -486,7 +491,9 @@ export const UpdateStaffResponse = zod.object({
   "role": zod.string(),
   "title": zod.string().nullish(),
   "phone": zod.string().nullish(),
-  "email": zod.string().nullish()
+  "email": zod.string().nullish(),
+  "department": zod.string().nullish(),
+  "isActive": zod.boolean().optional()
 })
 
 
