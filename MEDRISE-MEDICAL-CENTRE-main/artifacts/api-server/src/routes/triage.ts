@@ -116,7 +116,7 @@ router.post("/triage", async (req, res): Promise<void> => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to record triage" });
+    res.status(500).json({ error: "Failed to record triage", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -154,7 +154,7 @@ router.patch("/triage/:id", async (req, res): Promise<void> => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update triage" });
+    res.status(500).json({ error: "Failed to update triage", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

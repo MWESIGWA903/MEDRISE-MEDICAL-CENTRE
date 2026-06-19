@@ -49,7 +49,7 @@ router.get("/pharmacy/stock", async (req, res): Promise<void> => {
     res.json(rows.map(mapStock));
   } catch (err) {
     console.error("GET /pharmacy/stock error:", err);
-    res.status(500).json({ error: "Failed to fetch pharmacy stock" });
+    res.status(500).json({ error: "Failed to fetch pharmacy stock", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -73,7 +73,7 @@ router.post("/pharmacy/stock", async (req, res): Promise<void> => {
     res.status(201).json(mapStock(row));
   } catch (err) {
     console.error("POST /pharmacy/stock error:", err);
-    res.status(500).json({ error: "Failed to add drug to stock" });
+    res.status(500).json({ error: "Failed to add drug to stock", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -106,7 +106,7 @@ router.patch("/pharmacy/stock/:id", async (req, res): Promise<void> => {
     res.json(mapStock(row));
   } catch (err) {
     console.error("PATCH /pharmacy/stock/:id error:", err);
-    res.status(500).json({ error: "Failed to update drug stock" });
+    res.status(500).json({ error: "Failed to update drug stock", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -119,7 +119,7 @@ router.delete("/pharmacy/stock/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /pharmacy/stock/:id error:", err);
-    res.status(500).json({ error: "Failed to delete drug stock" });
+    res.status(500).json({ error: "Failed to delete drug stock", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -140,7 +140,7 @@ router.post("/pharmacy/dispense", async (req, res): Promise<void> => {
     res.json(mapStock(updated));
   } catch (err) {
     console.error("POST /pharmacy/dispense error:", err);
-    res.status(500).json({ error: "Failed to dispense drug" });
+    res.status(500).json({ error: "Failed to dispense drug", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -157,7 +157,7 @@ router.get("/pharmacy/stats", async (_req, res): Promise<void> => {
     });
   } catch (err) {
     console.error("GET /pharmacy/stats error:", err);
-    res.status(500).json({ error: "Failed to fetch pharmacy stats" });
+    res.status(500).json({ error: "Failed to fetch pharmacy stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -175,7 +175,7 @@ router.get("/pharmacy/orders", async (req, res): Promise<void> => {
     res.json(enriched);
   } catch (err) {
     console.error("GET /pharmacy/orders error:", err);
-    res.status(500).json({ error: "Failed to fetch pharmacy orders" });
+    res.status(500).json({ error: "Failed to fetch pharmacy orders", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -190,7 +190,7 @@ router.patch("/pharmacy/orders/:id", async (req, res): Promise<void> => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("PATCH /pharmacy/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to update pharmacy order" });
+    res.status(500).json({ error: "Failed to update pharmacy order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

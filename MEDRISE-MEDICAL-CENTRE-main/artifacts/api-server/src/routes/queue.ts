@@ -92,7 +92,7 @@ router.get("/queue", async (req, res): Promise<void> => {
     res.json(entries.map(mapEntry));
   } catch (err) {
     console.error("GET /queue error:", err);
-    res.status(500).json({ error: "Failed to fetch queue" });
+    res.status(500).json({ error: "Failed to fetch queue", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -214,7 +214,7 @@ router.post("/queue", async (req, res): Promise<void> => {
     res.status(201).json(mapEntry(entry));
   } catch (err) {
     console.error("POST /queue error:", err);
-    res.status(500).json({ error: "Failed to add patient to queue" });
+    res.status(500).json({ error: "Failed to add patient to queue", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -328,7 +328,7 @@ router.patch("/queue/:id", async (req, res): Promise<void> => {
     res.json(mapEntry(entry));
   } catch (err) {
     console.error("PATCH /queue/:id error:", err);
-    res.status(500).json({ error: "Failed to update queue entry" });
+    res.status(500).json({ error: "Failed to update queue entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -343,7 +343,7 @@ router.delete("/queue/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /queue/:id error:", err);
-    res.status(500).json({ error: "Failed to remove queue entry" });
+    res.status(500).json({ error: "Failed to remove queue entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

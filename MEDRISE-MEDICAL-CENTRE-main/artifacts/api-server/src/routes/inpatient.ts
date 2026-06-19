@@ -51,7 +51,7 @@ router.get("/inpatient/summary/:admissionId", async (req, res): Promise<void> =>
     });
   } catch (err) {
     console.error("GET /inpatient/summary/:id error:", err);
-    res.status(500).json({ error: "Failed to fetch inpatient summary" });
+    res.status(500).json({ error: "Failed to fetch inpatient summary", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -63,7 +63,7 @@ router.get("/inpatient/ward-rounds", async (req, res): Promise<void> => {
     res.json(rows.map(r => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })));
   } catch (err) {
     console.error("GET /inpatient/ward-rounds error:", err);
-    res.status(500).json({ error: "Failed to fetch ward rounds" });
+    res.status(500).json({ error: "Failed to fetch ward rounds", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -96,7 +96,7 @@ router.post("/inpatient/ward-rounds", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("POST /inpatient/ward-rounds error:", err);
-    res.status(500).json({ error: "Failed to save ward round note" });
+    res.status(500).json({ error: "Failed to save ward round note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -110,7 +110,7 @@ router.patch("/inpatient/ward-rounds/:id", async (req, res): Promise<void> => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("PATCH /inpatient/ward-rounds/:id error:", err);
-    res.status(500).json({ error: "Failed to update ward round note" });
+    res.status(500).json({ error: "Failed to update ward round note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -121,7 +121,7 @@ router.delete("/inpatient/ward-rounds/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /inpatient/ward-rounds/:id error:", err);
-    res.status(500).json({ error: "Failed to delete ward round note" });
+    res.status(500).json({ error: "Failed to delete ward round note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -133,7 +133,7 @@ router.get("/inpatient/drug-chart", async (req, res): Promise<void> => {
     res.json(rows.map(r => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })));
   } catch (err) {
     console.error("GET /inpatient/drug-chart error:", err);
-    res.status(500).json({ error: "Failed to fetch drug chart" });
+    res.status(500).json({ error: "Failed to fetch drug chart", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -161,7 +161,7 @@ router.post("/inpatient/drug-chart", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("POST /inpatient/drug-chart error:", err);
-    res.status(500).json({ error: "Failed to prescribe drug" });
+    res.status(500).json({ error: "Failed to prescribe drug", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -175,7 +175,7 @@ router.patch("/inpatient/drug-chart/:id", async (req, res): Promise<void> => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("PATCH /inpatient/drug-chart/:id error:", err);
-    res.status(500).json({ error: "Failed to update drug chart" });
+    res.status(500).json({ error: "Failed to update drug chart", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -186,7 +186,7 @@ router.delete("/inpatient/drug-chart/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /inpatient/drug-chart/:id error:", err);
-    res.status(500).json({ error: "Failed to delete drug from chart" });
+    res.status(500).json({ error: "Failed to delete drug from chart", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -198,7 +198,7 @@ router.get("/inpatient/nursing-notes", async (req, res): Promise<void> => {
     res.json(rows.map(r => ({ ...r, createdAt: r.createdAt.toISOString() })));
   } catch (err) {
     console.error("GET /inpatient/nursing-notes error:", err);
-    res.status(500).json({ error: "Failed to fetch nursing notes" });
+    res.status(500).json({ error: "Failed to fetch nursing notes", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -229,7 +229,7 @@ router.post("/inpatient/nursing-notes", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error("POST /inpatient/nursing-notes error:", err);
-    res.status(500).json({ error: "Failed to save nursing note" });
+    res.status(500).json({ error: "Failed to save nursing note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -243,7 +243,7 @@ router.patch("/inpatient/nursing-notes/:id", async (req, res): Promise<void> => 
     res.json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error("PATCH /inpatient/nursing-notes/:id error:", err);
-    res.status(500).json({ error: "Failed to update nursing note" });
+    res.status(500).json({ error: "Failed to update nursing note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -254,7 +254,7 @@ router.delete("/inpatient/nursing-notes/:id", async (req, res): Promise<void> =>
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /inpatient/nursing-notes/:id error:", err);
-    res.status(500).json({ error: "Failed to delete nursing note" });
+    res.status(500).json({ error: "Failed to delete nursing note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -295,7 +295,7 @@ router.get("/inpatient/ward-patients", async (req, res): Promise<void> => {
     res.json(enriched);
   } catch (err) {
     console.error("GET /inpatient/ward-patients error:", err);
-    res.status(500).json({ error: "Failed to fetch ward patients" });
+    res.status(500).json({ error: "Failed to fetch ward patients", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

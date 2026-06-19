@@ -39,7 +39,7 @@ router.get("/patients", async (req, res): Promise<void> => {
     res.json(ListPatientsResponse.parse(rows.map(mapPatient)));
   } catch (err) {
     console.error("GET /patients error:", err);
-    res.status(500).json({ error: "Failed to fetch patients" });
+    res.status(500).json({ error: "Failed to fetch patients", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -91,7 +91,7 @@ router.post("/patients", async (req, res): Promise<void> => {
     res.status(201).json(GetPatientResponse.parse(mapPatient(patient)));
   } catch (err) {
     console.error("POST /patients error:", err);
-    res.status(500).json({ error: "Failed to register patient" });
+    res.status(500).json({ error: "Failed to register patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -112,7 +112,7 @@ router.get("/patients/stats/summary", async (_req, res): Promise<void> => {
     }));
   } catch (err) {
     console.error("GET /patients/stats error:", err);
-    res.status(500).json({ error: "Failed to fetch patient statistics" });
+    res.status(500).json({ error: "Failed to fetch patient statistics", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -126,7 +126,7 @@ router.get("/patients/:id", async (req, res): Promise<void> => {
     res.json(GetPatientResponse.parse(mapPatient(patient)));
   } catch (err) {
     console.error("GET /patients/:id error:", err);
-    res.status(500).json({ error: "Failed to fetch patient" });
+    res.status(500).json({ error: "Failed to fetch patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -156,7 +156,7 @@ router.patch("/patients/:id", async (req, res): Promise<void> => {
     res.json(UpdatePatientResponse.parse(mapPatient(patient)));
   } catch (err) {
     console.error("PATCH /patients/:id error:", err);
-    res.status(500).json({ error: "Failed to update patient" });
+    res.status(500).json({ error: "Failed to update patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -173,7 +173,7 @@ router.delete("/patients/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /patients/:id error:", err);
-    res.status(500).json({ error: "Failed to delete patient" });
+    res.status(500).json({ error: "Failed to delete patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

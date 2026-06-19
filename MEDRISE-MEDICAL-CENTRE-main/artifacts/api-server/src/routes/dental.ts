@@ -40,7 +40,7 @@ router.get("/dental/stats", async (_req, res): Promise<void> => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch dental stats" });
+    res.status(500).json({ error: "Failed to fetch dental stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -53,7 +53,7 @@ router.get("/dental/records", async (req, res): Promise<void> => {
     res.json(await Promise.all(rows.map(enrichDentalRecord)));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch dental records" });
+    res.status(500).json({ error: "Failed to fetch dental records", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -83,7 +83,7 @@ router.post("/dental/records", async (req, res): Promise<void> => {
     res.status(201).json(await enrichDentalRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create dental record" });
+    res.status(500).json({ error: "Failed to create dental record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -97,7 +97,7 @@ router.patch("/dental/records/:id", async (req, res): Promise<void> => {
     res.json(await enrichDentalRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update dental record" });
+    res.status(500).json({ error: "Failed to update dental record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -110,7 +110,7 @@ router.delete("/dental/records/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete dental record" });
+    res.status(500).json({ error: "Failed to delete dental record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -123,7 +123,7 @@ router.get("/dental/procedures", async (req, res): Promise<void> => {
     res.json(rows.map(r => ({ ...r, createdAt: r.createdAt.toISOString() })));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch dental procedures" });
+    res.status(500).json({ error: "Failed to fetch dental procedures", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -154,7 +154,7 @@ router.post("/dental/procedures", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create dental procedure" });
+    res.status(500).json({ error: "Failed to create dental procedure", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -168,7 +168,7 @@ router.patch("/dental/procedures/:id", async (req, res): Promise<void> => {
     res.json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update dental procedure" });
+    res.status(500).json({ error: "Failed to update dental procedure", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -180,7 +180,7 @@ router.delete("/dental/procedures/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete dental procedure" });
+    res.status(500).json({ error: "Failed to delete dental procedure", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

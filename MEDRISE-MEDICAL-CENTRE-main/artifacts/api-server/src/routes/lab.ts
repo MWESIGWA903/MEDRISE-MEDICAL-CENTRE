@@ -60,7 +60,7 @@ router.get("/lab/orders", async (req, res): Promise<void> => {
     res.json(mapped);
   } catch (err) {
     console.error("GET /lab/orders error:", err);
-    res.status(500).json({ error: "Failed to fetch lab orders" });
+    res.status(500).json({ error: "Failed to fetch lab orders", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -90,7 +90,7 @@ router.post("/lab/orders", async (req, res): Promise<void> => {
     res.status(201).json(await mapOrder(row));
   } catch (err) {
     console.error("POST /lab/orders error:", err);
-    res.status(500).json({ error: "Failed to create lab order" });
+    res.status(500).json({ error: "Failed to create lab order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -118,7 +118,7 @@ router.patch("/lab/orders/:id", async (req, res): Promise<void> => {
     res.json(await mapOrder(row));
   } catch (err) {
     console.error("PATCH /lab/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to update lab order" });
+    res.status(500).json({ error: "Failed to update lab order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -132,7 +132,7 @@ router.delete("/lab/orders/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /lab/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to delete lab order" });
+    res.status(500).json({ error: "Failed to delete lab order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -173,7 +173,7 @@ router.post("/lab/results", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, recordedAt: row.recordedAt.toISOString() });
   } catch (err) {
     console.error("POST /lab/results error:", err);
-    res.status(500).json({ error: "Failed to record lab result" });
+    res.status(500).json({ error: "Failed to record lab result", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -185,7 +185,7 @@ router.delete("/lab/results/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /lab/results/:id error:", err);
-    res.status(500).json({ error: "Failed to delete lab result" });
+    res.status(500).json({ error: "Failed to delete lab result", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

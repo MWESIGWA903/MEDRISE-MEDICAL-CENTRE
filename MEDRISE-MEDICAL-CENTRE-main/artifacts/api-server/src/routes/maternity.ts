@@ -62,7 +62,7 @@ router.get("/maternity/records", async (req, res): Promise<void> => {
     res.json(enriched);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch maternity records" });
+    res.status(500).json({ error: "Failed to fetch maternity records", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -81,7 +81,7 @@ router.get("/maternity/records/stats", async (_req, res): Promise<void> => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch maternity stats" });
+    res.status(500).json({ error: "Failed to fetch maternity stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -93,7 +93,7 @@ router.get("/maternity/records/:id", async (req, res): Promise<void> => {
     res.json(await enrichRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch maternity record" });
+    res.status(500).json({ error: "Failed to fetch maternity record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -134,7 +134,7 @@ router.post("/maternity/records", async (req, res): Promise<void> => {
     res.status(201).json(await enrichRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to register maternity patient" });
+    res.status(500).json({ error: "Failed to register maternity patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -151,7 +151,7 @@ router.patch("/maternity/records/:id", async (req, res): Promise<void> => {
     res.json(await enrichRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update maternity record" });
+    res.status(500).json({ error: "Failed to update maternity record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -166,7 +166,7 @@ router.delete("/maternity/records/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete maternity record" });
+    res.status(500).json({ error: "Failed to delete maternity record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -180,7 +180,7 @@ router.get("/maternity/anc-visits", async (req, res): Promise<void> => {
     res.json(rows.map(r => ({ ...r, createdAt: r.createdAt.toISOString() })));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch ANC visits" });
+    res.status(500).json({ error: "Failed to fetch ANC visits", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -243,7 +243,7 @@ router.post("/maternity/anc-visits", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create ANC visit" });
+    res.status(500).json({ error: "Failed to create ANC visit", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -257,7 +257,7 @@ router.patch("/maternity/anc-visits/:id", async (req, res): Promise<void> => {
     res.json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update ANC visit" });
+    res.status(500).json({ error: "Failed to update ANC visit", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -269,7 +269,7 @@ router.delete("/maternity/anc-visits/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete ANC visit" });
+    res.status(500).json({ error: "Failed to delete ANC visit", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -287,7 +287,7 @@ router.get("/maternity/deliveries", async (req, res): Promise<void> => {
     res.json(enriched);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch delivery records" });
+    res.status(500).json({ error: "Failed to fetch delivery records", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -333,7 +333,7 @@ router.post("/maternity/deliveries", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to record delivery" });
+    res.status(500).json({ error: "Failed to record delivery", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -347,7 +347,7 @@ router.patch("/maternity/deliveries/:id", async (req, res): Promise<void> => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update delivery record" });
+    res.status(500).json({ error: "Failed to update delivery record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -361,7 +361,7 @@ router.get("/maternity/partograph", async (req, res): Promise<void> => {
     res.json(rows.map(r => ({ ...r, createdAt: r.createdAt.toISOString() })));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch partograph entries" });
+    res.status(500).json({ error: "Failed to fetch partograph entries", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -406,7 +406,7 @@ router.post("/maternity/partograph", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create partograph entry" });
+    res.status(500).json({ error: "Failed to create partograph entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -420,7 +420,7 @@ router.patch("/maternity/partograph/:id", async (req, res): Promise<void> => {
     res.json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update partograph entry" });
+    res.status(500).json({ error: "Failed to update partograph entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -432,7 +432,7 @@ router.delete("/maternity/partograph/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete partograph entry" });
+    res.status(500).json({ error: "Failed to delete partograph entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

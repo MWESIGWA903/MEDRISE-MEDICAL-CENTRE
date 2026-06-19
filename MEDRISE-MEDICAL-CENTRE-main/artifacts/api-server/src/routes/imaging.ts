@@ -54,7 +54,7 @@ router.get("/imaging/orders", async (req, res): Promise<void> => {
     res.json(mapped);
   } catch (err) {
     console.error("GET /imaging/orders error:", err);
-    res.status(500).json({ error: "Failed to fetch imaging orders" });
+    res.status(500).json({ error: "Failed to fetch imaging orders", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -76,7 +76,7 @@ router.post("/imaging/orders", async (req, res): Promise<void> => {
     res.status(201).json(await mapOrder(row));
   } catch (err) {
     console.error("POST /imaging/orders error:", err);
-    res.status(500).json({ error: "Failed to create imaging order" });
+    res.status(500).json({ error: "Failed to create imaging order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -102,7 +102,7 @@ router.patch("/imaging/orders/:id", async (req, res): Promise<void> => {
     res.json(await mapOrder(row));
   } catch (err) {
     console.error("PATCH /imaging/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to update imaging order" });
+    res.status(500).json({ error: "Failed to update imaging order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -115,7 +115,7 @@ router.delete("/imaging/orders/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /imaging/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to delete imaging order" });
+    res.status(500).json({ error: "Failed to delete imaging order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

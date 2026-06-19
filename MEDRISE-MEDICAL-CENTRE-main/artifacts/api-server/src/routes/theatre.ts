@@ -42,7 +42,7 @@ router.get("/theatre/stats", async (_req, res): Promise<void> => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch theatre stats" });
+    res.status(500).json({ error: "Failed to fetch theatre stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -58,7 +58,7 @@ router.get("/theatre/bookings", async (req, res): Promise<void> => {
     res.json(enriched);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch theatre bookings" });
+    res.status(500).json({ error: "Failed to fetch theatre bookings", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -70,7 +70,7 @@ router.get("/theatre/bookings/:id", async (req, res): Promise<void> => {
     res.json(await enrichBooking(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch theatre booking" });
+    res.status(500).json({ error: "Failed to fetch theatre booking", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -104,7 +104,7 @@ router.post("/theatre/bookings", async (req, res): Promise<void> => {
     res.status(201).json(await enrichBooking(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create theatre booking" });
+    res.status(500).json({ error: "Failed to create theatre booking", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -119,7 +119,7 @@ router.patch("/theatre/bookings/:id", async (req, res): Promise<void> => {
     res.json(await enrichBooking(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update theatre booking" });
+    res.status(500).json({ error: "Failed to update theatre booking", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -132,7 +132,7 @@ router.delete("/theatre/bookings/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete theatre booking" });
+    res.status(500).json({ error: "Failed to delete theatre booking", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -149,7 +149,7 @@ router.get("/theatre/operative-records", async (req, res): Promise<void> => {
     res.json(enriched);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch operative records" });
+    res.status(500).json({ error: "Failed to fetch operative records", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -162,7 +162,7 @@ router.get("/theatre/operative-records/:id", async (req, res): Promise<void> => 
     res.json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch operative record" });
+    res.status(500).json({ error: "Failed to fetch operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -205,7 +205,7 @@ router.post("/theatre/operative-records", async (req, res): Promise<void> => {
     res.status(201).json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create operative record" });
+    res.status(500).json({ error: "Failed to create operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -219,7 +219,7 @@ router.patch("/theatre/operative-records/:id", async (req, res): Promise<void> =
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update operative record" });
+    res.status(500).json({ error: "Failed to update operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

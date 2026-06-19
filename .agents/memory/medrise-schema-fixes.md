@@ -69,3 +69,27 @@ These paths are in `PUBLIC_PATHS` in `app.ts`:
 - `GET /patients`, `GET /patients/:id` — patient lookup
 - `POST /feedback`
 - `POST /admin/login`, password reset endpoints
+
+## Error masking — all 500s now expose real errors
+
+**Rule:** Every `res.status(500).json({ error: "..." })` in all department routes now includes `detail: err instanceof Error ? err.message : String(err)`.
+
+**Why:** Was masked as generic strings; real errors (FK violations, schema mismatches, constraint failures) were invisible. Fixed via bulk sed across all route files.
+
+**Admissions FK violation** specifically: FK error (23503) on POST /admissions now returns 400 with `{ error: "Patient not found — invalid patientId", detail: ... }` instead of 500.
+
+## Correct API field names (common mismatches)
+
+- Appointment POST (public): uses `patientName`, `phone`, `service`, `preferredDate`, `preferredTime` (not `name` or `appointmentDate`)
+- Queue POST: requires `patientName` (denormalized — must pass explicitly, not auto-looked-up)
+- Triage POST: `pulseRate` (not `pulse`), `chiefComplaint` required, `priority` not `triageCategory`
+- Theatre booking POST: `surgeryType` required (as well as `bookedDate`, `procedureName`)
+- ANC visit POST (/maternity/anc-visits): requires both `maternityRecordId` AND `patientId`
+- Health endpoint: `/api/healthz` not `/api/health`
+
+## Seeded clinical staff (5 accounts for public appointment page)
+
+After seed, these accounts exist in `admins` table:
+- Hannington (medical_director), snakato (doctor), jssempa (clinical_officer), analwoga (nurse), gnamubiru (midwife)
+- All passwords: `Staff@1234` except Hannington (`admin123`)
+- All `isActive: true` so they appear on `/staff/public`

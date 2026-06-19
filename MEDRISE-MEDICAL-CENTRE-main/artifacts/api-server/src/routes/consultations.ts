@@ -47,7 +47,7 @@ router.get("/consultations", async (req, res): Promise<void> => {
     res.json(mapped);
   } catch (err) {
     console.error("GET /consultations error:", err);
-    res.status(500).json({ error: "Failed to fetch consultations" });
+    res.status(500).json({ error: "Failed to fetch consultations", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -138,7 +138,7 @@ router.post("/consultations", async (req, res): Promise<void> => {
     res.status(201).json(await mapConsultation(row));
   } catch (err) {
     console.error("POST /consultations error:", err);
-    res.status(500).json({ error: "Failed to save consultation" });
+    res.status(500).json({ error: "Failed to save consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -168,7 +168,7 @@ router.get("/consultations/:id", async (req, res): Promise<void> => {
     });
   } catch (err) {
     console.error("GET /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to fetch consultation" });
+    res.status(500).json({ error: "Failed to fetch consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -183,7 +183,7 @@ router.patch("/consultations/:id", async (req, res): Promise<void> => {
     res.json(await mapConsultation(row));
   } catch (err) {
     console.error("PATCH /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to update consultation" });
+    res.status(500).json({ error: "Failed to update consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -196,7 +196,7 @@ router.delete("/consultations/:id", async (req, res): Promise<void> => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to delete consultation" });
+    res.status(500).json({ error: "Failed to delete consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 

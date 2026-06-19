@@ -88999,7 +88999,7 @@ router4.get("/patients", async (req, res) => {
     res.json(ListPatientsResponse.parse(rows.map(mapPatient)));
   } catch (err) {
     console.error("GET /patients error:", err);
-    res.status(500).json({ error: "Failed to fetch patients" });
+    res.status(500).json({ error: "Failed to fetch patients", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router4.post("/patients", async (req, res) => {
@@ -89040,7 +89040,7 @@ router4.post("/patients", async (req, res) => {
     res.status(201).json(GetPatientResponse.parse(mapPatient(patient)));
   } catch (err) {
     console.error("POST /patients error:", err);
-    res.status(500).json({ error: "Failed to register patient" });
+    res.status(500).json({ error: "Failed to register patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router4.get("/patients/stats/summary", async (_req, res) => {
@@ -89060,7 +89060,7 @@ router4.get("/patients/stats/summary", async (_req, res) => {
     }));
   } catch (err) {
     console.error("GET /patients/stats error:", err);
-    res.status(500).json({ error: "Failed to fetch patient statistics" });
+    res.status(500).json({ error: "Failed to fetch patient statistics", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router4.get("/patients/:id", async (req, res) => {
@@ -89079,7 +89079,7 @@ router4.get("/patients/:id", async (req, res) => {
     res.json(GetPatientResponse.parse(mapPatient(patient)));
   } catch (err) {
     console.error("GET /patients/:id error:", err);
-    res.status(500).json({ error: "Failed to fetch patient" });
+    res.status(500).json({ error: "Failed to fetch patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router4.patch("/patients/:id", async (req, res) => {
@@ -89109,7 +89109,7 @@ router4.patch("/patients/:id", async (req, res) => {
     res.json(UpdatePatientResponse.parse(mapPatient(patient)));
   } catch (err) {
     console.error("PATCH /patients/:id error:", err);
-    res.status(500).json({ error: "Failed to update patient" });
+    res.status(500).json({ error: "Failed to update patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router4.delete("/patients/:id", async (req, res) => {
@@ -89130,7 +89130,7 @@ router4.delete("/patients/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /patients/:id error:", err);
-    res.status(500).json({ error: "Failed to delete patient" });
+    res.status(500).json({ error: "Failed to delete patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var patients_default = router4;
@@ -89510,7 +89510,7 @@ router7.get("/consultations", async (req, res) => {
     res.json(mapped);
   } catch (err) {
     console.error("GET /consultations error:", err);
-    res.status(500).json({ error: "Failed to fetch consultations" });
+    res.status(500).json({ error: "Failed to fetch consultations", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router7.post("/consultations", async (req, res) => {
@@ -89595,7 +89595,7 @@ router7.post("/consultations", async (req, res) => {
     res.status(201).json(await mapConsultation(row));
   } catch (err) {
     console.error("POST /consultations error:", err);
-    res.status(500).json({ error: "Failed to save consultation" });
+    res.status(500).json({ error: "Failed to save consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router7.get("/consultations/:id", async (req, res) => {
@@ -89619,7 +89619,7 @@ router7.get("/consultations/:id", async (req, res) => {
     });
   } catch (err) {
     console.error("GET /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to fetch consultation" });
+    res.status(500).json({ error: "Failed to fetch consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router7.patch("/consultations/:id", async (req, res) => {
@@ -89640,7 +89640,7 @@ router7.patch("/consultations/:id", async (req, res) => {
     res.json(await mapConsultation(row));
   } catch (err) {
     console.error("PATCH /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to update consultation" });
+    res.status(500).json({ error: "Failed to update consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router7.delete("/consultations/:id", async (req, res) => {
@@ -89656,7 +89656,7 @@ router7.delete("/consultations/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to delete consultation" });
+    res.status(500).json({ error: "Failed to delete consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var consultations_default = router7;
@@ -89951,7 +89951,7 @@ router10.get("/pharmacy/stock", async (req, res) => {
     res.json(rows.map(mapStock));
   } catch (err) {
     console.error("GET /pharmacy/stock error:", err);
-    res.status(500).json({ error: "Failed to fetch pharmacy stock" });
+    res.status(500).json({ error: "Failed to fetch pharmacy stock", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router10.post("/pharmacy/stock", async (req, res) => {
@@ -89978,7 +89978,7 @@ router10.post("/pharmacy/stock", async (req, res) => {
     res.status(201).json(mapStock(row));
   } catch (err) {
     console.error("POST /pharmacy/stock error:", err);
-    res.status(500).json({ error: "Failed to add drug to stock" });
+    res.status(500).json({ error: "Failed to add drug to stock", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router10.patch("/pharmacy/stock/:id", async (req, res) => {
@@ -90017,7 +90017,7 @@ router10.patch("/pharmacy/stock/:id", async (req, res) => {
     res.json(mapStock(row));
   } catch (err) {
     console.error("PATCH /pharmacy/stock/:id error:", err);
-    res.status(500).json({ error: "Failed to update drug stock" });
+    res.status(500).json({ error: "Failed to update drug stock", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router10.delete("/pharmacy/stock/:id", async (req, res) => {
@@ -90033,7 +90033,7 @@ router10.delete("/pharmacy/stock/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /pharmacy/stock/:id error:", err);
-    res.status(500).json({ error: "Failed to delete drug stock" });
+    res.status(500).json({ error: "Failed to delete drug stock", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router10.post("/pharmacy/dispense", async (req, res) => {
@@ -90063,7 +90063,7 @@ router10.post("/pharmacy/dispense", async (req, res) => {
     res.json(mapStock(updated));
   } catch (err) {
     console.error("POST /pharmacy/dispense error:", err);
-    res.status(500).json({ error: "Failed to dispense drug" });
+    res.status(500).json({ error: "Failed to dispense drug", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router10.get("/pharmacy/stats", async (_req, res) => {
@@ -90079,7 +90079,7 @@ router10.get("/pharmacy/stats", async (_req, res) => {
     });
   } catch (err) {
     console.error("GET /pharmacy/stats error:", err);
-    res.status(500).json({ error: "Failed to fetch pharmacy stats" });
+    res.status(500).json({ error: "Failed to fetch pharmacy stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router10.get("/pharmacy/orders", async (req, res) => {
@@ -90096,7 +90096,7 @@ router10.get("/pharmacy/orders", async (req, res) => {
     res.json(enriched);
   } catch (err) {
     console.error("GET /pharmacy/orders error:", err);
-    res.status(500).json({ error: "Failed to fetch pharmacy orders" });
+    res.status(500).json({ error: "Failed to fetch pharmacy orders", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router10.patch("/pharmacy/orders/:id", async (req, res) => {
@@ -90116,7 +90116,7 @@ router10.patch("/pharmacy/orders/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("PATCH /pharmacy/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to update pharmacy order" });
+    res.status(500).json({ error: "Failed to update pharmacy order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var pharmacy_default = router10;
@@ -90173,7 +90173,7 @@ router11.get("/lab/orders", async (req, res) => {
     res.json(mapped);
   } catch (err) {
     console.error("GET /lab/orders error:", err);
-    res.status(500).json({ error: "Failed to fetch lab orders" });
+    res.status(500).json({ error: "Failed to fetch lab orders", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router11.post("/lab/orders", async (req, res) => {
@@ -90206,7 +90206,7 @@ router11.post("/lab/orders", async (req, res) => {
     res.status(201).json(await mapOrder(row));
   } catch (err) {
     console.error("POST /lab/orders error:", err);
-    res.status(500).json({ error: "Failed to create lab order" });
+    res.status(500).json({ error: "Failed to create lab order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router11.patch("/lab/orders/:id", async (req, res) => {
@@ -90240,7 +90240,7 @@ router11.patch("/lab/orders/:id", async (req, res) => {
     res.json(await mapOrder(row));
   } catch (err) {
     console.error("PATCH /lab/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to update lab order" });
+    res.status(500).json({ error: "Failed to update lab order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router11.delete("/lab/orders/:id", async (req, res) => {
@@ -90257,7 +90257,7 @@ router11.delete("/lab/orders/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /lab/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to delete lab order" });
+    res.status(500).json({ error: "Failed to delete lab order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router11.post("/lab/results", async (req, res) => {
@@ -90300,7 +90300,7 @@ router11.post("/lab/results", async (req, res) => {
     res.status(201).json({ ...row, recordedAt: row.recordedAt.toISOString() });
   } catch (err) {
     console.error("POST /lab/results error:", err);
-    res.status(500).json({ error: "Failed to record lab result" });
+    res.status(500).json({ error: "Failed to record lab result", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router11.delete("/lab/results/:id", async (req, res) => {
@@ -90314,7 +90314,7 @@ router11.delete("/lab/results/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /lab/results/:id error:", err);
-    res.status(500).json({ error: "Failed to delete lab result" });
+    res.status(500).json({ error: "Failed to delete lab result", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var lab_default = router11;
@@ -90368,7 +90368,7 @@ router12.get("/imaging/orders", async (req, res) => {
     res.json(mapped);
   } catch (err) {
     console.error("GET /imaging/orders error:", err);
-    res.status(500).json({ error: "Failed to fetch imaging orders" });
+    res.status(500).json({ error: "Failed to fetch imaging orders", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router12.post("/imaging/orders", async (req, res) => {
@@ -90393,7 +90393,7 @@ router12.post("/imaging/orders", async (req, res) => {
     res.status(201).json(await mapOrder2(row));
   } catch (err) {
     console.error("POST /imaging/orders error:", err);
-    res.status(500).json({ error: "Failed to create imaging order" });
+    res.status(500).json({ error: "Failed to create imaging order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router12.patch("/imaging/orders/:id", async (req, res) => {
@@ -90425,7 +90425,7 @@ router12.patch("/imaging/orders/:id", async (req, res) => {
     res.json(await mapOrder2(row));
   } catch (err) {
     console.error("PATCH /imaging/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to update imaging order" });
+    res.status(500).json({ error: "Failed to update imaging order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router12.delete("/imaging/orders/:id", async (req, res) => {
@@ -90441,7 +90441,7 @@ router12.delete("/imaging/orders/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /imaging/orders/:id error:", err);
-    res.status(500).json({ error: "Failed to delete imaging order" });
+    res.status(500).json({ error: "Failed to delete imaging order", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var imaging_default = router12;
@@ -90780,7 +90780,7 @@ router16.get("/queue", async (req, res) => {
     res.json(entries.map(mapEntry));
   } catch (err) {
     console.error("GET /queue error:", err);
-    res.status(500).json({ error: "Failed to fetch queue" });
+    res.status(500).json({ error: "Failed to fetch queue", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router16.post("/queue", async (req, res) => {
@@ -90884,7 +90884,7 @@ router16.post("/queue", async (req, res) => {
     res.status(201).json(mapEntry(entry));
   } catch (err) {
     console.error("POST /queue error:", err);
-    res.status(500).json({ error: "Failed to add patient to queue" });
+    res.status(500).json({ error: "Failed to add patient to queue", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router16.patch("/queue/:id", async (req, res) => {
@@ -90984,7 +90984,7 @@ router16.patch("/queue/:id", async (req, res) => {
     res.json(mapEntry(entry));
   } catch (err) {
     console.error("PATCH /queue/:id error:", err);
-    res.status(500).json({ error: "Failed to update queue entry" });
+    res.status(500).json({ error: "Failed to update queue entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router16.delete("/queue/:id", async (req, res) => {
@@ -91002,7 +91002,7 @@ router16.delete("/queue/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /queue/:id error:", err);
-    res.status(500).json({ error: "Failed to remove queue entry" });
+    res.status(500).json({ error: "Failed to remove queue entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var queue_default = router16;
@@ -91284,7 +91284,7 @@ router21.post("/triage", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to record triage" });
+    res.status(500).json({ error: "Failed to record triage", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router21.patch("/triage/:id", async (req, res) => {
@@ -91322,7 +91322,7 @@ router21.patch("/triage/:id", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update triage" });
+    res.status(500).json({ error: "Failed to update triage", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var triage_default = router21;
@@ -91372,7 +91372,7 @@ router22.get("/admissions/stats", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch admission stats" });
+    res.status(500).json({ error: "Failed to fetch admission stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router22.get("/admissions", async (req, res) => {
@@ -91404,7 +91404,7 @@ router22.get("/admissions", async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch admissions" });
+    res.status(500).json({ error: "Failed to fetch admissions", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router22.post("/admissions", async (req, res) => {
@@ -91431,8 +91431,13 @@ router22.post("/admissions", async (req, res) => {
     });
     res.status(201).json(admission);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to admit patient" });
+    console.error("[admissions] POST error:", err);
+    const pgErr = err;
+    if (pgErr.code === "23503") {
+      res.status(400).json({ error: "Patient not found \u2014 invalid patientId", detail: pgErr.detail });
+      return;
+    }
+    res.status(500).json({ error: "Failed to admit patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router22.patch("/admissions/:id", async (req, res) => {
@@ -91471,7 +91476,7 @@ router22.patch("/admissions/:id", async (req, res) => {
     res.json(updated);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update admission" });
+    res.status(500).json({ error: "Failed to update admission", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router22.delete("/admissions/:id", async (req, res) => {
@@ -91495,7 +91500,7 @@ router22.delete("/admissions/:id", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete admission" });
+    res.status(500).json({ error: "Failed to delete admission", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var admissions_default = router22;
@@ -91543,7 +91548,7 @@ router23.get("/maternity/records", async (req, res) => {
     res.json(enriched);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch maternity records" });
+    res.status(500).json({ error: "Failed to fetch maternity records", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.get("/maternity/records/stats", async (_req, res) => {
@@ -91561,7 +91566,7 @@ router23.get("/maternity/records/stats", async (_req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch maternity stats" });
+    res.status(500).json({ error: "Failed to fetch maternity stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.get("/maternity/records/:id", async (req, res) => {
@@ -91575,7 +91580,7 @@ router23.get("/maternity/records/:id", async (req, res) => {
     res.json(await enrichRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch maternity record" });
+    res.status(500).json({ error: "Failed to fetch maternity record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var MaternityRecordSchema = external_exports.object({
@@ -91618,7 +91623,7 @@ router23.post("/maternity/records", async (req, res) => {
     res.status(201).json(await enrichRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to register maternity patient" });
+    res.status(500).json({ error: "Failed to register maternity patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.patch("/maternity/records/:id", async (req, res) => {
@@ -91639,7 +91644,7 @@ router23.patch("/maternity/records/:id", async (req, res) => {
     res.json(await enrichRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update maternity record" });
+    res.status(500).json({ error: "Failed to update maternity record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.delete("/maternity/records/:id", async (req, res) => {
@@ -91656,7 +91661,7 @@ router23.delete("/maternity/records/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete maternity record" });
+    res.status(500).json({ error: "Failed to delete maternity record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.get("/maternity/anc-visits", async (req, res) => {
@@ -91667,7 +91672,7 @@ router23.get("/maternity/anc-visits", async (req, res) => {
     res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch ANC visits" });
+    res.status(500).json({ error: "Failed to fetch ANC visits", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var AncVisitSchema = external_exports.object({
@@ -91724,7 +91729,7 @@ router23.post("/maternity/anc-visits", async (req, res) => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create ANC visit" });
+    res.status(500).json({ error: "Failed to create ANC visit", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.patch("/maternity/anc-visits/:id", async (req, res) => {
@@ -91743,7 +91748,7 @@ router23.patch("/maternity/anc-visits/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update ANC visit" });
+    res.status(500).json({ error: "Failed to update ANC visit", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.delete("/maternity/anc-visits/:id", async (req, res) => {
@@ -91757,7 +91762,7 @@ router23.delete("/maternity/anc-visits/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete ANC visit" });
+    res.status(500).json({ error: "Failed to delete ANC visit", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.get("/maternity/deliveries", async (req, res) => {
@@ -91772,7 +91777,7 @@ router23.get("/maternity/deliveries", async (req, res) => {
     res.json(enriched);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch delivery records" });
+    res.status(500).json({ error: "Failed to fetch delivery records", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var DeliverySchema = external_exports.object({
@@ -91820,7 +91825,7 @@ router23.post("/maternity/deliveries", async (req, res) => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to record delivery" });
+    res.status(500).json({ error: "Failed to record delivery", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.patch("/maternity/deliveries/:id", async (req, res) => {
@@ -91839,7 +91844,7 @@ router23.patch("/maternity/deliveries/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update delivery record" });
+    res.status(500).json({ error: "Failed to update delivery record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.get("/maternity/partograph", async (req, res) => {
@@ -91850,7 +91855,7 @@ router23.get("/maternity/partograph", async (req, res) => {
     res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch partograph entries" });
+    res.status(500).json({ error: "Failed to fetch partograph entries", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var PartographSchema = external_exports.object({
@@ -91894,7 +91899,7 @@ router23.post("/maternity/partograph", async (req, res) => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create partograph entry" });
+    res.status(500).json({ error: "Failed to create partograph entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.patch("/maternity/partograph/:id", async (req, res) => {
@@ -91913,7 +91918,7 @@ router23.patch("/maternity/partograph/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update partograph entry" });
+    res.status(500).json({ error: "Failed to update partograph entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router23.delete("/maternity/partograph/:id", async (req, res) => {
@@ -91927,7 +91932,7 @@ router23.delete("/maternity/partograph/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete partograph entry" });
+    res.status(500).json({ error: "Failed to delete partograph entry", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var maternity_default = router23;
@@ -91970,7 +91975,7 @@ router24.get("/theatre/stats", async (_req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch theatre stats" });
+    res.status(500).json({ error: "Failed to fetch theatre stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router24.get("/theatre/bookings", async (req, res) => {
@@ -91984,7 +91989,7 @@ router24.get("/theatre/bookings", async (req, res) => {
     res.json(enriched);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch theatre bookings" });
+    res.status(500).json({ error: "Failed to fetch theatre bookings", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router24.get("/theatre/bookings/:id", async (req, res) => {
@@ -91998,7 +92003,7 @@ router24.get("/theatre/bookings/:id", async (req, res) => {
     res.json(await enrichBooking(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch theatre booking" });
+    res.status(500).json({ error: "Failed to fetch theatre booking", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var BookingSchema = external_exports.object({
@@ -92034,7 +92039,7 @@ router24.post("/theatre/bookings", async (req, res) => {
     res.status(201).json(await enrichBooking(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create theatre booking" });
+    res.status(500).json({ error: "Failed to create theatre booking", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router24.patch("/theatre/bookings/:id", async (req, res) => {
@@ -92055,7 +92060,7 @@ router24.patch("/theatre/bookings/:id", async (req, res) => {
     res.json(await enrichBooking(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update theatre booking" });
+    res.status(500).json({ error: "Failed to update theatre booking", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router24.delete("/theatre/bookings/:id", async (req, res) => {
@@ -92070,7 +92075,7 @@ router24.delete("/theatre/bookings/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete theatre booking" });
+    res.status(500).json({ error: "Failed to delete theatre booking", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router24.get("/theatre/operative-records", async (req, res) => {
@@ -92085,7 +92090,7 @@ router24.get("/theatre/operative-records", async (req, res) => {
     res.json(enriched);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch operative records" });
+    res.status(500).json({ error: "Failed to fetch operative records", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router24.get("/theatre/operative-records/:id", async (req, res) => {
@@ -92100,7 +92105,7 @@ router24.get("/theatre/operative-records/:id", async (req, res) => {
     res.json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch operative record" });
+    res.status(500).json({ error: "Failed to fetch operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var OperativeSchema = external_exports.object({
@@ -92145,7 +92150,7 @@ router24.post("/theatre/operative-records", async (req, res) => {
     res.status(201).json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create operative record" });
+    res.status(500).json({ error: "Failed to create operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router24.patch("/theatre/operative-records/:id", async (req, res) => {
@@ -92164,7 +92169,7 @@ router24.patch("/theatre/operative-records/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update operative record" });
+    res.status(500).json({ error: "Failed to update operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var theatre_default = router24;
@@ -92356,7 +92361,7 @@ router26.get("/dental/stats", async (_req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch dental stats" });
+    res.status(500).json({ error: "Failed to fetch dental stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router26.get("/dental/records", async (req, res) => {
@@ -92367,7 +92372,7 @@ router26.get("/dental/records", async (req, res) => {
     res.json(await Promise.all(rows.map(enrichDentalRecord)));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch dental records" });
+    res.status(500).json({ error: "Failed to fetch dental records", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var DentalRecordSchema = external_exports.object({
@@ -92399,7 +92404,7 @@ router26.post("/dental/records", async (req, res) => {
     res.status(201).json(await enrichDentalRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create dental record" });
+    res.status(500).json({ error: "Failed to create dental record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router26.patch("/dental/records/:id", async (req, res) => {
@@ -92418,7 +92423,7 @@ router26.patch("/dental/records/:id", async (req, res) => {
     res.json(await enrichDentalRecord(row));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update dental record" });
+    res.status(500).json({ error: "Failed to update dental record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router26.delete("/dental/records/:id", async (req, res) => {
@@ -92433,7 +92438,7 @@ router26.delete("/dental/records/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete dental record" });
+    res.status(500).json({ error: "Failed to delete dental record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router26.get("/dental/procedures", async (req, res) => {
@@ -92444,7 +92449,7 @@ router26.get("/dental/procedures", async (req, res) => {
     res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch dental procedures" });
+    res.status(500).json({ error: "Failed to fetch dental procedures", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var ProcedureSchema = external_exports.object({
@@ -92477,7 +92482,7 @@ router26.post("/dental/procedures", async (req, res) => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create dental procedure" });
+    res.status(500).json({ error: "Failed to create dental procedure", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router26.patch("/dental/procedures/:id", async (req, res) => {
@@ -92496,7 +92501,7 @@ router26.patch("/dental/procedures/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update dental procedure" });
+    res.status(500).json({ error: "Failed to update dental procedure", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router26.delete("/dental/procedures/:id", async (req, res) => {
@@ -92510,7 +92515,7 @@ router26.delete("/dental/procedures/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete dental procedure" });
+    res.status(500).json({ error: "Failed to delete dental procedure", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var dental_default = router26;
@@ -92564,7 +92569,7 @@ router27.get("/inpatient/summary/:admissionId", async (req, res) => {
     });
   } catch (err) {
     console.error("GET /inpatient/summary/:id error:", err);
-    res.status(500).json({ error: "Failed to fetch inpatient summary" });
+    res.status(500).json({ error: "Failed to fetch inpatient summary", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.get("/inpatient/ward-rounds", async (req, res) => {
@@ -92575,7 +92580,7 @@ router27.get("/inpatient/ward-rounds", async (req, res) => {
     res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })));
   } catch (err) {
     console.error("GET /inpatient/ward-rounds error:", err);
-    res.status(500).json({ error: "Failed to fetch ward rounds" });
+    res.status(500).json({ error: "Failed to fetch ward rounds", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var WardRoundSchema = external_exports.object({
@@ -92610,7 +92615,7 @@ router27.post("/inpatient/ward-rounds", async (req, res) => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("POST /inpatient/ward-rounds error:", err);
-    res.status(500).json({ error: "Failed to save ward round note" });
+    res.status(500).json({ error: "Failed to save ward round note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.patch("/inpatient/ward-rounds/:id", async (req, res) => {
@@ -92629,7 +92634,7 @@ router27.patch("/inpatient/ward-rounds/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("PATCH /inpatient/ward-rounds/:id error:", err);
-    res.status(500).json({ error: "Failed to update ward round note" });
+    res.status(500).json({ error: "Failed to update ward round note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.delete("/inpatient/ward-rounds/:id", async (req, res) => {
@@ -92639,7 +92644,7 @@ router27.delete("/inpatient/ward-rounds/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /inpatient/ward-rounds/:id error:", err);
-    res.status(500).json({ error: "Failed to delete ward round note" });
+    res.status(500).json({ error: "Failed to delete ward round note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.get("/inpatient/drug-chart", async (req, res) => {
@@ -92650,7 +92655,7 @@ router27.get("/inpatient/drug-chart", async (req, res) => {
     res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() })));
   } catch (err) {
     console.error("GET /inpatient/drug-chart error:", err);
-    res.status(500).json({ error: "Failed to fetch drug chart" });
+    res.status(500).json({ error: "Failed to fetch drug chart", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var DrugSchema = external_exports.object({
@@ -92680,7 +92685,7 @@ router27.post("/inpatient/drug-chart", async (req, res) => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("POST /inpatient/drug-chart error:", err);
-    res.status(500).json({ error: "Failed to prescribe drug" });
+    res.status(500).json({ error: "Failed to prescribe drug", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.patch("/inpatient/drug-chart/:id", async (req, res) => {
@@ -92699,7 +92704,7 @@ router27.patch("/inpatient/drug-chart/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
     console.error("PATCH /inpatient/drug-chart/:id error:", err);
-    res.status(500).json({ error: "Failed to update drug chart" });
+    res.status(500).json({ error: "Failed to update drug chart", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.delete("/inpatient/drug-chart/:id", async (req, res) => {
@@ -92709,7 +92714,7 @@ router27.delete("/inpatient/drug-chart/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /inpatient/drug-chart/:id error:", err);
-    res.status(500).json({ error: "Failed to delete drug from chart" });
+    res.status(500).json({ error: "Failed to delete drug from chart", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.get("/inpatient/nursing-notes", async (req, res) => {
@@ -92720,7 +92725,7 @@ router27.get("/inpatient/nursing-notes", async (req, res) => {
     res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
   } catch (err) {
     console.error("GET /inpatient/nursing-notes error:", err);
-    res.status(500).json({ error: "Failed to fetch nursing notes" });
+    res.status(500).json({ error: "Failed to fetch nursing notes", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var NursingNoteSchema = external_exports.object({
@@ -92753,7 +92758,7 @@ router27.post("/inpatient/nursing-notes", async (req, res) => {
     res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error("POST /inpatient/nursing-notes error:", err);
-    res.status(500).json({ error: "Failed to save nursing note" });
+    res.status(500).json({ error: "Failed to save nursing note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.patch("/inpatient/nursing-notes/:id", async (req, res) => {
@@ -92772,7 +92777,7 @@ router27.patch("/inpatient/nursing-notes/:id", async (req, res) => {
     res.json({ ...row, createdAt: row.createdAt.toISOString() });
   } catch (err) {
     console.error("PATCH /inpatient/nursing-notes/:id error:", err);
-    res.status(500).json({ error: "Failed to update nursing note" });
+    res.status(500).json({ error: "Failed to update nursing note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.delete("/inpatient/nursing-notes/:id", async (req, res) => {
@@ -92782,7 +92787,7 @@ router27.delete("/inpatient/nursing-notes/:id", async (req, res) => {
     res.sendStatus(204);
   } catch (err) {
     console.error("DELETE /inpatient/nursing-notes/:id error:", err);
-    res.status(500).json({ error: "Failed to delete nursing note" });
+    res.status(500).json({ error: "Failed to delete nursing note", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router27.get("/inpatient/ward-patients", async (req, res) => {
@@ -92819,7 +92824,7 @@ router27.get("/inpatient/ward-patients", async (req, res) => {
     res.json(enriched);
   } catch (err) {
     console.error("GET /inpatient/ward-patients error:", err);
-    res.status(500).json({ error: "Failed to fetch ward patients" });
+    res.status(500).json({ error: "Failed to fetch ward patients", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var inpatient_default = router27;

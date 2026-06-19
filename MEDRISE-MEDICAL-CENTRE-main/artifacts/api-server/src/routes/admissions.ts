@@ -54,7 +54,7 @@ router.get("/admissions/stats", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch admission stats" });
+    res.status(500).json({ error: "Failed to fetch admission stats", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -96,7 +96,7 @@ router.get("/admissions", async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch admissions" });
+    res.status(500).json({ error: "Failed to fetch admissions", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -125,8 +125,13 @@ router.post("/admissions", async (req, res): Promise<void> => {
 
     res.status(201).json(admission);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to admit patient" });
+    console.error("[admissions] POST error:", err);
+    const pgErr = err as { code?: string; detail?: string };
+    if (pgErr.code === "23503") {
+      res.status(400).json({ error: "Patient not found — invalid patientId", detail: pgErr.detail });
+      return;
+    }
+    res.status(500).json({ error: "Failed to admit patient", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -168,7 +173,7 @@ router.patch("/admissions/:id", async (req, res): Promise<void> => {
     res.json(updated);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to update admission" });
+    res.status(500).json({ error: "Failed to update admission", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -191,7 +196,7 @@ router.delete("/admissions/:id", async (req, res): Promise<void> => {
     res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to delete admission" });
+    res.status(500).json({ error: "Failed to delete admission", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
