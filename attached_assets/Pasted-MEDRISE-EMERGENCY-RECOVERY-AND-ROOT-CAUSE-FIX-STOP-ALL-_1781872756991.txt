@@ -1,0 +1,212 @@
+MEDRISE EMERGENCY RECOVERY AND ROOT CAUSE FIX
+
+STOP ALL FEATURE DEVELOPMENT.
+
+STOP ALL REPORT GENERATION.
+
+STOP ALL FUTURE ENHANCEMENTS.
+
+The current production deployment is failing.
+
+Known production symptoms:
+
+- Patient registration returns HTTP 500.
+- Add Patient To Queue fails.
+- Check-In fails.
+- Appointments disappear.
+- Public Appointment page shows no clinicians.
+- Department record creation fails.
+- Admission fails.
+- ANC registration fails.
+- Dental record creation fails.
+- Multiple departments cannot save data.
+- Staff can log in successfully.
+- Application loads successfully.
+- Health endpoint returns 200.
+
+This indicates a backend/database/schema problem affecting multiple workflows.
+
+==================================================
+PRIMARY OBJECTIVE
+
+Identify and repair the single root cause or root causes causing production failures.
+
+Do not work on new features until all critical workflows function.
+
+==================================================
+TASK 1 – REPRODUCE FAILURES
+
+Reproduce:
+
+- Register Patient
+- Add Patient To Queue
+- Check-In
+- Appointment Creation
+- Department Record Creation
+
+Capture every failure.
+
+==================================================
+TASK 2 – EXPOSE REAL ERRORS
+
+Remove all generic error masking.
+
+Current response:
+
+{"error":"Failed to register patient"}
+
+This is unacceptable.
+
+For every failing endpoint:
+
+- Log full exception.
+- Log stack trace.
+- Log database error.
+- Log validation error.
+- Log schema error.
+
+Do not hide errors.
+
+==================================================
+TASK 3 – DATABASE AUDIT
+
+Audit:
+
+- Production schema
+- Drizzle schema
+- PostgreSQL tables
+- Migrations
+- Missing columns
+- Missing relations
+- Missing indexes
+
+Verify production database matches application code.
+
+Repair all mismatches.
+
+==================================================
+TASK 4 – STAFF SYSTEM AUDIT
+
+Investigate why staff do not appear on public appointments.
+
+Verify:
+
+- Staff records exist.
+- Staff active flags.
+- Staff role filtering.
+- API response.
+- Frontend rendering.
+
+Fix completely.
+
+All active clinicians must appear.
+
+Include:
+
+- Medical Director
+- Doctors
+- Clinical Officers
+- Nurses
+- Midwives
+
+==================================================
+TASK 5 – PATIENT REGISTRATION
+
+Repair registration.
+
+Verify:
+
+- Frontend validation.
+- API route.
+- Database insert.
+- Returned response.
+
+Confirm successful patient creation.
+
+==================================================
+TASK 6 – QUEUE SYSTEM
+
+Repair:
+
+- Add Patient To Queue
+- Queue visibility
+- Waiting visibility
+- Appointment check-in
+
+Verify complete workflow.
+
+==================================================
+TASK 7 – SYSTEM-WIDE SAVE FAILURES
+
+Audit every department.
+
+Verify:
+
+- Create
+- Save
+- Update
+- Transfer
+
+Fix all save failures.
+
+Including:
+
+- Admissions
+- ANC
+- Maternity
+- Dental
+- Theatre
+- Imaging
+- Laboratory
+- Pharmacy
+
+==================================================
+TASK 8 – END-TO-END VALIDATION
+
+After fixes:
+
+Test complete workflow:
+
+Register Patient
+→ Appointment
+→ Check-In
+→ Queue
+→ Waiting
+→ Triage
+→ Consultation
+
+Verify success.
+
+==================================================
+TASK 9 – DEPLOYMENT
+
+After all failures are fixed:
+
+1. Run full test suite.
+2. Verify production build.
+3. Commit all fixes.
+4. Push to GitHub.
+5. Trigger deployment.
+6. Verify Render.
+7. Verify Vercel.
+8. Verify Netlify.
+
+==================================================
+FINAL RULE
+
+Do not stop after finding errors.
+
+Do not stop after creating reports.
+
+Do not stop after partial fixes.
+
+Continue until:
+
+- Registration works.
+- Queue works.
+- Check-In works.
+- Clinicians appear on public appointments.
+- Department saves work.
+- No HTTP 500 errors remain.
+
+Then commit, push, deploy, and verify production functionality.
