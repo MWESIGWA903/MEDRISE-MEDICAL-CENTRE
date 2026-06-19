@@ -12,7 +12,8 @@ import {
   X,
   Check,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 import { PatientCombobox } from '@/components/PatientCombobox';
 import {
@@ -772,7 +773,7 @@ export default function DentalTab() {
   const createRecord = useCreateRecord();
   const deleteRecord = useDeleteRecord();
 
-  const [form, setForm] = useState({
+  const BLANK_DENTAL_FORM = {
     patientId: 0,
     visitDate: new Date().toISOString().slice(0, 10),
     chiefComplaint: '',
@@ -786,7 +787,12 @@ export default function DentalTab() {
     treatmentPlan: '',
     notes: '',
     dentistName: '',
-  });
+  };
+  const [form, setForm] = useState(BLANK_DENTAL_FORM);
+
+  const dentalFormData = useMemo<Record<string, unknown>>(() => ({ ...form }), [form]);
+  const { hasDraft: dentalHasDraft, restoreDraft: dentalRestoreDraft, clearDraft: dentalClearDraft } =
+    useAutoSave('dental_visit_form', dentalFormData);
 
   const fLabel = 'block text-xs font-medium text-gray-600 mb-1';
   const fInput =
@@ -807,8 +813,10 @@ export default function DentalTab() {
       const toothChart = Object.keys(chartData).length > 0 ? JSON.stringify(chartData) : undefined;
       await createRecord.mutateAsync({ ...form, toothChart });
       toast({ title: 'Dental record created' });
+      dentalClearDraft();
       setShowNewVisit(false);
       setChartData({});
+      setForm(BLANK_DENTAL_FORM);
     } catch (err) {
       toast({
         title: 'Error',

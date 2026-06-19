@@ -61042,6 +61042,7 @@ var init_growthRecords = __esm({
       patientId: integer("patient_id").notNull().references(() => patientsTable.id),
       date: text("date").notNull(),
       ageMonths: integer("age_months"),
+      ageWeeks: integer("age_weeks"),
       weight: text("weight"),
       height: text("height"),
       muac: text("muac"),
@@ -86931,8 +86932,28 @@ async function createAndBroadcast(input) {
 
 // src/routes/appointments.ts
 var router2 = (0, import_express2.Router)();
+var CLINICAL_ONLY_ROLES = /* @__PURE__ */ new Set([
+  "doctor",
+  "nurse",
+  "clinical_officer",
+  "midwife",
+  "lab_technician",
+  "billing_officer",
+  "records_officer"
+]);
 router2.get("/appointments", async (req, res) => {
-  const appointments = await db.select().from(appointmentsTable).orderBy(appointmentsTable.createdAt);
+  const session = req.adminSession;
+  let appointments;
+  if (session && CLINICAL_ONLY_ROLES.has(session.role ?? "")) {
+    appointments = await db.select().from(appointmentsTable).where(
+      or(
+        eq(appointmentsTable.assignedStaffId, session.id),
+        isNull(appointmentsTable.assignedStaffId)
+      )
+    ).orderBy(appointmentsTable.createdAt);
+  } else {
+    appointments = await db.select().from(appointmentsTable).orderBy(appointmentsTable.createdAt);
+  }
   const mapped = appointments.map((a) => ({
     ...a,
     createdAt: a.createdAt.toISOString()
@@ -92176,6 +92197,7 @@ var GrowthSchema = external_exports.object({
   patientId: external_exports.number().int(),
   date: external_exports.string(),
   ageMonths: external_exports.number().int().optional(),
+  ageWeeks: external_exports.number().int().optional(),
   weight: external_exports.string().optional(),
   height: external_exports.string().optional(),
   muac: external_exports.string().optional(),
@@ -92904,7 +92926,6 @@ var PUBLIC_PATHS = [
   { method: "POST", path: "/admin/password-reset/request" },
   { method: "POST", path: "/admin/password-reset/confirm" },
   { method: "POST", path: "/appointments" },
-  { method: "GET", path: "/appointments" },
   { method: "POST", path: "/feedback" },
   { method: "GET", path: "/patients" },
   { method: "GET", path: /^\/patients\/\d+$/ },

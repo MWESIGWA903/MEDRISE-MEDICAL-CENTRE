@@ -7,6 +7,7 @@ export const growthRecordsTable = pgTable("growth_records", {
   patientId: integer("patient_id").notNull().references(() => patientsTable.id),
   date: text("date").notNull(),
   ageMonths: integer("age_months"),
+  ageWeeks: integer("age_weeks"),
   weight: text("weight"),
   height: text("height"),
   muac: text("muac"),

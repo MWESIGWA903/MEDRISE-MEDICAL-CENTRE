@@ -219,6 +219,7 @@ function PatientCard({
   const [gForm, setGForm] = useState({
     date: new Date().toISOString().slice(0, 10),
     ageMonths: '',
+    ageWeeks: '',
     weight: '',
     height: '',
     muac: '',
@@ -255,6 +256,7 @@ function PatientCard({
         ...gForm,
         patientId,
         ageMonths: gForm.ageMonths ? parseInt(gForm.ageMonths) : undefined,
+        ageWeeks: gForm.ageWeeks ? parseInt(gForm.ageWeeks) : undefined,
       });
       toast({ title: 'Growth record saved' });
       setShowGrowthDialog(false);
@@ -644,6 +646,16 @@ function PatientCard({
                   className={fInput}
                   value={gForm.ageMonths}
                   onChange={(e) => setGForm((p) => ({ ...p, ageMonths: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className={fLabel}>Age (weeks) — for infants &lt;3 mo</label>
+                <input
+                  type="number"
+                  className={fInput}
+                  placeholder="Optional"
+                  value={gForm.ageWeeks}
+                  onChange={(e) => setGForm((p) => ({ ...p, ageWeeks: e.target.value }))}
                 />
               </div>
               <div>

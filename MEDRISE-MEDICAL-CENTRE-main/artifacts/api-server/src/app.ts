@@ -104,7 +104,6 @@ const PUBLIC_PATHS: Array<{ method: string; path: string | RegExp }> = [
   { method: "POST", path: "/admin/password-reset/request" },
   { method: "POST", path: "/admin/password-reset/confirm" },
   { method: "POST", path: "/appointments" },
-  { method: "GET",  path: "/appointments" },
   { method: "POST", path: "/feedback" },
   { method: "GET",  path: "/patients" },
   { method: "GET",  path: /^\/patients\/\d+$/ },

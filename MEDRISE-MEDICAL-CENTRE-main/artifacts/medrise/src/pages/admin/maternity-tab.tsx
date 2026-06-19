@@ -19,7 +19,8 @@ import {
   User,
   Clock,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 import { PatientCombobox } from '@/components/PatientCombobox';
 import {
@@ -1758,7 +1759,7 @@ export default function MaternityTab() {
   const createRecord = useCreateMaternityRecord();
   const deleteRecord = useDeleteMaternityRecord();
 
-  const [form, setForm] = useState({
+  const BLANK_MAT_FORM = {
     patientId: 0,
     gravida: '1',
     para: '0',
@@ -1777,7 +1778,12 @@ export default function MaternityTab() {
     riskFactors: '',
     isHighRisk: false,
     notes: '',
-  });
+  };
+  const [form, setForm] = useState(BLANK_MAT_FORM);
+
+  const matFormData = useMemo<Record<string, unknown>>(() => ({ ...form }), [form]);
+  const { hasDraft: matHasDraft, restoreDraft: matRestoreDraft, clearDraft: matClearDraft } =
+    useAutoSave('maternity_register_form', matFormData);
 
   const fLabel = 'block text-xs font-medium text-gray-600 mb-1';
   const fInput =
@@ -1806,8 +1812,9 @@ export default function MaternityTab() {
         ageAtBooking: form.ageAtBooking ? parseInt(form.ageAtBooking) : undefined,
       });
       toast({ title: 'Patient registered for ANC' });
+      matClearDraft();
       setShowRegisterDialog(false);
-      setForm((f) => ({ ...f, patientId: 0 }));
+      setForm(BLANK_MAT_FORM);
     } catch (err) {
       toast({
         title: 'Error',

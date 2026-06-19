@@ -44,6 +44,7 @@ const GrowthSchema = z.object({
   patientId: z.number().int(),
   date: z.string(),
   ageMonths: z.number().int().optional(),
+  ageWeeks: z.number().int().optional(),
   weight: z.string().optional(),
   height: z.string().optional(),
   muac: z.string().optional(),

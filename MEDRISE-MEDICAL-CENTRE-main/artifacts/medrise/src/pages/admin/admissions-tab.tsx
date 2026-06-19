@@ -262,6 +262,7 @@ export default function AdmissionsTab({ adminId }: { adminId?: number }) {
       phone?: string | null;
       age?: number | null;
       ageMonths?: number | null;
+      ageWeeks?: number | null;
       ageDays?: number | null;
       gender?: string | null;
     }[]

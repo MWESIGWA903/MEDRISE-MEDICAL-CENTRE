@@ -1,0 +1,318 @@
+MEDRISE MEDICAL CENTRE SYSTEM – CONTINUE UNTIL 100% COMPLETE
+
+Your previous report shows that some important fixes were completed, but the project is NOT yet complete according to the original requirements.
+
+The current work is approximately 50% complete.
+
+You must continue working until ALL requirements are implemented, tested, deployed, committed, and pushed to GitHub.
+
+Do not stop after analysis. Complete all remaining work and provide evidence.
+
+---
+
+COMPLETED ITEMS (DO NOT REWORK UNLESS BROKEN)
+
+According to your report, the following appear to have been completed:
+
+✓ Missing medical tables created and pushed to database
+
+✓ Surgery / Maternity / Dental NOT_FOUND root cause identified
+
+✓ checked_in appointment status added
+
+✓ Admission authentication issue fixed
+
+✓ Appointment assignment fields added
+
+✓ Age weeks support added
+
+✓ Additional staff roles added
+
+Verify these still work after all remaining changes.
+
+---
+
+REMAINING CRITICAL TASKS
+
+1. QUEUE MANAGEMENT FAILURE
+
+The system previously showed:
+
+"Failed to add patient"
+
+You did not provide proof that this issue was fixed.
+
+Tasks:
+
+- Find root cause.
+- Fix root cause.
+- Verify patients can be added to queue.
+- Verify queue records are created.
+- Verify assigned staff can see queued patients.
+- Test end-to-end.
+
+Provide screenshots and test results.
+
+---
+
+2. PUBLIC APPOINTMENT STAFF SELECTION
+
+The public appointment booking page must allow patients to choose staff.
+
+Requirements:
+
+- All active staff must appear automatically.
+- Dr. Mwesigwa Hannington must appear.
+- New staff must automatically appear without code changes.
+- Remove all hardcoded staff lists.
+- Staff list must come from database.
+
+Provide proof this works.
+
+---
+
+3. SYSTEM-WIDE STAFF AVAILABILITY
+
+Staff should automatically appear wherever staff selection is required.
+
+Verify and fix:
+
+- Appointments
+- Admissions
+- Surgery
+- Maternity
+- Dental
+- Laboratory
+- Pharmacy
+- Radiology
+- Referrals
+- Inpatient
+- All departments
+
+Use one centralized staff source.
+
+Provide evidence.
+
+---
+
+4. ROLE-BASED APPOINTMENT VISIBILITY
+
+You implemented assignment but did not implement visibility restrictions.
+
+Required behavior:
+
+Medical Director
+
+- View all appointments
+- Assign appointments
+- Reassign appointments
+
+Admin
+
+- View all appointments
+- Assign appointments
+- Reassign appointments
+
+Staff
+
+- View only appointments assigned to them
+- Cannot see appointments assigned to other staff
+
+Implement and test.
+
+Provide evidence.
+
+---
+
+5. UNIVERSAL AGE SYSTEM
+
+You only added weeks in some places.
+
+The requirement was system-wide.
+
+Implement Years / Months / Weeks / Days everywhere age is captured.
+
+Including:
+
+- Registration
+- OPD
+- Paediatrics
+- Surgery
+- Dental
+- Admissions
+- Maternity
+- Laboratory
+- Pharmacy
+- Radiology
+- Inpatient
+- All departments
+
+Test thoroughly.
+
+---
+
+6. AUTOSAVE SYSTEM
+
+This was not implemented.
+
+Implement autosave throughout the application.
+
+Requirements:
+
+- Save while typing
+- Save when fields change
+- Save periodically
+- Draft recovery after refresh
+- Draft recovery after browser close
+- Draft recovery after session interruption
+
+Apply to all major forms.
+
+Provide architecture details and test results.
+
+---
+
+7. COMPLETE CREATE-RECORD AUDIT
+
+Audit every create/save workflow.
+
+Verify:
+
+- API routes exist
+- Server actions exist
+- Database inserts work
+- Validation works
+- Permissions work
+
+Modules:
+
+- Registration
+- Queue
+- Appointments
+- Admissions
+- Surgery
+- Dental
+- Maternity
+- Laboratory
+- Pharmacy
+- Radiology
+- Inpatient
+
+Fix anything discovered.
+
+---
+
+8. FULL SYSTEM TESTING
+
+You did not provide testing evidence.
+
+Execute and document tests for:
+
+✓ Appointment booking
+
+✓ Appointment assignment
+
+✓ Appointment confirmation
+
+✓ Appointment check-in
+
+✓ Queue addition
+
+✓ Admission
+
+✓ Surgery booking
+
+✓ Dental record creation
+
+✓ Maternity registration
+
+✓ Staff assignment
+
+✓ Staff filtering
+
+✓ Age entry
+
+✓ Autosave
+
+✓ Public appointment booking
+
+Document every result.
+
+---
+
+9. PRODUCTION DEPLOYMENT
+
+Deploy the final version.
+
+Provide:
+
+- Production URL
+- Build status
+- Deployment logs
+- Verification that production is working
+
+---
+
+10. GITHUB REQUIREMENT (MANDATORY)
+
+After ALL fixes are complete:
+
+1. Review all modified files.
+2. Commit all changes.
+3. Push all changes to GitHub.
+4. Verify GitHub contains latest code.
+5. Verify working tree is clean.
+
+Commit message:
+
+Fix queue management, public staff selection, role-based appointments, universal age system, autosave, workflow fixes, and production readiness
+
+Provide:
+
+- GitHub repository URL
+- Branch name
+- Commit hash
+- Git push confirmation
+- Confirmation that GitHub now contains all latest changes
+
+Do not say GitHub is updated unless push succeeds.
+
+---
+
+FINAL REPORT FORMAT
+
+Provide:
+
+1. Root causes found
+2. Files modified
+3. Database changes
+4. API changes
+5. New features implemented
+6. Test results
+7. Production URL
+8. GitHub URL
+9. Commit hash
+10. Push confirmation
+11. Remaining issues (if any)
+
+The task is complete only when:
+
+✓ Queue works
+
+✓ Public staff selection works
+
+✓ Staff visibility rules work
+
+✓ Universal age system works
+
+✓ Autosave works
+
+✓ All workflows are tested
+
+✓ Production deployment succeeds
+
+✓ Changes are committed
+
+✓ Changes are pushed to GitHub
+
+✓ Final report is provided

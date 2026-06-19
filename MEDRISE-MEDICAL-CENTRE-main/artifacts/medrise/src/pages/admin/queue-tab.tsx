@@ -34,7 +34,8 @@ import {
   ClipboardList,
   Printer,
 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 import { PatientCombobox } from '@/components/PatientCombobox';
 import { Badge } from '@/components/ui/badge';
@@ -728,6 +729,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
     setRegInsuranceName('');
     setRegInsurancePolicy('');
     setRegPaymentMethod('');
+    regClearDraft();
   };
 
   const resetTriageForm = () => {
@@ -753,6 +755,43 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
     setTriageLabResultsNote('');
     setTriageImagingResultsNote('');
   };
+
+  // ── Autosave: Patient Registration Draft ──
+  const regFormData = useMemo(
+    () => ({
+      regName, regAge, regAgeMonths, regAgeWeeks, regAgeDays,
+      regDob, regSex, regPhone, regEmail, regAddress,
+      regNextOfKinName, regNextOfKinPhone, regNextOfKinRel,
+      regInsuranceName, regInsurancePolicy, regPaymentMethod,
+    }),
+    [regName, regAge, regAgeMonths, regAgeWeeks, regAgeDays,
+     regDob, regSex, regPhone, regEmail, regAddress,
+     regNextOfKinName, regNextOfKinPhone, regNextOfKinRel,
+     regInsuranceName, regInsurancePolicy, regPaymentMethod],
+  );
+  const { hasDraft: regHasDraft, restoreDraft: regRestoreDraft, clearDraft: regClearDraft } =
+    useAutoSave('queue_patient_registration', regFormData);
+
+  function restoreRegDraft() {
+    const d = regRestoreDraft();
+    if (!d) return;
+    if (d.regName) setRegName(d.regName as string);
+    if (d.regAge) setRegAge(d.regAge as string);
+    if (d.regAgeMonths) setRegAgeMonths(d.regAgeMonths as string);
+    if (d.regAgeWeeks) setRegAgeWeeks(d.regAgeWeeks as string);
+    if (d.regAgeDays) setRegAgeDays(d.regAgeDays as string);
+    if (d.regDob) setRegDob(d.regDob as string);
+    if (d.regSex) setRegSex(d.regSex as string);
+    if (d.regPhone) setRegPhone(d.regPhone as string);
+    if (d.regEmail) setRegEmail(d.regEmail as string);
+    if (d.regAddress) setRegAddress(d.regAddress as string);
+    if (d.regNextOfKinName) setRegNextOfKinName(d.regNextOfKinName as string);
+    if (d.regNextOfKinPhone) setRegNextOfKinPhone(d.regNextOfKinPhone as string);
+    if (d.regNextOfKinRel) setRegNextOfKinRel(d.regNextOfKinRel as string);
+    if (d.regInsuranceName) setRegInsuranceName(d.regInsuranceName as string);
+    if (d.regInsurancePolicy) setRegInsurancePolicy(d.regInsurancePolicy as string);
+    if (d.regPaymentMethod) setRegPaymentMethod(d.regPaymentMethod as string);
+  }
 
   // Auto-compute Date of Birth from age fields for patient registration
   const computedDob = React.useMemo(() => {
@@ -1406,6 +1445,18 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                   Patient" to add them to today's queue.
                 </DialogDescription>
               </DialogHeader>
+              {regHasDraft() && !regName && !regPhone && (
+                <div className="flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  <span>📋 You have an unsaved draft from a previous session.</span>
+                  <button
+                    type="button"
+                    onClick={restoreRegDraft}
+                    className="ml-3 font-semibold underline underline-offset-2 hover:text-amber-900"
+                  >
+                    Restore draft
+                  </button>
+                </div>
+              )}
               <div className="space-y-5 pt-1">
                 {/* Patient Details */}
                 <div>
