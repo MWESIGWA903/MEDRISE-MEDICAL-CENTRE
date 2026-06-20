@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, ilike, or } from "drizzle-orm";
-import { db, patientsTable } from "@workspace/db";
+import { db, pool, patientsTable } from "@workspace/db";
 import {
   CreatePatientBody,
   GetPatientParams,
@@ -75,7 +75,7 @@ router.post("/patients", async (req, res): Promise<void> => {
         ageDays: parsed.data.ageDays ?? null,
         gender: parsed.data.gender ?? null,
         address: parsed.data.address ?? null,
-        bloodType: parsed.data.bloodType ?? null,
+        bloodType: parsed.data.bloodType?.trim() || null,
         allergies: parsed.data.allergies ?? null,
         medicalNotes: parsed.data.medicalNotes ?? null,
         nextOfKinName: parsed.data.nextOfKinName ?? null,
@@ -161,19 +161,60 @@ router.patch("/patients/:id", async (req, res): Promise<void> => {
 });
 
 router.delete("/patients/:id", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const params = DeletePatientParams.safeParse({ id: parseInt(raw, 10) });
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
+
+  const patientId = params.data.id;
+  const client = await pool.connect();
   try {
-    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const params = DeletePatientParams.safeParse({ id: parseInt(raw, 10) });
-    if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
+    await client.query("BEGIN");
+    // Check patient exists
+    const check = await client.query(`SELECT id, full_name FROM patients WHERE id = $1`, [patientId]);
+    if (check.rows.length === 0) {
+      await client.query("ROLLBACK");
+      res.status(404).json({ error: "Patient not found" });
+      return;
+    }
+    const patientName = check.rows[0].full_name as string;
 
-    const [patient] = await db.delete(patientsTable).where(eq(patientsTable.id, params.data.id)).returning();
-    if (!patient) { res.status(404).json({ error: "Patient not found" }); return; }
+    // Cascade delete all related records in dependency order (leaf tables first)
+    await client.query(`DELETE FROM operative_records WHERE booking_id IN (SELECT id FROM theatre_bookings WHERE patient_id=$1)`, [patientId]);
+    await client.query(`DELETE FROM theatre_bookings WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM partograph_entries WHERE maternity_record_id IN (SELECT id FROM maternity_records WHERE patient_id=$1)`, [patientId]);
+    await client.query(`DELETE FROM anc_visits WHERE maternity_record_id IN (SELECT id FROM maternity_records WHERE patient_id=$1)`, [patientId]);
+    await client.query(`DELETE FROM delivery_records WHERE maternity_record_id IN (SELECT id FROM maternity_records WHERE patient_id=$1)`, [patientId]);
+    await client.query(`DELETE FROM maternity_records WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM dental_procedures WHERE dental_record_id IN (SELECT id FROM dental_records WHERE patient_id=$1)`, [patientId]);
+    await client.query(`DELETE FROM dental_records WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM growth_records WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM immunization_records WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM triage WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM admissions WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM vital_signs WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM lab_results WHERE lab_order_id IN (SELECT id FROM lab_orders WHERE patient_id=$1)`, [patientId]);
+    await client.query(`DELETE FROM lab_orders WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM imaging_orders WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM pharmacy_dispensings WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM pharmacy_orders WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM consultations WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM inpatient_drug_chart WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM nursing_notes WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM ward_round_notes WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM invoice_items WHERE invoice_id IN (SELECT id FROM invoices WHERE patient_id=$1)`, [patientId]);
+    await client.query(`DELETE FROM invoices WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM patient_queue WHERE patient_id=$1`, [patientId]);
+    await client.query(`DELETE FROM patients WHERE id=$1`, [patientId]);
+    await client.query("COMMIT");
 
-    logAudit(req, "delete_patient", { entityType: "patient", entityId: patient.id, details: patient.fullName }).catch(() => {});
+    logAudit(req, "delete_patient", { entityType: "patient", entityId: patientId, details: patientName }).catch(() => {});
     res.sendStatus(204);
   } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
     console.error("DELETE /patients/:id error:", err);
     res.status(500).json({ error: "Failed to delete patient", detail: err instanceof Error ? err.message : String(err) });
+  } finally {
+    client.release();
   }
 });
 

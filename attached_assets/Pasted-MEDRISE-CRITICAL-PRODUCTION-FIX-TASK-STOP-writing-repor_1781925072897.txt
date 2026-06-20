@@ -1,0 +1,325 @@
+MEDRISE CRITICAL PRODUCTION FIX TASK
+
+STOP writing reports and STOP giving summaries.
+
+Your job is to identify, fix, test, and verify every production issue listed below.
+
+PRODUCTION IS CURRENTLY BROKEN.
+
+==================================================
+
+1. APPOINTMENTS MODULE
+   ==================================================
+
+Problems:
+
+- Appointment statistics load.
+- Appointment list is empty.
+- Previously appointments were displaying correctly.
+- Approximately 40 minutes later appointments disappeared.
+- Appointment list now shows "No appointments found".
+- Appointment workflow is incorrect.
+
+Required fix:
+
+Current flow:
+
+Appointment Confirmed
+→ Check In
+→ Waiting Queue
+
+This is WRONG.
+
+Required workflow:
+
+Appointment Confirmed
+→ Check In
+→ Add to Triage Queue
+→ Triage Nurse Assessment
+→ Waiting Queue
+→ Doctor Consultation
+
+Check-in must automatically create a triage queue entry.
+
+Patients must NEVER bypass triage.
+
+Verify production routes:
+
+/api/appointments
+/api/appointments/checkin
+/api/queue
+/api/triage
+
+Test all routes directly in production.
+
+==================================================
+2. STAFF NOT APPEARING ON PUBLIC BOOKING PAGE
+
+Current staff:
+
+1. Dr. Hannington
+2. Akampurira Mercy (Midwife)
+
+Patients cannot select clinicians.
+
+Required:
+
+- Staff dropdown must load active staff automatically.
+- Public booking page must show all active clinicians.
+- Verify frontend API.
+- Verify backend API.
+- Verify database query.
+- Fix immediately.
+
+==================================================
+3. MATERNITY MODULE
+
+Current error:
+
+POST /api/maternity/records
+404 NOT FOUND
+
+GET /api/maternity/records/stats
+404 NOT FOUND
+
+GET /api/maternity/records?status=active
+404 NOT FOUND
+
+Required:
+
+- Restore all missing maternity routes.
+- Verify frontend route names.
+- Verify backend route names.
+- Verify deployment.
+- Verify Render.
+- Verify Vercel API URLs.
+
+Test:
+
+Create ANC record successfully.
+View ANC records successfully.
+View ANC statistics successfully.
+
+==================================================
+4. ADMISSIONS MODULE
+
+Admission fails.
+
+Required:
+
+- Fix admissions.
+- Verify ward allocation.
+- Verify admission creation.
+- Verify database write.
+- Verify database retrieval.
+
+Test admission creation in production.
+
+==================================================
+5. THEATER MODULE
+
+Current:
+
+Patient information is not saved.
+
+Required:
+
+- Fix create operation.
+- Fix update operation.
+- Fix retrieval operation.
+- Verify database write.
+
+==================================================
+6. PEDIATRICS MODULE
+
+Current:
+
+Patients can be added.
+Information is not saved.
+
+Required:
+
+- Fix save.
+- Fix update.
+- Fix retrieval.
+
+==================================================
+7. TRIAGE MODULE
+
+Current:
+
+Information entered is not saved.
+
+Required:
+
+- Fix save.
+- Fix update.
+- Fix retrieval.
+
+==================================================
+8. ALL DEPARTMENTS
+
+Current:
+
+Data entered is not being saved.
+
+Required:
+
+Audit ALL modules:
+
+Appointments
+Triage
+Admissions
+Maternity
+Pediatrics
+Dental
+Theater
+Laboratory
+Pharmacy
+Radiology
+EHR
+
+Verify:
+
+Create
+Update
+Read
+Delete
+
+Every module must save correctly.
+
+==================================================
+9. AGE SYSTEM
+
+Required everywhere:
+
+Age field must support:
+
+Years
+Months
+Weeks
+Days
+
+Examples:
+
+66 years
+8 months
+3 weeks
+5 days
+
+User must be able to select unit.
+
+Apply system-wide.
+
+Patients
+Triage
+Admissions
+Maternity
+Pediatrics
+Every module
+
+==================================================
+10. BLOOD GROUP
+
+Current:
+
+Patient registration captures blood group.
+
+Patient database displays UNKNOWN.
+
+Required:
+
+- Blood group must save automatically.
+- Blood group must display automatically.
+- No manual editing required.
+
+Audit entire patient registration workflow.
+
+==================================================
+11. AUTOSAVE SYSTEM
+
+Implement global autosave.
+
+Every form should:
+
+Save automatically while typing.
+
+Display:
+
+Saving...
+Saved
+
+Applies to:
+
+EHR
+Triage
+Theater
+Admissions
+Maternity
+Pediatrics
+Appointments
+Dental
+All clinical notes
+
+Must prevent data loss.
+
+==================================================
+12. ROUTE AUDIT
+
+Search production logs.
+
+Find EVERY:
+
+404
+500
+Failed query
+Missing route
+Broken endpoint
+
+Fix all of them.
+
+==================================================
+13. FRONTEND/BACKEND MISMATCH AUDIT
+
+Compare:
+
+Frontend API calls
+
+vs
+
+Backend route definitions
+
+Find:
+
+Missing routes
+Renamed routes
+Incorrect URLs
+Incorrect API base URL
+
+Fix all mismatches.
+
+==================================================
+14. FINAL VERIFICATION
+
+After fixes:
+
+Test in production:
+
+Patient Registration
+Appointment Booking
+Appointment Confirmation
+Appointment Check-In
+Triage Queue
+Doctor Queue
+Maternity Registration
+Admission Creation
+Theater Entry
+Pediatrics Entry
+
+Verify database writes.
+
+Do NOT stop at identifying issues.
+
+Fix them.
+
+Do NOT produce a report until every failing route is repaired and tested.

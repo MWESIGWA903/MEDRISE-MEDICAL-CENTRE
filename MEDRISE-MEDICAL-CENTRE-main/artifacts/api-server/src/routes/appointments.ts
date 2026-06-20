@@ -23,9 +23,9 @@ import { createAndBroadcast } from "../lib/notificationHelper";
 const router: IRouter = Router();
 
 // Roles that should ONLY see appointments assigned to them
+// Front-desk / admin-adjacent roles (billing_officer, records_officer) see ALL appointments
 const CLINICAL_ONLY_ROLES = new Set([
   "doctor", "nurse", "clinical_officer", "midwife",
-  "lab_technician", "billing_officer", "records_officer",
 ]);
 
 router.get("/appointments", async (req, res): Promise<void> => {

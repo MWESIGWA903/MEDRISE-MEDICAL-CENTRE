@@ -53,7 +53,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const Scalpel = Scissors;
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const BASE = ((import.meta.env.VITE_API_URL ?? import.meta.env.VITE_RENDER_URL ?? '') as string);
 const TOKEN = () => localStorage.getItem('medrise_admin_token') ?? '';
 const authH = () => ({ Authorization: `Bearer ${TOKEN()}`, 'Content-Type': 'application/json' });
 

@@ -1265,34 +1265,45 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
     service: string;
   }) => {
     setCheckingInId(appt.id);
-    addToQueueMutation.mutate(
-      {
-        data: {
-          patientName: appt.patientName,
-          queueDate: new Date().toISOString().slice(0, 10),
-          priority: 'non-urgent',
-          referralSource: 'home',
-          notes: `Appointment: ${appt.service}`,
-          notificationPhone: appt.phone ?? undefined,
-        },
-      },
+    // Step 1: Mark appointment as checked_in first
+    updateStatusMutation.mutate(
+      { id: appt.id, data: { status: 'checked_in' as any } },
       {
         onSuccess: () => {
-          toast({
-            title: `${appt.patientName} added to waiting area`,
-            description: 'Patient is now in the Queue tab — waiting to be called to consultation.',
-          });
-          queryClient.invalidateQueries({ queryKey: getListQueueQueryKey() });
-          updateStatusMutation.mutate(
-            { id: appt.id, data: { status: 'checked_in' as any } },
+          queryClient.invalidateQueries({ queryKey: getListAppointmentsQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetAppointmentStatsQueryKey() });
+          // Step 2: Add to triage queue so triage nurse assesses before doctor consultation
+          addToQueueMutation.mutate(
+            {
+              data: {
+                patientName: appt.patientName,
+                queueDate: new Date().toISOString().slice(0, 10),
+                priority: 'normal',
+                department: 'triage',
+                referralSource: 'appointment',
+                notes: `[Appointment Check-In] Service: ${appt.service}. Awaiting triage assessment before doctor consultation.`,
+                notificationPhone: appt.phone ?? undefined,
+              },
+            },
             {
               onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: getListAppointmentsQueryKey() });
-                queryClient.invalidateQueries({ queryKey: getGetAppointmentStatsQueryKey() });
+                toast({
+                  title: `${appt.patientName} checked in`,
+                  description: 'Patient added to Triage Queue. Triage nurse must assess before doctor consultation.',
+                });
+                queryClient.invalidateQueries({ queryKey: getListQueueQueryKey() });
+                setCheckingInId(null);
+              },
+              onError: () => {
+                toast({
+                  title: 'Checked in, but triage queue failed',
+                  description: 'Appointment marked checked-in. Please add patient to queue manually.',
+                  variant: 'destructive',
+                });
+                setCheckingInId(null);
               },
             },
           );
-          setCheckingInId(null);
         },
         onError: () => {
           toast({ title: 'Check-in failed', variant: 'destructive' });
@@ -1584,6 +1595,12 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
         return (
           <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
             Cancelled
+          </Badge>
+        );
+      case 'checked_in':
+        return (
+          <Badge variant="outline" className="bg-teal-50 text-teal-700 border-teal-200">
+            Checked In
           </Badge>
         );
       default:
@@ -1933,9 +1950,9 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
                   <CardTitle className="text-lg">Appointment List</CardTitle>
                   <Tabs defaultValue="all" value={apptFilter} onValueChange={setApptFilter}>
                     <TabsList className="h-auto p-1 bg-gray-100/80">
-                      {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((v) => (
+                      {['all', 'pending', 'confirmed', 'checked_in', 'completed', 'cancelled'].map((v) => (
                         <TabsTrigger key={v} value={v} className="px-4 py-2 capitalize">
-                          {v}
+                          {v === 'checked_in' ? 'Checked In' : v}
                         </TabsTrigger>
                       ))}
                     </TabsList>
@@ -2063,12 +2080,12 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
                                       {checkingInId === app.id ? (
                                         <>
                                           <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                                          Adding to Queue…
+                                          Checking In…
                                         </>
                                       ) : (
                                         <>
                                           <Activity className="h-3.5 w-3.5 mr-1.5" />
-                                          Add to Queue
+                                          Triage Check-In
                                         </>
                                       )}
                                     </Button>

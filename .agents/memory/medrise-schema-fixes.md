@@ -93,3 +93,16 @@ After seed, these accounts exist in `admins` table:
 - Hannington (medical_director), snakato (doctor), jssempa (clinical_officer), analwoga (nurse), gnamubiru (midwife)
 - All passwords: `Staff@1234` except Hannington (`admin123`)
 - All `isActive: true` so they appear on `/staff/public`
+
+## Patient cascade delete — correct table names and order
+
+**Rule:** `DELETE /patients/:id` must use a raw SQL transaction with `pool.connect()` to cascade-delete all child records. Drizzle's `.delete()` raises FK 23503 errors.
+
+**Correct table names (several differ from schema variable names):**
+- Partograph table is `partograph_entries` — NOT `partograph`
+- `pharmacy_dispensings` has its own `patient_id` column directly — delete with `WHERE patient_id=$1`, NOT via pharmacy_orders
+- `patient_feedback` has NO `patient_id` column (stores patient_name as text) — skip it entirely
+- `lab_results` references `lab_orders.id`, so delete with subquery before lab_orders
+- `invoice_items` references `invoices.id`, so delete with subquery before invoices
+
+**Why:** No ON DELETE CASCADE in the Drizzle schema; patient delete fails with FK constraint violation without the manual cascade.

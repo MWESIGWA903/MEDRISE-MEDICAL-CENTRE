@@ -63,7 +63,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth';
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const BASE = ((import.meta.env.VITE_API_URL ?? import.meta.env.VITE_RENDER_URL ?? '') as string);
 
 const WARDS = [
   'General Ward',

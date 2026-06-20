@@ -32,7 +32,7 @@ export default function PatientLogin() {
     setError('');
     try {
       const res = await fetch(
-        `${import.meta.env.BASE_URL}api/patients?search=${encodeURIComponent(phone)}`,
+        `${(import.meta.env.VITE_API_URL ?? import.meta.env.VITE_RENDER_URL ?? '')}api/patients?search=${encodeURIComponent(phone)}`,
       );
       const data = await res.json();
       const match =
