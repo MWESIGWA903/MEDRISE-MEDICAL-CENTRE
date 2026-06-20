@@ -292,12 +292,15 @@ function OperativeNotesView({ booking, onBack }: { booking: Booking; onBack: () 
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(() => {
     return localStorage.getItem(AUTOSAVE_KEY) ? new Date() : null;
   });
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   // Autosave to localStorage on every form change (debounced 1.5s)
   useEffect(() => {
+    setIsSavingDraft(true);
     const t = setTimeout(() => {
       localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(form));
       setDraftSavedAt(new Date());
+      setIsSavingDraft(false);
     }, 1500);
     return () => clearTimeout(t);
   }, [form, AUTOSAVE_KEY]);
@@ -736,10 +739,14 @@ function OperativeNotesView({ booking, onBack }: { booking: Booking; onBack: () 
               />
             </div>
             <div className="flex justify-between gap-2 pt-2">
-              <div className="text-xs text-gray-400 self-center">
-                {draftSavedAt
-                  ? `💾 Draft saved ${draftSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                  : '💾 Draft auto-saved'}
+              <div className="text-xs self-center">
+                {isSavingDraft ? (
+                  <span className="text-amber-500 animate-pulse">💾 Saving draft…</span>
+                ) : draftSavedAt ? (
+                  <span className="text-gray-400">💾 Draft saved {draftSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                ) : (
+                  <span className="text-gray-400">💾 Draft auto-saved</span>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button

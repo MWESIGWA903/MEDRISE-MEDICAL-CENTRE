@@ -1819,7 +1819,7 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
                 ))}
               </div>
             ) : apptStats ? (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
                 <Card className="border-l-4 border-l-primary">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between">
@@ -1855,6 +1855,21 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
                       </div>
                       <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                         <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-l-4 border-l-teal-500">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 mb-1">Checked In</p>
+                        <h3 className="text-3xl font-bold text-gray-900">
+                          {(appointments ?? []).filter((a) => a.status === 'checked_in').length}
+                        </h3>
+                      </div>
+                      <div className="h-10 w-10 bg-teal-100 rounded-full flex items-center justify-center">
+                        <Activity className="h-5 w-5 text-teal-600" />
                       </div>
                     </div>
                   </CardContent>

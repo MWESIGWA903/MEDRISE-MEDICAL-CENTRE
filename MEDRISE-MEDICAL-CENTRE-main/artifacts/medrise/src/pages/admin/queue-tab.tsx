@@ -661,6 +661,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const [triageAssessPriority, setTriageAssessPriority] = useState<TriagePriority>('non-urgent');
   const [triageAssessTargetDept, setTriageAssessTargetDept] = useState('General OPD');
   const [triageAssessDraftSavedAt, setTriageAssessDraftSavedAt] = useState<Date | null>(null);
+  const [triageAssessIsSaving, setTriageAssessIsSaving] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const {
@@ -725,10 +726,23 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const invalidate = () =>
     qc.invalidateQueries({ queryKey: getListQueueQueryKey({ date: selectedDate }) });
 
-  // Autosave draft for triage assessment dialog (debounced 1.5s)
+  // Autosave draft for triage assessment dialog (debounced 1.5s, persists to localStorage)
   useEffect(() => {
     if (triageAssessOpen === null) return;
-    const t = setTimeout(() => setTriageAssessDraftSavedAt(new Date()), 1500);
+    setTriageAssessIsSaving(true);
+    const t = setTimeout(() => {
+      try {
+        const draft = {
+          triageAssessBp, triageAssessTemp, triageAssessPulse, triageAssessSpo2,
+          triageAssessWeight, triageAssessHeight, triageAssessRr,
+          triageAssessComplaint, triageAssessHistory,
+          triageAssessPriority, triageAssessTargetDept,
+        };
+        localStorage.setItem(`medrise_triage_assess_${triageAssessOpen}`, JSON.stringify(draft));
+      } catch {}
+      setTriageAssessDraftSavedAt(new Date());
+      setTriageAssessIsSaving(false);
+    }, 1500);
     return () => clearTimeout(t);
   }, [
     triageAssessOpen, triageAssessBp, triageAssessTemp, triageAssessPulse,
@@ -1124,6 +1138,26 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
           invalidate();
         },
         onError: () => toast({ title: 'Failed to transfer', variant: 'destructive' }),
+      },
+    );
+  };
+
+  const handleSendBackToTriage = (entry: QueueEntry) => {
+    updateMutation.mutate(
+      {
+        id: entry.id,
+        data: {
+          department: 'triage',
+          transferNote: '↩ Returned to Triage for re-assessment',
+        },
+      },
+      {
+        onSuccess: () => {
+          toast({ title: `${entry.patientName} sent back to Triage` });
+          invalidate();
+        },
+        onError: () =>
+          toast({ title: 'Failed to send back to triage', variant: 'destructive' }),
       },
     );
   };
@@ -2401,7 +2435,9 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
             }}
             onConsult={null}
             onTheatre={null}
-            onPushBack={null}
+            onPushBack={handleSendBackToTriage}
+            pushBackLabel="↩ Re-Triage"
+            pushBackTitle="Send back to Triage for re-assessment"
             isPending={updateMutation.isPending}
           />
 
@@ -2497,6 +2533,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
           const entry = entries.find((e) => e.id === triageAssessOpen);
           if (!entry) return null;
           const resetTriageAssess = () => {
+            const id = triageAssessOpen;
             setTriageAssessOpen(null);
             setTriageAssessBp('');
             setTriageAssessTemp('');
@@ -2510,6 +2547,8 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
             setTriageAssessPriority('non-urgent');
             setTriageAssessTargetDept('General OPD');
             setTriageAssessDraftSavedAt(null);
+            setTriageAssessIsSaving(false);
+            try { if (id !== null) localStorage.removeItem(`medrise_triage_assess_${id}`); } catch {}
           };
           const handleCompleteTriageAssess = async () => {
             const vitalParts = [
@@ -2668,9 +2707,13 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                     </Select>
                   </div>
                   {/* Autosave indicator */}
-                  {triageAssessDraftSavedAt && (
-                    <div className="text-xs text-gray-400 text-center -mb-1">
-                      ✓ Draft captured {triageAssessDraftSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {(triageAssessIsSaving || triageAssessDraftSavedAt) && (
+                    <div className="text-xs text-center -mb-1">
+                      {triageAssessIsSaving ? (
+                        <span className="text-amber-500 animate-pulse">💾 Saving draft…</span>
+                      ) : triageAssessDraftSavedAt ? (
+                        <span className="text-gray-400">✓ Draft saved {triageAssessDraftSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      ) : null}
                     </div>
                   )}
                   <div className="flex gap-3 pt-1">
@@ -2869,6 +2912,8 @@ function QueueColumn({
   onPushBack,
   isPending,
   nextLabel,
+  pushBackLabel,
+  pushBackTitle,
 }: {
   title: string;
   icon: React.ElementType;
@@ -2885,6 +2930,8 @@ function QueueColumn({
   onPushBack: ((e: QueueEntry) => void) | null;
   isPending: boolean;
   nextLabel?: string;
+  pushBackLabel?: string;
+  pushBackTitle?: string;
 }) {
   return (
     <div className={`rounded-xl border-2 ${borderColor} bg-white overflow-hidden`}>
@@ -2914,6 +2961,8 @@ function QueueColumn({
               onPushBack={onPushBack}
               isPending={isPending}
               nextLabel={nextLabel}
+              pushBackLabel={pushBackLabel}
+              pushBackTitle={pushBackTitle}
             />
           ))
         )}
@@ -2933,6 +2982,8 @@ function QueueCard({
   onPushBack,
   isPending,
   nextLabel,
+  pushBackLabel,
+  pushBackTitle,
 }: {
   entry: QueueEntry;
   onNext: ((e: QueueEntry) => void) | null;
@@ -2944,6 +2995,8 @@ function QueueCard({
   onPushBack: ((e: QueueEntry) => void) | null;
   isPending: boolean;
   nextLabel?: string;
+  pushBackLabel?: string;
+  pushBackTitle?: string;
 }) {
   const cfg = STATUS_CONFIG[entry.status];
   const pcfg = PRIORITY_CONFIG[entry.priority] ?? PRIORITY_CONFIG['non-urgent'];
@@ -3102,10 +3155,10 @@ function QueueCard({
             className="h-7 text-xs px-2 text-yellow-700 hover:bg-yellow-50 border-yellow-300"
             onClick={() => onPushBack(entry)}
             disabled={isPending}
-            title="Send back to Waiting"
+            title={pushBackTitle ?? 'Send back to Waiting'}
           >
             <ChevronLeft className="h-3 w-3 mr-0.5" />
-            Back
+            {pushBackLabel ?? 'Back'}
           </Button>
         )}
         {entry.labInvestigations && (
