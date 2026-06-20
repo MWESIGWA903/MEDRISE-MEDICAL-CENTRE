@@ -2377,10 +2377,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
             }}
             onSkip={handleSkip}
             onRemove={handleRemove}
-            onTransfer={(e) => {
-              setTransferOpen(e.id);
-              setTransferDept(e.department || '');
-            }}
+            onTransfer={null}
             onConsult={null}
             onTheatre={null}
             onPushBack={null}
@@ -2514,7 +2511,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
             setTriageAssessTargetDept('General OPD');
             setTriageAssessDraftSavedAt(null);
           };
-          const handleCompleteTriageAssess = () => {
+          const handleCompleteTriageAssess = async () => {
             const vitalParts = [
               triageAssessBp && `BP: ${triageAssessBp}`,
               triageAssessTemp && `Temp: ${triageAssessTemp}°C`,
@@ -2540,7 +2537,32 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                 } as any,
               },
               {
-                onSuccess: () => {
+                onSuccess: async () => {
+                  // Also persist to EHR triage table so ConsultationDialog shows triage history
+                  if (entry.patientId && (triageAssessComplaint || triageAssessBp || triageAssessPulse)) {
+                    try {
+                      await fetch('/api/triage', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          patientId: entry.patientId,
+                          chiefComplaint: triageAssessComplaint || entry.notes || 'Triage assessment',
+                          bloodPressure: triageAssessBp || undefined,
+                          temperature: triageAssessTemp || undefined,
+                          pulseRate: triageAssessPulse || undefined,
+                          oxygenSaturation: triageAssessSpo2 || undefined,
+                          weight: triageAssessWeight || undefined,
+                          height: triageAssessHeight || undefined,
+                          respiratoryRate: triageAssessRr || undefined,
+                          presentingComplaints: triageAssessComplaint || undefined,
+                          briefMedicalHistory: triageAssessHistory || undefined,
+                          priority: triageAssessPriority,
+                          nursingAssessment: vitalParts || undefined,
+                          status: 'completed',
+                        }),
+                      });
+                    } catch { /* non-fatal — queue entry already saved */ }
+                  }
                   toast({
                     title: `Triage complete — ${entry.patientName} moved to Waiting`,
                     description: `Department: ${triageAssessTargetDept}`,

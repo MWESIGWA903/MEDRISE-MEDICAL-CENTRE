@@ -90917,11 +90917,17 @@ router16.patch("/queue/:id", async (req, res) => {
       res.status(400).json({ error: parsed.error.message });
       return;
     }
-    if (parsed.data.status !== void 0 && ["in-consultation", "nursing", "theatre"].includes(parsed.data.status)) {
-      const [current] = await db.select({ department: patientQueueTable.department }).from(patientQueueTable).where(eq(patientQueueTable.id, id));
-      if (current?.department === "triage") {
+    const [current] = await db.select({ department: patientQueueTable.department, status: patientQueueTable.status }).from(patientQueueTable).where(eq(patientQueueTable.id, id));
+    if (current?.department === "triage") {
+      if (parsed.data.status !== void 0 && ["in-consultation", "nursing", "theatre"].includes(parsed.data.status)) {
         res.status(400).json({
           error: "Patient must complete triage assessment before being called into consultation. Please use the 'Assess \u2192' button to record vitals and move them to Waiting first."
+        });
+        return;
+      }
+      if (parsed.data.department !== void 0 && parsed.data.department !== "triage" && !parsed.data.vitalsSnapshot && !parsed.data.triageNursingNotes) {
+        res.status(400).json({
+          error: "Cannot transfer patient directly out of Triage. Please complete the triage assessment first using the 'Assess \u2192' button."
         });
         return;
       }

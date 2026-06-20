@@ -226,23 +226,40 @@ router.patch("/queue/:id", async (req, res): Promise<void> => {
     const parsed = QueueEntryUpdateSchema.safeParse(req.body);
     if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
-    // Enforce triage → waiting → consultation workflow:
-    // A patient cannot be moved to in-consultation / nursing / theatre
-    // while still in the triage department. Staff must complete the
-    // triage assessment first (which changes department away from 'triage').
-    if (
-      parsed.data.status !== undefined &&
-      ['in-consultation', 'nursing', 'theatre'].includes(parsed.data.status)
-    ) {
-      const [current] = await db
-        .select({ department: patientQueueTable.department })
-        .from(patientQueueTable)
-        .where(eq(patientQueueTable.id, id));
-      if (current?.department === 'triage') {
+    // Enforce triage → waiting → consultation workflow.
+    // Fetch current entry once so we can apply multiple guards.
+    const [current] = await db
+      .select({ department: patientQueueTable.department, status: patientQueueTable.status })
+      .from(patientQueueTable)
+      .where(eq(patientQueueTable.id, id));
+
+    if (current?.department === 'triage') {
+      // Guard 1: block status transitions to active clinical states
+      if (
+        parsed.data.status !== undefined &&
+        ['in-consultation', 'nursing', 'theatre'].includes(parsed.data.status)
+      ) {
         res.status(400).json({
           error:
             "Patient must complete triage assessment before being called into consultation. " +
             "Please use the 'Assess →' button to record vitals and move them to Waiting first.",
+        });
+        return;
+      }
+
+      // Guard 2: block direct department transfers out of triage unless the
+      // request includes assessment data (vitalsSnapshot or triageNursingNotes),
+      // which is the signature of a proper triage completion call.
+      if (
+        parsed.data.department !== undefined &&
+        parsed.data.department !== 'triage' &&
+        !parsed.data.vitalsSnapshot &&
+        !parsed.data.triageNursingNotes
+      ) {
+        res.status(400).json({
+          error:
+            "Cannot transfer patient directly out of Triage. " +
+            "Please complete the triage assessment first using the 'Assess →' button.",
         });
         return;
       }
