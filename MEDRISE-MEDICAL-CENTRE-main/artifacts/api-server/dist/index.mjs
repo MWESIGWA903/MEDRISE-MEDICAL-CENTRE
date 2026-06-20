@@ -90917,6 +90917,15 @@ router16.patch("/queue/:id", async (req, res) => {
       res.status(400).json({ error: parsed.error.message });
       return;
     }
+    if (parsed.data.status !== void 0 && ["in-consultation", "nursing", "theatre"].includes(parsed.data.status)) {
+      const [current] = await db.select({ department: patientQueueTable.department }).from(patientQueueTable).where(eq(patientQueueTable.id, id));
+      if (current?.department === "triage") {
+        res.status(400).json({
+          error: "Patient must complete triage assessment before being called into consultation. Please use the 'Assess \u2192' button to record vitals and move them to Waiting first."
+        });
+        return;
+      }
+    }
     const updateData = { updatedAt: /* @__PURE__ */ new Date() };
     if (parsed.data.status !== void 0) updateData.status = parsed.data.status;
     if (parsed.data.priority !== void 0) updateData.priority = parsed.data.priority;

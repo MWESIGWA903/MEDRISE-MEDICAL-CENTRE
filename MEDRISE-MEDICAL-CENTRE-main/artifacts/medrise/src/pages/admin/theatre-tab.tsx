@@ -289,9 +289,16 @@ function OperativeNotesView({ booking, onBack }: { booking: Booking; onBack: () 
     return blankOpForm;
   });
 
-  // Autosave to localStorage on every form change (debounced 500ms)
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(() => {
+    return localStorage.getItem(AUTOSAVE_KEY) ? new Date() : null;
+  });
+
+  // Autosave to localStorage on every form change (debounced 1.5s)
   useEffect(() => {
-    const t = setTimeout(() => localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(form)), 500);
+    const t = setTimeout(() => {
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(form));
+      setDraftSavedAt(new Date());
+    }, 1500);
     return () => clearTimeout(t);
   }, [form, AUTOSAVE_KEY]);
 
@@ -729,7 +736,11 @@ function OperativeNotesView({ booking, onBack }: { booking: Booking; onBack: () 
               />
             </div>
             <div className="flex justify-between gap-2 pt-2">
-              <div className="text-xs text-gray-400 self-center">💾 Draft auto-saved</div>
+              <div className="text-xs text-gray-400 self-center">
+                {draftSavedAt
+                  ? `💾 Draft saved ${draftSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                  : '💾 Draft auto-saved'}
+              </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"

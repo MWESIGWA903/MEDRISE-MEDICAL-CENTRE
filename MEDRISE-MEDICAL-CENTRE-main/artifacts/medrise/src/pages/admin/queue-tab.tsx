@@ -660,6 +660,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const [triageAssessHistory, setTriageAssessHistory] = useState('');
   const [triageAssessPriority, setTriageAssessPriority] = useState<TriagePriority>('non-urgent');
   const [triageAssessTargetDept, setTriageAssessTargetDept] = useState('General OPD');
+  const [triageAssessDraftSavedAt, setTriageAssessDraftSavedAt] = useState<Date | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const {
@@ -723,6 +724,17 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
 
   const invalidate = () =>
     qc.invalidateQueries({ queryKey: getListQueueQueryKey({ date: selectedDate }) });
+
+  // Autosave draft for triage assessment dialog (debounced 1.5s)
+  useEffect(() => {
+    if (triageAssessOpen === null) return;
+    const t = setTimeout(() => setTriageAssessDraftSavedAt(new Date()), 1500);
+    return () => clearTimeout(t);
+  }, [
+    triageAssessOpen, triageAssessBp, triageAssessTemp, triageAssessPulse,
+    triageAssessSpo2, triageAssessWeight, triageAssessHeight, triageAssessRr,
+    triageAssessComplaint, triageAssessHistory, triageAssessPriority, triageAssessTargetDept,
+  ]);
 
   const resetRegForm = () => {
     setRegName('');
@@ -2500,6 +2512,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
             setTriageAssessHistory('');
             setTriageAssessPriority('non-urgent');
             setTriageAssessTargetDept('General OPD');
+            setTriageAssessDraftSavedAt(null);
           };
           const handleCompleteTriageAssess = () => {
             const vitalParts = [
@@ -2632,6 +2645,12 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                       </SelectContent>
                     </Select>
                   </div>
+                  {/* Autosave indicator */}
+                  {triageAssessDraftSavedAt && (
+                    <div className="text-xs text-gray-400 text-center -mb-1">
+                      ✓ Draft captured {triageAssessDraftSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
                   <div className="flex gap-3 pt-1">
                     <Button variant="outline" className="flex-1" onClick={resetTriageAssess}>
                       Cancel

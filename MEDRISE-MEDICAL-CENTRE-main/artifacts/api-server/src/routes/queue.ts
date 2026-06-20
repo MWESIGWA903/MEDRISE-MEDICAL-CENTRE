@@ -226,6 +226,28 @@ router.patch("/queue/:id", async (req, res): Promise<void> => {
     const parsed = QueueEntryUpdateSchema.safeParse(req.body);
     if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
+    // Enforce triage → waiting → consultation workflow:
+    // A patient cannot be moved to in-consultation / nursing / theatre
+    // while still in the triage department. Staff must complete the
+    // triage assessment first (which changes department away from 'triage').
+    if (
+      parsed.data.status !== undefined &&
+      ['in-consultation', 'nursing', 'theatre'].includes(parsed.data.status)
+    ) {
+      const [current] = await db
+        .select({ department: patientQueueTable.department })
+        .from(patientQueueTable)
+        .where(eq(patientQueueTable.id, id));
+      if (current?.department === 'triage') {
+        res.status(400).json({
+          error:
+            "Patient must complete triage assessment before being called into consultation. " +
+            "Please use the 'Assess →' button to record vitals and move them to Waiting first.",
+        });
+        return;
+      }
+    }
+
     const updateData: Partial<typeof patientQueueTable.$inferInsert> = { updatedAt: new Date() };
 
     if (parsed.data.status !== undefined) updateData.status = parsed.data.status;
