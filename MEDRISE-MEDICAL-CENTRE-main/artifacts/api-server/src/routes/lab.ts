@@ -177,6 +177,28 @@ router.post("/lab/results", async (req, res): Promise<void> => {
   }
 });
 
+router.patch("/lab/results/:id", async (req, res): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const schema = z.object({
+      result: z.string().optional(),
+      unit: z.string().optional(),
+      referenceRange: z.string().optional(),
+      interpretation: z.string().optional(),
+      notes: z.string().optional(),
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+    const [row] = await db.update(labResultsTable).set(parsed.data).where(eq(labResultsTable.id, id)).returning();
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    logAudit(req, "update_lab_result", { entityType: "lab_result", entityId: row.id, details: "Result updated" }).catch(() => {});
+    res.json({ ...row, recordedAt: row.recordedAt.toISOString() });
+  } catch (err) {
+    console.error("PATCH /lab/results/:id error:", err);
+    res.status(500).json({ error: "Failed to update lab result", detail: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 router.delete("/lab/results/:id", async (req, res): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);

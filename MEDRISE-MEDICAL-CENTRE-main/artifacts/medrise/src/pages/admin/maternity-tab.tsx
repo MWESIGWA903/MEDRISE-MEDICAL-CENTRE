@@ -1838,7 +1838,7 @@ export default function MaternityTab() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-[#003087] flex items-center gap-2">
-            <Baby className="w-5 h-5" /> Maternity & ANC
+            <Baby className="w-5 h-5" /> OBS &amp; GYN
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Antenatal care, labour monitoring & delivery records

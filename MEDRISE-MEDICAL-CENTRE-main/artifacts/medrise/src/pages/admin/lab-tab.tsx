@@ -18,6 +18,7 @@ import {
   ChevronDown,
   ChevronUp,
   Printer,
+  Edit2,
 } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -63,9 +64,9 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const LAB_TESTS = [
-  'Full Blood Count (FBC)',
-  'Blood Sugar (Fasting)',
-  'Blood Sugar (Random)',
+  'Complete Blood Count (CBC)',
+  'FBS (Fasting Blood Sugar)',
+  'RBS (Random Blood Sugar)',
   'Malaria Rapid Test',
   'Malaria Microscopy',
   'HIV Rapid Test',
@@ -91,8 +92,15 @@ export default function LabTab({ adminId }: { adminId?: number }) {
   const [addOpen, setAddOpen] = useState(false);
   const [addOrderPatientId, setAddOrderPatientId] = useState('');
   const [resultOpen, setResultOpen] = useState<null | { orderId: number; testName: string }>(null);
+  const [editResultOpen, setEditResultOpen] = useState<null | {
+    resultId: number; orderId: number; testName: string;
+    result?: string | null; unit?: string | null; referenceRange?: string | null;
+    interpretation?: string | null; notes?: string | null;
+  }>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [expanded, setExpanded] = useState<number | null>(null);
+  const BASE = (import.meta.env.VITE_API_URL ?? import.meta.env.VITE_RENDER_URL ?? '') as string;
+  const TOKEN = () => localStorage.getItem('medrise_admin_token') ?? '';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: orders = [], isLoading } = useListLabOrders({} as any, { query: {} as any });
@@ -166,6 +174,32 @@ export default function LabTab({ adminId }: { adminId?: number }) {
         onError: () => toast({ title: 'Failed to save result', variant: 'destructive' }),
       },
     );
+  }
+
+  async function handleEditResult(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editResultOpen) return;
+    const fd = new FormData(e.currentTarget);
+    const body = {
+      result: String(fd.get('result') || '') || undefined,
+      unit: String(fd.get('unit') || '') || undefined,
+      referenceRange: String(fd.get('referenceRange') || '') || undefined,
+      interpretation: String(fd.get('interpretation') || '') || undefined,
+      notes: String(fd.get('notes') || '') || undefined,
+    };
+    try {
+      const res = await fetch(`${BASE}/api/lab/results/${editResultOpen.resultId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN()}` },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      toast({ title: 'Result updated' });
+      setEditResultOpen(null);
+      qc.invalidateQueries({ queryKey: getListLabOrdersQueryKey() });
+    } catch {
+      toast({ title: 'Failed to update result', variant: 'destructive' });
+    }
   }
 
   return (
@@ -441,37 +475,111 @@ export default function LabTab({ adminId }: { adminId?: number }) {
                         </div>
                       </div>
                     ))}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 text-xs h-8 mt-1 text-green-700 border-green-200 hover:bg-green-50"
-                      onClick={() =>
-                        printLabResult({
-                          patientName: order.patientName ?? `Patient #${order.patientId}`,
-                          patientId: order.patientId,
-                          department: 'Laboratory',
-                          testName: order.testName,
-                          orderedAt: String(order.orderedAt),
-                          orderedTime: new Date(String(order.orderedAt)).toLocaleTimeString(
-                            'en-UG',
-                            { hour: '2-digit', minute: '2-digit' },
-                          ),
-                          priority: order.priority,
-                          clinicalInfo: order.clinicalInfo,
-                          staffName: (order as any).staffName ?? undefined,
-                          reportedByName: (order as any).staffName ?? undefined,
-                          results: order.results ?? [],
-                        })
-                      }
-                    >
-                      <Printer className="h-3.5 w-3.5" /> Print Lab Report
-                    </Button>
+                    <div className="flex gap-2 flex-wrap mt-1">
+                      {order.results?.map((r, idx) => (
+                        <Button
+                          key={idx}
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5 text-xs h-8 text-blue-700 border-blue-200 hover:bg-blue-50"
+                          onClick={() => setEditResultOpen({
+                            resultId: r.id,
+                            orderId: order.id,
+                            testName: order.testName,
+                            result: r.result,
+                            unit: r.unit,
+                            referenceRange: r.referenceRange,
+                            interpretation: r.interpretation,
+                            notes: r.notes,
+                          })}
+                        >
+                          <Edit2 className="h-3.5 w-3.5" /> Edit Result
+                        </Button>
+                      ))}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5 text-xs h-8 text-green-700 border-green-200 hover:bg-green-50"
+                        onClick={() =>
+                          printLabResult({
+                            patientName: order.patientName ?? `Patient #${order.patientId}`,
+                            patientId: order.patientId,
+                            department: 'Laboratory',
+                            testName: order.testName,
+                            orderedAt: String(order.orderedAt),
+                            orderedTime: new Date(String(order.orderedAt)).toLocaleTimeString(
+                              'en-UG',
+                              { hour: '2-digit', minute: '2-digit' },
+                            ),
+                            priority: order.priority,
+                            clinicalInfo: order.clinicalInfo,
+                            staffName: (order as any).staffName ?? undefined,
+                            reportedByName: (order as any).staffName ?? undefined,
+                            results: order.results ?? [],
+                          })
+                        }
+                      >
+                        <Printer className="h-3.5 w-3.5" /> Print Lab Report
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Edit result dialog */}
+      {editResultOpen && (
+        <Dialog open={!!editResultOpen} onOpenChange={() => setEditResultOpen(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Result — {editResultOpen.testName}</DialogTitle>
+              <DialogDescription className="sr-only">Edit recorded lab result.</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleEditResult} className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">Result Value</label>
+                  <Input name="result" defaultValue={editResultOpen.result ?? ''} placeholder="e.g. 5.4, Positive" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">Unit</label>
+                  <Input name="unit" defaultValue={editResultOpen.unit ?? ''} placeholder="e.g. mmol/L" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">Reference Range</label>
+                  <Input name="referenceRange" defaultValue={editResultOpen.referenceRange ?? ''} placeholder="e.g. 3.5–5.0" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">Interpretation</label>
+                  <select
+                    name="interpretation"
+                    defaultValue={editResultOpen.interpretation ?? ''}
+                    className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  >
+                    <option value="">Select...</option>
+                    <option value="Normal">Normal</option>
+                    <option value="High">High</option>
+                    <option value="Low">Low</option>
+                    <option value="Critical">Critical</option>
+                    <option value="Positive">Positive</option>
+                    <option value="Negative">Negative</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">Notes</label>
+                <Textarea name="notes" rows={2} defaultValue={editResultOpen.notes ?? ''} placeholder="Additional comments" />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <Button type="button" variant="outline" onClick={() => setEditResultOpen(null)}>Cancel</Button>
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Update Result</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       )}
 
       {/* Record result dialog */}

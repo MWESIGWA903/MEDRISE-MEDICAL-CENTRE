@@ -257,7 +257,7 @@ const TAB_CONFIG: {
   // --- Admin/Owner-only tabs ---
   {
     id: 'maternity',
-    label: 'Maternity & ANC',
+    label: 'OBS & GYN',
     icon: Baby,
     roles: [...CLINICAL_ROLES, 'records_officer'],
   },

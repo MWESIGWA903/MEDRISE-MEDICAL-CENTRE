@@ -1129,10 +1129,11 @@ export default function PaediatricsTab() {
             onChange={(e) => setPatientSearch(e.target.value)}
           />
         </div>
-        {patientSearch && (
-          <div className="border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+        <div className="border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
             {filteredPatients.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-500">No patients found</div>
+              <div className="p-4 text-center text-sm text-gray-500">
+                {patientSearch ? 'No patients found' : 'No paediatric patients registered yet'}
+              </div>
             ) : (
               filteredPatients.slice(0, 20).map((p: Patient) => (
                 <button
@@ -1156,13 +1157,6 @@ export default function PaediatricsTab() {
               ))
             )}
           </div>
-        )}
-        {!patientSearch && (
-          <div className="text-center py-8 text-gray-400">
-            <Baby className="w-10 h-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Search for a patient to view their paediatrics record</p>
-          </div>
-        )}
       </Card>
     </div>
   );

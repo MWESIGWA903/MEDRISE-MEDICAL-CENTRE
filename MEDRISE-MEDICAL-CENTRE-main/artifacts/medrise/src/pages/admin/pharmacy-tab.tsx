@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import {
   useListPharmacyStock,
   useCreatePharmacyStock,
@@ -37,11 +37,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
+const BASE = (import.meta.env.VITE_API_URL ?? import.meta.env.VITE_RENDER_URL ?? '') as string;
+const TOKEN = () => localStorage.getItem('medrise_admin_token') ?? '';
+
 export default function PharmacyTab() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<null | { id: number }>(null);
+  const [prescFilter, setPrescFilter] = useState<'pending' | 'dispensed' | 'all'>('pending');
   const [dispenseOpen, setDispenseOpen] = useState<null | {
     id: number;
     name: string;
@@ -58,6 +62,19 @@ export default function PharmacyTab() {
   );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: stats } = useGetPharmacyStats({ query: {} as any });
+
+  const { data: prescOrders = [], refetch: refetchPrescOrders } = useQuery<any[]>({
+    queryKey: ['pharmacy-orders', prescFilter],
+    queryFn: async () => {
+      const qs = prescFilter !== 'all' ? `?status=${prescFilter}` : '';
+      const res = await fetch(`${BASE}/api/pharmacy/orders${qs}`, {
+        headers: { Authorization: `Bearer ${TOKEN()}` },
+      });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
 
   const createMutation = useCreatePharmacyStock();
   const updateMutation = useUpdatePharmacyStock();
@@ -276,6 +293,72 @@ export default function PharmacyTab() {
             </form>
           </DialogContent>
         </Dialog>
+      </div>
+
+      {/* Prescriptions Queue */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+            <Pill className="h-4 w-4 text-blue-600" /> Prescriptions Queue
+          </h2>
+          <div className="flex gap-1">
+            {(['pending', 'dispensed', 'all'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => { setPrescFilter(f); }}
+                className={`px-3 py-1 rounded text-xs font-medium capitalize transition-colors ${prescFilter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+        {prescOrders.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
+            No {prescFilter === 'all' ? '' : prescFilter} prescriptions found
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {prescOrders.map((o: any) => (
+              <div key={o.id} className="rounded-lg border border-gray-100 bg-white p-3 flex items-start gap-3 shadow-sm">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-sm text-gray-900">{o.patientName ?? `Patient #${o.patientId}`}</span>
+                    <Badge variant="outline" className={`text-xs ${o.status === 'dispensed' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
+                      {o.status}
+                    </Badge>
+                    {o.source && <Badge variant="outline" className="text-xs text-gray-500">{o.source}</Badge>}
+                  </div>
+                  <p className="text-sm font-semibold text-blue-800 mt-0.5">{o.drugName ?? o.medication ?? '—'}</p>
+                  {o.dosage && <p className="text-xs text-gray-600">Dose: {o.dosage}</p>}
+                  {o.instructions && <p className="text-xs text-gray-500 italic">{o.instructions}</p>}
+                  <p className="text-xs text-gray-400 mt-1">{o.createdAt ? new Date(o.createdAt).toLocaleString('en-UG', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</p>
+                </div>
+                {o.status === 'pending' && (
+                  <button
+                    className="shrink-0 h-8 px-3 text-xs rounded-md bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`${BASE}/api/pharmacy/orders/${o.id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN()}` },
+                          body: JSON.stringify({ status: 'dispensed' }),
+                        });
+                        if (!res.ok) throw new Error();
+                        toast({ title: `Prescription dispensed for ${o.patientName ?? 'patient'}` });
+                        refetchPrescOrders();
+                      } catch {
+                        toast({ title: 'Failed to mark dispensed', variant: 'destructive' });
+                      }
+                    }}
+                  >
+                    ✓ Dispense
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Stats */}

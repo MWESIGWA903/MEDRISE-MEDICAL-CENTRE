@@ -1,0 +1,374 @@
+MEDRISE MEDICAL CENTRE – FINAL REMAINING FIXES TASK
+
+IMPORTANT:
+
+Before modifying any code:
+
+1. Verify every item listed below.
+2. Mark each as:
+   - VERIFIED WORKING
+   - FAILED
+3. Only fix items confirmed failing.
+4. Do not modify already working modules.
+5. Do not generate reports without implementing fixes.
+6. Retest after every fix.
+7. Commit only healthy code.
+
+==================================================
+
+1. APPOINTMENTS MODULE
+   ==================================================
+
+Verify and fix:
+
+- Appointment records not displaying while counters show data.
+- Appointment statistics matching actual records.
+- Appointment search.
+- Appointment filtering.
+- Appointment visibility after page refresh.
+- Appointment visibility after deployment.
+
+Required workflow:
+
+Appointment
+→ Confirmed
+→ Check-In
+→ Queue
+→ Triage
+→ Waiting
+→ Consultation
+
+No patient should jump directly to Waiting.
+
+==================================================
+2. STAFF VISIBILITY
+
+Verify and fix:
+
+- Public booking page staff list.
+- Staff assignment dropdowns.
+- Consultation assignment lists.
+- Referral staff lists.
+
+Requirements:
+
+- Every ACTIVE staff member appears automatically.
+- New staff appear automatically without manual setup.
+- Medical Director and Midwife accounts must appear immediately.
+
+==================================================
+3. PATIENT FLOW
+
+Verify and fix:
+
+Registration / Appointment
+→ Queue
+→ Triage
+→ Waiting
+→ Consultation
+
+Add:
+
+- Send Back To Triage action from Waiting.
+
+Verify:
+
+- Queue creation.
+- Triage transfer.
+- Waiting transfer.
+- Consultation transfer.
+
+==================================================
+4. GLOBAL AUTOSAVE
+
+Verify and fix autosave in:
+
+- Triage
+- Consultation
+- Admissions
+- Theatre
+- Nursing Notes
+- OBS&GYN
+- Paediatrics
+- Dental
+- Laboratory
+- Imaging
+- Pharmacy
+- EHR
+
+Requirements:
+
+- Autosave while typing.
+- Restore draft.
+- Display:
+  Saving...
+  Saved
+  Last Saved Timestamp
+
+==================================================
+5. TRIAGE SAVING
+
+Verify and fix:
+
+- Nursing notes save.
+- Nursing notes retrieval.
+- Autosave.
+- Persistence after refresh.
+
+Saved notes must remain visible in the exact section where entered.
+
+==================================================
+6. THEATRE
+
+Verify and fix:
+
+- Consent upload.
+- Pre-operative notes.
+- Intra-operative notes.
+- Post-operative notes.
+- Recovery Room notes.
+- Theatre nursing notes.
+
+Requirements:
+
+- Manual save works.
+- Autosave works.
+- Data retrieval works.
+- Data remains visible in original section.
+
+Theatre notes must NOT automatically appear in doctor consultation notes.
+
+==================================================
+7. LABORATORY
+
+Verify and fix:
+
+Separate:
+
+- FBS
+- RBS
+
+Rename:
+
+- FULL BLOOD COUNT (FBC)
+  TO
+- COMPLETE BLOOD COUNT (CBC)
+
+Build editable templates for:
+
+- CBC
+- LFTs
+- RFTs
+- Lipid Profile
+- Serum Electrolytes
+- Urinalysis
+- Common laboratory tests
+
+Each template must include:
+
+- Result
+- Unit
+- Normal Range
+- Interpretation
+- Recommendation
+
+Allow editing even after Completed.
+
+==================================================
+8. IMAGING
+
+Verify and fix:
+
+- Editable imaging templates.
+- Report editing.
+- Findings.
+- Impression.
+- Recommendation.
+
+==================================================
+9. RESULTS VISIBILITY
+
+Verify and fix:
+
+Triage-requested results:
+
+- Appear in Triage.
+- Appear in Queue/Triage summary.
+- Printable.
+
+Consultation-requested results:
+
+- Appear only in Consultation.
+
+Correct any reports appearing without being requested.
+
+==================================================
+10. PATIENT BIODATA
+
+Verify and fix visibility of:
+
+- Blood Group
+- Age
+- Sex
+- DOB
+- Phone
+- Patient Number
+
+Display consistently in:
+
+- Patient Database
+- Queue
+- Triage
+- Consultation
+- Admissions
+- Theatre
+- Dental
+- Laboratory
+- Imaging
+- Follow-Ups
+
+==================================================
+11. FOLLOW-UP SYSTEM
+
+Verify and fix:
+
+- Follow-up records visibility.
+- Review dates.
+- Follow-up notes.
+- Next appointments.
+- Missed appointments.
+
+==================================================
+12. CONSULTATION ADMISSION DECISION
+
+Verify and fix:
+
+Doctor options:
+
+- Manage As Outpatient
+- Admit Patient
+
+If admitted:
+
+- Create admission automatically.
+- Transfer patient automatically.
+- Patient appears immediately in destination ward.
+
+==================================================
+13. OBS&GYN
+
+Verify rename:
+
+MATERNITY AND ANC
+→ OBS&GYN
+
+Verify inclusion of:
+
+- Preconception Care
+- ANC
+- Labour Monitoring
+- Delivery Notes
+- Postpartum Care
+- Obstetrics
+- Gynaecology
+- Follow-Ups
+
+==================================================
+14. PAEDIATRICS
+
+Verify and fix:
+
+Registration form includes:
+
+- DOB
+- Years
+- Months
+- Weeks
+- Days
+
+Patient list:
+
+- Visible below registration.
+- Searchable.
+
+Expand paediatric services beyond:
+
+- Growth Monitoring
+- Immunization
+- SAM
+- MAM
+
+Include:
+
+- General Paediatric Consultations
+- Neonatal Care
+- Respiratory Cases
+- Gastrointestinal Cases
+- Neurological Cases
+- Chronic Diseases
+- Developmental Follow-Ups
+- Emergency Paediatrics
+
+Prevent creation of isolated department-only patients.
+
+==================================================
+15. ATTENDANCE
+
+Verify and fix:
+
+- Staff can only mark their own attendance.
+- Attendance tied to authenticated account.
+- No cross-marking of attendance.
+
+==================================================
+16. PHARMACY
+
+Verify and fix:
+
+Prescriptions from:
+
+- Triage
+- Consultation
+
+must automatically appear in Pharmacy.
+
+Pharmacist must dispense directly from those prescriptions.
+
+==================================================
+17. FINAL AUDIT
+
+Perform full system audit.
+
+Find and fix:
+
+- 404 errors
+- 500 errors
+- Broken saves
+- Broken retrievals
+- Missing appointment records
+- Missing staff visibility
+- Broken searches
+- Workflow failures
+
+==================================================
+18. COMPLETION REQUIREMENTS
+
+Before committing:
+
+- Run full end-to-end testing.
+- Verify all workflows.
+- Verify appointments.
+- Verify queue flow.
+- Verify autosave.
+- Verify theatre.
+- Verify laboratory.
+- Verify imaging.
+- Verify OBS&GYN.
+- Verify paediatrics.
+- Verify pharmacy.
+
+Commit ONLY healthy code.
+
+Do not commit partially tested code.
+
+Provide evidence of implementation and successful testing for every fixed item.
