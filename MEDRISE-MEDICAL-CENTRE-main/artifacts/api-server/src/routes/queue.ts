@@ -35,7 +35,7 @@ const QueueEntryInputSchema = z.object({
   priority: z.enum(PRIORITY_VALUES).optional().default("normal"),
   staffId: z.number().int().optional(),
   notes: z.string().optional(),
-  referralSource: z.enum(["home", "facility_referral", "self_referral"]).optional().default("home"),
+  referralSource: z.enum(["home", "facility_referral", "self_referral", "appointment"]).optional().default("home"),
   referralFacility: z.string().optional(),
   department: z.string().optional().default("general"),
   notificationPhone: z.string().optional(),

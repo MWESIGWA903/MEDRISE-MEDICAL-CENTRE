@@ -86940,10 +86940,10 @@ async function createAndBroadcast(input) {
 // src/routes/appointments.ts
 var router2 = (0, import_express2.Router)();
 router2.get("/appointments", async (req, res) => {
-  const session = req.adminSession;
-  void session;
-  const appointments = await db.select().from(appointmentsTable).orderBy(appointmentsTable.createdAt);
-  const mapped = appointments.map((a) => ({
+  const statusFilter = typeof req.query.status === "string" && req.query.status !== "all" ? req.query.status : null;
+  const all = await db.select().from(appointmentsTable).orderBy(appointmentsTable.createdAt);
+  const filtered = statusFilter ? all.filter((a) => a.status === statusFilter) : all;
+  const mapped = filtered.map((a) => ({
     ...a,
     createdAt: a.createdAt.toISOString()
   }));
@@ -90752,7 +90752,7 @@ var QueueEntryInputSchema = external_exports.object({
   priority: external_exports.enum(PRIORITY_VALUES).optional().default("normal"),
   staffId: external_exports.number().int().optional(),
   notes: external_exports.string().optional(),
-  referralSource: external_exports.enum(["home", "facility_referral", "self_referral"]).optional().default("home"),
+  referralSource: external_exports.enum(["home", "facility_referral", "self_referral", "appointment"]).optional().default("home"),
   referralFacility: external_exports.string().optional(),
   department: external_exports.string().optional().default("general"),
   notificationPhone: external_exports.string().optional(),
@@ -91249,18 +91249,28 @@ var TriageInputSchema = external_exports.object({
 });
 var TriageUpdateSchema = TriageInputSchema.partial().omit({ patientId: true });
 router21.get("/triage", async (req, res) => {
+  const session = getSessionFromRequest(req);
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   const patientId = req.query.patientId ? parseInt(req.query.patientId) : null;
   if (!patientId || isNaN(patientId)) {
     res.status(400).json({ error: "patientId query parameter is required" });
     return;
   }
-  const rows = await db.select().from(triageTable).where(eq(triageTable.patientId, patientId)).orderBy(desc(triageTable.triageTime)).limit(5);
-  res.json(rows.map((r) => ({
-    ...r,
-    triageTime: r.triageTime.toISOString(),
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt.toISOString()
-  })));
+  try {
+    const rows = await db.select().from(triageTable).where(eq(triageTable.patientId, patientId)).orderBy(desc(triageTable.triageTime)).limit(10);
+    res.json(rows.map((r) => ({
+      ...r,
+      triageTime: r.triageTime.toISOString(),
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString()
+    })));
+  } catch (err) {
+    console.error("GET /triage error:", err);
+    res.status(500).json({ error: "Failed to fetch triage records", detail: err instanceof Error ? err.message : String(err) });
+  }
 });
 router21.post("/triage", async (req, res) => {
   const session = getSessionFromRequest(req);
@@ -92163,29 +92173,57 @@ var OperativeSchema = external_exports.object({
   condition: external_exports.string().optional()
 });
 router24.post("/theatre/operative-records", async (req, res) => {
+  const session = getSessionFromRequest(req);
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   try {
     const parsed = OperativeSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.message });
+      res.status(400).json({ error: parsed.error.flatten() });
+      return;
+    }
+    const [booking] = await db.select({ id: theatreBookingsTable.id }).from(theatreBookingsTable).where(eq(theatreBookingsTable.id, parsed.data.bookingId));
+    if (!booking) {
+      res.status(404).json({ error: "Theatre booking not found" });
       return;
     }
     const [row] = await db.insert(operativeRecordsTable).values(parsed.data).returning();
     await db.update(theatreBookingsTable).set({ status: "completed", updatedAt: /* @__PURE__ */ new Date() }).where(eq(theatreBookingsTable.id, parsed.data.bookingId));
-    logAudit(req, "create_operative_record", { entityType: "operative_record", entityId: row.id, details: parsed.data.operationPerformed }).catch(() => {
+    logAudit(req, "create_operative_record", {
+      entityType: "operative_record",
+      entityId: row.id,
+      details: `${parsed.data.operationPerformed} \u2014 filed by ${session.name}`
+    }).catch(() => {
     });
     const p = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, row.patientId)).then((x) => x[0]);
-    res.status(201).json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+    res.status(201).json({
+      ...row,
+      patientName: p?.fullName ?? "Unknown",
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString()
+    });
   } catch (err) {
-    console.error(err);
+    console.error("POST /theatre/operative-records error:", err);
     res.status(500).json({ error: "Failed to create operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router24.patch("/theatre/operative-records/:id", async (req, res) => {
+  const session = getSessionFromRequest(req);
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   try {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
     const parsed = OperativeSchema.partial().omit({ bookingId: true, patientId: true }).safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.message });
+      res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
     const [row] = await db.update(operativeRecordsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(operativeRecordsTable.id, id)).returning();
@@ -92193,9 +92231,15 @@ router24.patch("/theatre/operative-records/:id", async (req, res) => {
       res.status(404).json({ error: "Operative record not found" });
       return;
     }
+    logAudit(req, "update_operative_record", {
+      entityType: "operative_record",
+      entityId: id,
+      details: `Updated by ${session.name}`
+    }).catch(() => {
+    });
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
-    console.error(err);
+    console.error("PATCH /theatre/operative-records/:id error:", err);
     res.status(500).json({ error: "Failed to update operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });

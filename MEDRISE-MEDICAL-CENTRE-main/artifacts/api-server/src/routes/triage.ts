@@ -39,24 +39,33 @@ const TriageInputSchema = z.object({
 const TriageUpdateSchema = TriageInputSchema.partial().omit({ patientId: true });
 
 router.get("/triage", async (req, res): Promise<void> => {
+  // Explicit session guard for consistency (global middleware also checks this)
+  const session = getSessionFromRequest(req);
+  if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
+
   const patientId = req.query.patientId ? parseInt(req.query.patientId as string) : null;
   if (!patientId || isNaN(patientId)) {
     res.status(400).json({ error: "patientId query parameter is required" });
     return;
   }
-  const rows = await db
-    .select()
-    .from(triageTable)
-    .where(eq(triageTable.patientId, patientId))
-    .orderBy(desc(triageTable.triageTime))
-    .limit(5);
+  try {
+    const rows = await db
+      .select()
+      .from(triageTable)
+      .where(eq(triageTable.patientId, patientId))
+      .orderBy(desc(triageTable.triageTime))
+      .limit(10);
 
-  res.json(rows.map(r => ({
-    ...r,
-    triageTime: r.triageTime.toISOString(),
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt.toISOString(),
-  })));
+    res.json(rows.map(r => ({
+      ...r,
+      triageTime: r.triageTime.toISOString(),
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
+    })));
+  } catch (err) {
+    console.error("GET /triage error:", err);
+    res.status(500).json({ error: "Failed to fetch triage records", detail: err instanceof Error ? err.message : String(err) });
+  }
 });
 
 router.post("/triage", async (req, res): Promise<void> => {

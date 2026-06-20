@@ -23,16 +23,23 @@ import { createAndBroadcast } from "../lib/notificationHelper";
 const router: IRouter = Router();
 
 router.get("/appointments", async (req, res): Promise<void> => {
-  const session = (req as { adminSession?: SessionData }).adminSession;
-  void session; // all authenticated roles see all appointments (consistent with stats)
+  // All authenticated roles see all appointments (consistent with stats summary).
+  // Optional ?status= filter allows the client to request a specific status subset
+  // so server and client are consistent (no client-side-only filtering).
+  const statusFilter = typeof req.query.status === "string" && req.query.status !== "all"
+    ? req.query.status
+    : null;
 
-  // All staff see all appointments so the list matches the stats summary
-  const appointments = await db
+  const all = await db
     .select()
     .from(appointmentsTable)
     .orderBy(appointmentsTable.createdAt);
 
-  const mapped = appointments.map((a) => ({
+  const filtered = statusFilter
+    ? all.filter((a) => a.status === statusFilter)
+    : all;
+
+  const mapped = filtered.map((a) => ({
     ...a,
     createdAt: a.createdAt.toISOString(),
   }));

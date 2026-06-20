@@ -3,6 +3,7 @@ import { eq, desc } from "drizzle-orm";
 import { db, theatreBookingsTable, operativeRecordsTable, patientsTable } from "@workspace/db";
 import { z } from "zod";
 import { logAudit } from "../lib/audit";
+import { getSessionFromRequest } from "../lib/session";
 
 const router: IRouter = Router();
 
@@ -195,30 +196,73 @@ const OperativeSchema = z.object({
 });
 
 router.post("/theatre/operative-records", async (req, res): Promise<void> => {
+  const session = getSessionFromRequest(req);
+  if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
+
   try {
     const parsed = OperativeSchema.safeParse(req.body);
-    if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
+
+    // Verify the referenced booking exists before inserting
+    const [booking] = await db
+      .select({ id: theatreBookingsTable.id })
+      .from(theatreBookingsTable)
+      .where(eq(theatreBookingsTable.id, parsed.data.bookingId));
+    if (!booking) {
+      res.status(404).json({ error: "Theatre booking not found" });
+      return;
+    }
+
     const [row] = await db.insert(operativeRecordsTable).values(parsed.data).returning();
-    await db.update(theatreBookingsTable).set({ status: "completed", updatedAt: new Date() }).where(eq(theatreBookingsTable.id, parsed.data.bookingId));
-    logAudit(req, "create_operative_record", { entityType: "operative_record", entityId: row.id, details: parsed.data.operationPerformed }).catch(() => {});
-    const p = await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, row.patientId)).then(x => x[0]);
-    res.status(201).json({ ...row, patientName: p?.fullName ?? "Unknown", createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
+    // Mark booking as completed now that operative notes are filed
+    await db.update(theatreBookingsTable)
+      .set({ status: "completed", updatedAt: new Date() })
+      .where(eq(theatreBookingsTable.id, parsed.data.bookingId));
+    logAudit(req, "create_operative_record", {
+      entityType: "operative_record",
+      entityId: row.id,
+      details: `${parsed.data.operationPerformed} — filed by ${session.name}`,
+    }).catch(() => {});
+    const p = await db.select({ fullName: patientsTable.fullName })
+      .from(patientsTable).where(eq(patientsTable.id, row.patientId)).then(x => x[0]);
+    res.status(201).json({
+      ...row,
+      patientName: p?.fullName ?? "Unknown",
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    });
   } catch (err) {
-    console.error(err);
+    console.error("POST /theatre/operative-records error:", err);
     res.status(500).json({ error: "Failed to create operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 
 router.patch("/theatre/operative-records/:id", async (req, res): Promise<void> => {
+  const session = getSessionFromRequest(req);
+  if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
+
   try {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
     const parsed = OperativeSchema.partial().omit({ bookingId: true, patientId: true }).safeParse(req.body);
-    if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
-    const [row] = await db.update(operativeRecordsTable).set({ ...parsed.data, updatedAt: new Date() }).where(eq(operativeRecordsTable.id, id)).returning();
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
+
+    const [row] = await db
+      .update(operativeRecordsTable)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(eq(operativeRecordsTable.id, id))
+      .returning();
     if (!row) { res.status(404).json({ error: "Operative record not found" }); return; }
+
+    logAudit(req, "update_operative_record", {
+      entityType: "operative_record",
+      entityId: id,
+      details: `Updated by ${session.name}`,
+    }).catch(() => {});
     res.json({ ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() });
   } catch (err) {
-    console.error(err);
+    console.error("PATCH /theatre/operative-records/:id error:", err);
     res.status(500).json({ error: "Failed to update operative record", detail: err instanceof Error ? err.message : String(err) });
   }
 });
