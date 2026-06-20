@@ -662,6 +662,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const [triageAssessTargetDept, setTriageAssessTargetDept] = useState('General OPD');
   const [triageAssessDraftSavedAt, setTriageAssessDraftSavedAt] = useState<Date | null>(null);
   const [triageAssessIsSaving, setTriageAssessIsSaving] = useState(false);
+  const [triageAssessRestoreDraft, setTriageAssessRestoreDraft] = useState<Record<string, string> | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const {
@@ -725,6 +726,27 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
 
   const invalidate = () =>
     qc.invalidateQueries({ queryKey: getListQueueQueryKey({ date: selectedDate }) });
+
+  // Detect an existing draft when the triage assessment dialog opens
+  useEffect(() => {
+    if (triageAssessOpen === null) {
+      setTriageAssessRestoreDraft(null);
+      return;
+    }
+    try {
+      const raw = localStorage.getItem(`medrise_triage_assess_${triageAssessOpen}`);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Record<string, string>;
+        // Only show prompt if there is meaningful content in the draft
+        const hasContent = Object.values(parsed).some((v) => v && v !== 'non-urgent' && v !== 'General OPD');
+        setTriageAssessRestoreDraft(hasContent ? parsed : null);
+      } else {
+        setTriageAssessRestoreDraft(null);
+      }
+    } catch {
+      setTriageAssessRestoreDraft(null);
+    }
+  }, [triageAssessOpen]);
 
   // Autosave draft for triage assessment dialog (debounced 1.5s, persists to localStorage)
   useEffect(() => {
@@ -2625,6 +2647,49 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 pt-1">
+                  {/* Draft restore prompt */}
+                  {triageAssessRestoreDraft && (
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 flex items-start gap-3">
+                      <ClipboardList className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-amber-800">Unsaved draft found</p>
+                        <p className="text-xs text-amber-700 mt-0.5">
+                          A previous session left a draft for this patient. Would you like to restore it?
+                        </p>
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            className="h-7 px-3 text-xs rounded-md bg-amber-600 hover:bg-amber-700 text-white font-medium transition-colors"
+                            onClick={() => {
+                              const d = triageAssessRestoreDraft;
+                              if (d.triageAssessBp !== undefined) setTriageAssessBp(d.triageAssessBp);
+                              if (d.triageAssessTemp !== undefined) setTriageAssessTemp(d.triageAssessTemp);
+                              if (d.triageAssessPulse !== undefined) setTriageAssessPulse(d.triageAssessPulse);
+                              if (d.triageAssessSpo2 !== undefined) setTriageAssessSpo2(d.triageAssessSpo2);
+                              if (d.triageAssessWeight !== undefined) setTriageAssessWeight(d.triageAssessWeight);
+                              if (d.triageAssessHeight !== undefined) setTriageAssessHeight(d.triageAssessHeight);
+                              if (d.triageAssessRr !== undefined) setTriageAssessRr(d.triageAssessRr);
+                              if (d.triageAssessComplaint !== undefined) setTriageAssessComplaint(d.triageAssessComplaint);
+                              if (d.triageAssessHistory !== undefined) setTriageAssessHistory(d.triageAssessHistory);
+                              if (d.triageAssessPriority) setTriageAssessPriority(d.triageAssessPriority as TriagePriority);
+                              if (d.triageAssessTargetDept) setTriageAssessTargetDept(d.triageAssessTargetDept);
+                              setTriageAssessRestoreDraft(null);
+                            }}
+                          >
+                            ↩ Restore Draft
+                          </button>
+                          <button
+                            className="h-7 px-3 text-xs rounded-md border border-amber-300 text-amber-700 hover:bg-amber-100 font-medium transition-colors"
+                            onClick={() => {
+                              try { localStorage.removeItem(`medrise_triage_assess_${triageAssessOpen}`); } catch {}
+                              setTriageAssessRestoreDraft(null);
+                            }}
+                          >
+                            Discard
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {/* Priority */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-1.5 block">Triage Priority</label>
