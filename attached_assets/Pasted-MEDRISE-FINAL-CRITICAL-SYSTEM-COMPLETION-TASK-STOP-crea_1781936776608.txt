@@ -1,0 +1,396 @@
+MEDRISE FINAL CRITICAL SYSTEM COMPLETION TASK
+
+STOP creating reports, summaries, or progress updates.
+
+Your responsibility is to FIX, TEST, VERIFY, and COMPLETE all items below.
+
+Do not stop after identifying issues.
+
+Do not stop after describing issues.
+
+Implement and verify every item.
+
+==================================================
+
+1. GLOBAL AUTOSAVE SYSTEM (MANDATORY)
+   ==================================================
+
+Implement global autosave across the entire system.
+
+Requirement:
+
+Every clinical form must automatically save while typing.
+
+Display status:
+
+Saving...
+Saved
+
+Prevent data loss when:
+
+- Browser refreshes
+- Tab closes
+- Session times out
+- User navigates away
+
+Apply autosave to:
+
+- Triage
+- Consultation
+- Admissions
+- Theatre
+- Recovery Room
+- Nursing Notes
+- Laboratory
+- Imaging
+- Maternity / OBS&GYN
+- Paediatrics
+- Dental
+- Pharmacy
+- EHR
+
+==================================================
+2. STAFF VISIBILITY ON PUBLIC BOOKING PAGE
+
+Current issue:
+
+Staff do not appear for patients selecting clinicians.
+
+Requirement:
+
+Every ACTIVE staff member must automatically appear in:
+
+- Public appointment booking page
+- Appointment assignment lists
+- Clinician selection lists
+- Referral lists
+- Consultation assignment lists
+
+New staff added in future must automatically appear without manual configuration.
+
+==================================================
+3. LABORATORY CORRECTIONS
+
+Separate:
+
+- FBS (Fasting Blood Sugar)
+- RBS (Random Blood Sugar)
+
+These must be independent investigations.
+
+Rename:
+
+FULL BLOOD COUNT (FBC)
+
+TO
+
+COMPLETE BLOOD COUNT (CBC)
+
+==================================================
+4. PATIENT BIODATA SYNCHRONIZATION
+
+Current issue:
+
+Blood group, age, sex do not consistently appear.
+
+Requirement:
+
+Patient biodata must automatically appear everywhere.
+
+Required fields:
+
+- Full Name
+- Age
+- Sex
+- Blood Group
+- Phone
+- Patient Number
+- Date of Birth
+
+Must appear in:
+
+- Patient Database
+- Consultation
+- Triage
+- Admissions
+- Theatre
+- Dental
+- Laboratory
+- Imaging
+- Referrals
+- Sick Leave
+- Birth Certificates
+- Discharge Summaries
+- Follow Ups
+
+==================================================
+5. PATIENT FOLLOW UPS
+
+Current issue:
+
+No follow-up data visible.
+
+Requirement:
+
+Create fully functional follow-up workflow.
+
+Include:
+
+- Follow-up dates
+- Follow-up notes
+- Progress
+- Next review date
+- Missed appointments
+
+==================================================
+6. APPOINTMENTS MODULE
+
+Current issue:
+
+Statistics appear but records do not appear.
+
+Requirement:
+
+Repair appointments module completely.
+
+Verify:
+
+- Appointment creation
+- Appointment display
+- Appointment search
+- Appointment filters
+- Appointment statistics
+
+The records shown in counters MUST match the records displayed in lists.
+
+==================================================
+7. APPOINTMENT TO TRIAGE WORKFLOW
+
+Current workflow is wrong.
+
+Required workflow:
+
+Appointment Booked
+→ Confirmed
+→ Checked In
+→ Add To Queue
+→ Triage
+→ Waiting
+→ Consultation
+
+No patient should jump directly to Waiting.
+
+==================================================
+8. STAFF ATTENDANCE
+
+Current issue:
+
+Potential ability to mark attendance for others.
+
+Requirement:
+
+Every staff member can only mark attendance for their own account.
+
+No staff should mark attendance for another staff.
+
+Attendance records must be tied to authenticated user account.
+
+==================================================
+9. LAB + IMAGING RESULTS REFLECTION
+
+Requirement:
+
+After:
+
+- Laboratory results
+- Imaging reports
+
+are completed,
+
+they must automatically appear in:
+
+- Consultation
+- Triage
+- Doctor review screens
+
+Doctors and nurses must immediately see completed investigations.
+
+==================================================
+10. LABORATORY NORMAL RANGES
+
+Implement editable default ranges.
+
+Each investigation must include:
+
+- Normal Range
+- Units
+- Automated Interpretation
+- Automated Recommendation
+
+Examples:
+
+Low
+High
+Critical
+
+with professional comments.
+
+Users may edit the defaults.
+
+==================================================
+11. TRIAGE AND THEATRE SAVE FAILURES
+
+Current issue:
+
+Saving still fails in:
+
+- Triage nursing notes
+- Theatre nursing notes
+- Pre-operative notes
+- Intra-operative notes
+- Post-operative notes
+- Recovery room notes
+
+Requirement:
+
+Fix save.
+Fix autosave.
+Fix retrieval.
+Verify persistence.
+
+==================================================
+12. CONSULTATION ADMISSION DECISION
+
+Requirement:
+
+Doctor must have:
+
+Manage As Outpatient
+
+OR
+
+Admit Patient
+
+When admitted:
+
+Patient automatically appears in:
+
+- Admissions
+- Selected ward
+
+When transferred:
+
+Patient automatically appears in destination ward.
+
+==================================================
+13. PAEDIATRICS OVERHAUL
+
+Registration Form must include:
+
+- Age Years
+- Age Months
+- Age Weeks
+- Age Days
+
+Patient list must be searchable.
+
+Registered patients must appear below.
+
+Do not allow department-specific registration of patients who are not already in system.
+
+Required patient flow:
+
+Registration
+OR Appointment
+
+→ Queue
+
+→ Triage
+
+→ Consultation
+
+→ Department
+
+No department should create completely independent patients.
+
+==================================================
+14. OBS&GYN RESTRUCTURE
+
+Rename:
+
+MATERNITY AND ANC
+
+TO
+
+OBS&GYN
+
+Include:
+
+- Preconception Care
+- ANC
+- Labour Monitoring
+- Delivery Notes
+- Postpartum Care
+- Gynaecology Cases
+- Obstetric Cases
+- Follow Ups
+- Procedures
+
+==================================================
+15. PAEDIATRICS EXPANSION
+
+Do not limit to:
+
+- Growth Monitoring
+- Immunization
+- SAM
+- MAM
+
+Add support for:
+
+- General Paediatric Consultations
+- Neonatal Care
+- Infections
+- Respiratory Cases
+- Gastrointestinal Cases
+- Neurological Cases
+- Chronic Diseases
+- Developmental Follow Ups
+- Emergency Paediatrics
+
+==================================================
+16. FINAL SYSTEM AUDIT
+
+Perform complete production audit.
+
+Find:
+
+- 404 errors
+- 500 errors
+- Broken routes
+- Missing saves
+- Missing retrievals
+- Broken searches
+- Missing staff lists
+- Missing appointment records
+
+Fix all issues.
+
+==================================================
+17. FINAL REQUIREMENT
+
+Do not stop at reporting.
+
+Implement.
+Verify.
+Retest.
+
+Ensure project is production-ready.
+
+Ensure project is healthy.
+
+Ensure all fixes are committed.
+
+Ensure repository is ready for GitHub push and deployment.
+
+Only finish after all listed tasks are completed and verified.
