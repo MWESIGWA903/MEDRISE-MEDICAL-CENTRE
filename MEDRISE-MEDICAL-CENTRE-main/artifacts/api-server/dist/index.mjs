@@ -86939,25 +86939,10 @@ async function createAndBroadcast(input) {
 
 // src/routes/appointments.ts
 var router2 = (0, import_express2.Router)();
-var CLINICAL_ONLY_ROLES = /* @__PURE__ */ new Set([
-  "doctor",
-  "nurse",
-  "clinical_officer",
-  "midwife"
-]);
 router2.get("/appointments", async (req, res) => {
   const session = req.adminSession;
-  let appointments;
-  if (session && CLINICAL_ONLY_ROLES.has(session.role ?? "")) {
-    appointments = await db.select().from(appointmentsTable).where(
-      or(
-        eq(appointmentsTable.assignedStaffId, session.id),
-        isNull(appointmentsTable.assignedStaffId)
-      )
-    ).orderBy(appointmentsTable.createdAt);
-  } else {
-    appointments = await db.select().from(appointmentsTable).orderBy(appointmentsTable.createdAt);
-  }
+  void session;
+  const appointments = await db.select().from(appointmentsTable).orderBy(appointmentsTable.createdAt);
   const mapped = appointments.map((a) => ({
     ...a,
     createdAt: a.createdAt.toISOString()

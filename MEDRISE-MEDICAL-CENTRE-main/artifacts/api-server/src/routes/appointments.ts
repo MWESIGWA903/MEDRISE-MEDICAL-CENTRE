@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, or, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db, appointmentsTable } from "@workspace/db";
 import type { SessionData } from "../lib/session";
 import {
@@ -22,35 +22,15 @@ import { createAndBroadcast } from "../lib/notificationHelper";
 
 const router: IRouter = Router();
 
-// Roles that should ONLY see appointments assigned to them
-// Front-desk / admin-adjacent roles (billing_officer, records_officer) see ALL appointments
-const CLINICAL_ONLY_ROLES = new Set([
-  "doctor", "nurse", "clinical_officer", "midwife",
-]);
-
 router.get("/appointments", async (req, res): Promise<void> => {
   const session = (req as { adminSession?: SessionData }).adminSession;
+  void session; // all authenticated roles see all appointments (consistent with stats)
 
-  let appointments;
-  if (session && CLINICAL_ONLY_ROLES.has(session.role ?? "")) {
-    // Staff: only see appointments assigned to them (or unassigned)
-    appointments = await db
-      .select()
-      .from(appointmentsTable)
-      .where(
-        or(
-          eq(appointmentsTable.assignedStaffId, session.id),
-          isNull(appointmentsTable.assignedStaffId),
-        ),
-      )
-      .orderBy(appointmentsTable.createdAt);
-  } else {
-    // Admin / Medical Director / Owner: see all
-    appointments = await db
-      .select()
-      .from(appointmentsTable)
-      .orderBy(appointmentsTable.createdAt);
-  }
+  // All staff see all appointments so the list matches the stats summary
+  const appointments = await db
+    .select()
+    .from(appointmentsTable)
+    .orderBy(appointmentsTable.createdAt);
 
   const mapped = appointments.map((a) => ({
     ...a,

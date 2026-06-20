@@ -648,6 +648,18 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   const [consultOpen, setConsultOpen] = useState<number | null>(null);
   const [nurseOpen, setNurseOpen] = useState<number | null>(null);
   const [theatreOpen, setTheatreOpen] = useState<number | null>(null);
+  const [triageAssessOpen, setTriageAssessOpen] = useState<number | null>(null);
+  const [triageAssessBp, setTriageAssessBp] = useState('');
+  const [triageAssessTemp, setTriageAssessTemp] = useState('');
+  const [triageAssessPulse, setTriageAssessPulse] = useState('');
+  const [triageAssessSpo2, setTriageAssessSpo2] = useState('');
+  const [triageAssessWeight, setTriageAssessWeight] = useState('');
+  const [triageAssessHeight, setTriageAssessHeight] = useState('');
+  const [triageAssessRr, setTriageAssessRr] = useState('');
+  const [triageAssessComplaint, setTriageAssessComplaint] = useState('');
+  const [triageAssessHistory, setTriageAssessHistory] = useState('');
+  const [triageAssessPriority, setTriageAssessPriority] = useState<TriagePriority>('non-urgent');
+  const [triageAssessTargetDept, setTriageAssessTargetDept] = useState('General OPD');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const {
@@ -881,8 +893,18 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
   };
 
   const entries = queue as QueueEntry[];
+  // Patients in 'triage' department awaiting triage assessment before consultation
+  const triageQueue = entries
+    .filter((e) => e.status === 'waiting' && e.department === 'triage')
+    .sort((a, b) => {
+      const pa = PRIORITY_ORDER[a.priority] ?? 99;
+      const pb = PRIORITY_ORDER[b.priority] ?? 99;
+      if (pa !== pb) return pa - pb;
+      return a.arrivalOrder - b.arrivalOrder;
+    });
+  // Regular waiting — triage done, awaiting consultation
   const waiting = entries
-    .filter((e) => e.status === 'waiting')
+    .filter((e) => e.status === 'waiting' && e.department !== 'triage')
     .sort((a, b) => {
       const pa = PRIORITY_ORDER[a.priority] ?? 99;
       const pb = PRIORITY_ORDER[b.priority] ?? 99;
@@ -1317,6 +1339,7 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
 
   const stats = {
     total: entries.length,
+    triage: triageQueue.length,
     waiting: waiting.length,
     inConsult: inConsult.length,
     nursing: nursing.length,
@@ -2272,9 +2295,10 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
       </div>
 
       {/* Stats bar */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 mb-6">
         {[
           { label: 'Total', value: stats.total, color: 'text-gray-900', bg: 'bg-white' },
+          { label: 'In Triage', value: stats.triage, color: 'text-orange-700', bg: 'bg-orange-50' },
           { label: 'Waiting', value: stats.waiting, color: 'text-yellow-700', bg: 'bg-yellow-50' },
           { label: 'In Consult', value: stats.inConsult, color: 'text-blue-700', bg: 'bg-blue-50' },
           { label: 'Nursing', value: stats.nursing, color: 'text-pink-700', bg: 'bg-pink-50' },
@@ -2314,7 +2338,43 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
+          {/* TRIAGE */}
+          <QueueColumn
+            title="Triage"
+            icon={Activity}
+            color="text-orange-600"
+            borderColor="border-orange-300"
+            count={triageQueue.length}
+            entries={triageQueue}
+            nextLabel="Assess →"
+            onNext={(e) => {
+              setTriageAssessOpen(e.id);
+              setTriageAssessBp(e.vitalsSnapshot?.match(/BP: ([^\s|]+)/)?.[1] ?? '');
+              setTriageAssessTemp(e.vitalsSnapshot?.match(/Temp: ([^\s°]+)/)?.[1] ?? '');
+              setTriageAssessPulse(e.vitalsSnapshot?.match(/Pulse: ([^\s]+)/)?.[1] ?? '');
+              setTriageAssessSpo2(e.vitalsSnapshot?.match(/SpO2: ([^\s%]+)/)?.[1] ?? '');
+              setTriageAssessWeight(e.vitalsSnapshot?.match(/Wt: ([^\s]+)/)?.[1] ?? '');
+              setTriageAssessHeight(e.vitalsSnapshot?.match(/Ht: ([^\s]+)/)?.[1] ?? '');
+              setTriageAssessRr(e.vitalsSnapshot?.match(/RR: ([^\s/]+)/)?.[1] ?? '');
+              setTriageAssessPriority(e.priority as TriagePriority);
+              setTriageAssessTargetDept('General OPD');
+              const nn = e.triageNursingNotes ? (() => { try { return JSON.parse(e.triageNursingNotes!); } catch { return {}; } })() : {};
+              setTriageAssessComplaint(nn.presentingComplaint ?? '');
+              setTriageAssessHistory(nn.briefMedicalHistory ?? '');
+            }}
+            onSkip={handleSkip}
+            onRemove={handleRemove}
+            onTransfer={(e) => {
+              setTransferOpen(e.id);
+              setTransferDept(e.department || '');
+            }}
+            onConsult={null}
+            onTheatre={null}
+            onPushBack={null}
+            isPending={updateMutation.isPending}
+          />
+
           {/* WAITING */}
           <QueueColumn
             title="Waiting"
@@ -2421,6 +2481,174 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
           />
         </div>
       )}
+
+      {/* Triage Assessment Dialog */}
+      {triageAssessOpen !== null &&
+        (() => {
+          const entry = entries.find((e) => e.id === triageAssessOpen);
+          if (!entry) return null;
+          const resetTriageAssess = () => {
+            setTriageAssessOpen(null);
+            setTriageAssessBp('');
+            setTriageAssessTemp('');
+            setTriageAssessPulse('');
+            setTriageAssessSpo2('');
+            setTriageAssessWeight('');
+            setTriageAssessHeight('');
+            setTriageAssessRr('');
+            setTriageAssessComplaint('');
+            setTriageAssessHistory('');
+            setTriageAssessPriority('non-urgent');
+            setTriageAssessTargetDept('General OPD');
+          };
+          const handleCompleteTriageAssess = () => {
+            const vitalParts = [
+              triageAssessBp && `BP: ${triageAssessBp}`,
+              triageAssessTemp && `Temp: ${triageAssessTemp}°C`,
+              triageAssessPulse && `Pulse: ${triageAssessPulse} bpm`,
+              triageAssessSpo2 && `SpO2: ${triageAssessSpo2}%`,
+              triageAssessWeight && `Wt: ${triageAssessWeight} kg`,
+              triageAssessHeight && `Ht: ${triageAssessHeight} cm`,
+              triageAssessRr && `RR: ${triageAssessRr}/min`,
+            ].filter(Boolean).join(' | ');
+            const nursingNotesObj = {
+              presentingComplaint: triageAssessComplaint || null,
+              briefMedicalHistory: triageAssessHistory || null,
+            };
+            const hasNotes = Object.values(nursingNotesObj).some(Boolean);
+            updateMutation.mutate(
+              {
+                id: entry.id,
+                data: {
+                  priority: triageAssessPriority,
+                  department: triageAssessTargetDept,
+                  vitalsSnapshot: vitalParts || undefined,
+                  triageNursingNotes: hasNotes ? JSON.stringify(nursingNotesObj) : undefined,
+                } as any,
+              },
+              {
+                onSuccess: () => {
+                  toast({
+                    title: `Triage complete — ${entry.patientName} moved to Waiting`,
+                    description: `Department: ${triageAssessTargetDept}`,
+                  });
+                  resetTriageAssess();
+                  invalidate();
+                },
+                onError: () => toast({ title: 'Failed to complete triage', variant: 'destructive' }),
+              },
+            );
+          };
+          return (
+            <Dialog open={true} onOpenChange={(open) => { if (!open) resetTriageAssess(); }}>
+              <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-orange-600" /> Complete Triage — {entry.patientName}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Record vitals and assessment, then send patient to the Waiting queue.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-1">
+                  {/* Priority */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">Triage Priority</label>
+                    <Select value={triageAssessPriority} onValueChange={(v) => setTriageAssessPriority(v as TriagePriority)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="non-urgent">🟢 Non-Urgent</SelectItem>
+                        <SelectItem value="urgent">🟡 Urgent</SelectItem>
+                        <SelectItem value="emergency">🔴 Emergency</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Vitals */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">Vitals</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-500">Blood Pressure</label>
+                        <Input placeholder="120/80" value={triageAssessBp} onChange={(e) => setTriageAssessBp(e.target.value)} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Temperature (°C)</label>
+                        <Input placeholder="37.0" value={triageAssessTemp} onChange={(e) => setTriageAssessTemp(e.target.value)} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Pulse (bpm)</label>
+                        <Input placeholder="72" value={triageAssessPulse} onChange={(e) => setTriageAssessPulse(e.target.value)} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">SpO2 (%)</label>
+                        <Input placeholder="98" value={triageAssessSpo2} onChange={(e) => setTriageAssessSpo2(e.target.value)} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Weight (kg)</label>
+                        <Input placeholder="70" value={triageAssessWeight} onChange={(e) => setTriageAssessWeight(e.target.value)} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Height (cm)</label>
+                        <Input placeholder="170" value={triageAssessHeight} onChange={(e) => setTriageAssessHeight(e.target.value)} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Resp. Rate (/min)</label>
+                        <Input placeholder="18" value={triageAssessRr} onChange={(e) => setTriageAssessRr(e.target.value)} className="h-8 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Nursing Notes */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">Presenting Complaint</label>
+                    <Textarea
+                      placeholder="Chief complaint / reason for visit…"
+                      value={triageAssessComplaint}
+                      onChange={(e) => setTriageAssessComplaint(e.target.value)}
+                      className="min-h-[60px] resize-none text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">Brief Medical History</label>
+                    <Textarea
+                      placeholder="Relevant medical history…"
+                      value={triageAssessHistory}
+                      onChange={(e) => setTriageAssessHistory(e.target.value)}
+                      className="min-h-[60px] resize-none text-sm"
+                    />
+                  </div>
+                  {/* Target Department */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">Send to Department</label>
+                    <Select value={triageAssessTargetDept} onValueChange={setTriageAssessTargetDept}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DEPARTMENTS.map((d) => (
+                          <SelectItem key={d} value={d}>{d}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex gap-3 pt-1">
+                    <Button variant="outline" className="flex-1" onClick={resetTriageAssess}>
+                      Cancel
+                    </Button>
+                    <Button
+                      className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
+                      onClick={handleCompleteTriageAssess}
+                      disabled={updateMutation.isPending}
+                    >
+                      {updateMutation.isPending ? 'Saving…' : 'Complete Triage → Waiting'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          );
+        })()}
 
       {/* Transfer Dialog */}
       {transferOpen !== null &&
@@ -2599,6 +2827,7 @@ function QueueColumn({
   onTheatre,
   onPushBack,
   isPending,
+  nextLabel,
 }: {
   title: string;
   icon: React.ElementType;
@@ -2614,6 +2843,7 @@ function QueueColumn({
   onTheatre: ((e: QueueEntry) => void) | null;
   onPushBack: ((e: QueueEntry) => void) | null;
   isPending: boolean;
+  nextLabel?: string;
 }) {
   return (
     <div className={`rounded-xl border-2 ${borderColor} bg-white overflow-hidden`}>
@@ -2642,6 +2872,7 @@ function QueueColumn({
               onTheatre={onTheatre}
               onPushBack={onPushBack}
               isPending={isPending}
+              nextLabel={nextLabel}
             />
           ))
         )}
@@ -2660,6 +2891,7 @@ function QueueCard({
   onTheatre,
   onPushBack,
   isPending,
+  nextLabel,
 }: {
   entry: QueueEntry;
   onNext: ((e: QueueEntry) => void) | null;
@@ -2670,6 +2902,7 @@ function QueueCard({
   onTheatre: ((e: QueueEntry) => void) | null;
   onPushBack: ((e: QueueEntry) => void) | null;
   isPending: boolean;
+  nextLabel?: string;
 }) {
   const cfg = STATUS_CONFIG[entry.status];
   const pcfg = PRIORITY_CONFIG[entry.priority] ?? PRIORITY_CONFIG['non-urgent'];
@@ -2759,7 +2992,7 @@ function QueueCard({
             onClick={() => onNext(entry)}
             disabled={isPending}
           >
-            {NEXT_LABEL[entry.status]} <ChevronRight className="h-3 w-3 ml-0.5" />
+            {nextLabel ?? NEXT_LABEL[entry.status]} <ChevronRight className="h-3 w-3 ml-0.5" />
           </Button>
         )}
         {onConsult && (
