@@ -1,0 +1,389 @@
+MEDRISE MEDICAL CENTRE – FINAL REMAINING IMPLEMENTATION TASKS
+
+IMPORTANT:
+
+This is an IMPLEMENTATION task.
+
+Do not generate reports.
+Do not stop at analysis.
+Do not stop at identifying issues.
+
+You must:
+
+- Investigate
+- Fix
+- Test
+- Verify
+- Retest
+- Commit only healthy code
+
+Before implementing anything, first verify whether each item is already working. If it is already working correctly, leave it unchanged. Only fix items that remain broken.
+
+==================================================
+PRIORITY 1 – APPOINTMENTS (CRITICAL)
+
+Verify and completely fix the appointments module.
+
+Current problems reported:
+
+1. Appointment statistics appear.
+2. Appointment counts appear.
+3. Actual appointment records are still missing from lists.
+
+Required:
+
+- Verify database queries.
+- Verify API responses.
+- Verify frontend filtering.
+- Verify status filtering.
+- Verify pagination/search filtering.
+
+Ensure:
+
+- Appointment counts match displayed records.
+- Booked patients appear in appointment lists.
+- Confirmed patients appear.
+- Checked-in patients appear.
+
+==================================================
+PRIORITY 2 – PUBLIC STAFF VISIBILITY (CRITICAL)
+
+Current issue:
+
+Patients cannot select staff when booking appointments.
+
+Required:
+
+Every ACTIVE staff member must automatically appear in:
+
+- Public booking page
+- Appointment clinician dropdown
+- Consultation assignment lists
+- Referral lists
+- Staff selection lists
+
+Future staff must appear automatically without manual configuration.
+
+Investigate:
+
+- API filters
+- Active status filters
+- Frontend dropdowns
+- Staff query endpoints
+
+==================================================
+PRIORITY 3 – APPOINTMENT → QUEUE WORKFLOW
+
+Current workflow must be verified.
+
+Required workflow:
+
+Appointment
+→ Confirmed
+→ Checked In
+→ Add To Queue
+→ Triage
+→ Waiting
+→ Consultation
+
+Requirements:
+
+- Checked-in appointment patients must appear in Add To Queue.
+- They must NOT jump directly to Waiting.
+- Queue creation must happen automatically after Check-In.
+
+==================================================
+PRIORITY 4 – TRIAGE / WAITING CLEANUP
+
+Current issue:
+
+Extra triage box exists near Waiting and Consultation.
+
+Required:
+
+- Remove redundant triage box.
+- Keep professional workflow only.
+- Triage must exist only in the proper queue workflow.
+
+Waiting area requirements:
+
+- Add “Send Back To Triage”.
+- Staff must be able to return accidentally forwarded patients.
+
+==================================================
+PRIORITY 5 – GLOBAL AUTOSAVE
+
+Verify and complete autosave.
+
+Apply to:
+
+- Triage
+- Consultation
+- Theatre
+- OBS&GYN
+- Paediatrics
+- Admissions
+- Dental
+- Pharmacy
+- Laboratory
+- Imaging
+- Recovery Room
+- Nursing Notes
+
+Requirements:
+
+- Autosave while typing.
+- Manual Save still works.
+- Restore draft after accidental close.
+- Show:
+  Saving...
+  Saved
+  Last Saved Timestamp
+
+==================================================
+PRIORITY 6 – TRIAGE RESULTS REFLECTION
+
+Investigations requested by triage nurses must return to triage.
+
+Required:
+
+After lab or imaging completion:
+
+- Results must appear in Triage.
+- Results must appear in Investigation Results section.
+- Results must be printable.
+- Imaging reports must appear there too.
+
+==================================================
+PRIORITY 7 – CONSULTATION RESULTS REFLECTION
+
+Investigations requested by doctors must return to consultation.
+
+Required:
+
+After completion:
+
+- Laboratory results appear in consultation.
+- Imaging reports appear in consultation.
+
+Do NOT show investigations that were not requested by that department.
+
+Fix current incorrect cross-display behaviour.
+
+==================================================
+PRIORITY 8 – THEATRE DATA PERSISTENCE
+
+Current issue:
+
+Theatre information is not consistently saved.
+
+Verify and fix:
+
+- Pre-operative notes
+- Intra-operative notes
+- Post-operative notes
+- Recovery Room notes
+
+Requirements:
+
+- Autosave
+- Manual save
+- Retrieval after reload
+- Data remains visible in original section
+
+Do NOT mirror theatre notes into consultation.
+
+==================================================
+PRIORITY 9 – NURSING NOTES PERSISTENCE
+
+Current issue:
+
+Saved notes disappear from nursing section.
+
+Requirements:
+
+- Notes remain visible after saving.
+- Autosave works.
+- Manual save works.
+- Notes reload correctly.
+- Notes stay inside Nursing section.
+
+==================================================
+PRIORITY 10 – PATIENT BIODATA SYNCHRONIZATION
+
+Verify all modules.
+
+Required fields:
+
+- Full Name
+- Age
+- Sex
+- Blood Group
+- DOB
+- Phone Number
+- Patient Number
+
+Must appear consistently in:
+
+- Patient Database
+- Triage
+- Consultation
+- Admissions
+- Theatre
+- Dental
+- OBS&GYN
+- Paediatrics
+- Laboratory
+- Imaging
+- Follow Ups
+- Referrals
+- Discharge Summaries
+
+==================================================
+PRIORITY 11 – FOLLOW UP SYSTEM
+
+Current issue:
+
+Follow-up information is incomplete.
+
+Required:
+
+Implement complete follow-up workflow.
+
+Include:
+
+- Review dates
+- Progress notes
+- Follow-up plans
+- Missed appointments
+- Next appointment date
+
+==================================================
+PRIORITY 12 – CONSULTATION DECISION WORKFLOW
+
+Doctor must be able to select:
+
+- Manage As Outpatient
+  OR
+- Admit Patient
+
+If admitted:
+
+- Create admission automatically.
+- Send patient to selected ward automatically.
+- Patient appears in destination department immediately.
+
+No manual re-registration.
+
+==================================================
+PRIORITY 13 – OBS&GYN COMPLETION
+
+Verify OBS&GYN implementation.
+
+Required sections:
+
+- Preconception Care
+- ANC
+- Labour Monitoring
+- Delivery Notes
+- Postpartum Care
+- Gynaecology
+- Obstetrics
+- Procedures
+- Follow Ups
+
+Add missing sub-departments if absent.
+
+==================================================
+PRIORITY 14 – PAEDIATRICS COMPLETION
+
+Verify paediatrics.
+
+Required:
+
+Patient registration form includes:
+
+- Years
+- Months
+- Weeks
+- Days
+
+Patient list:
+
+- Visible below registration
+- Searchable
+
+Add missing service sections:
+
+- General Paediatrics
+- Neonatal Care
+- Respiratory Cases
+- Gastrointestinal Cases
+- Neurology
+- Chronic Disease Clinics
+- Developmental Follow Up
+- Emergency Paediatrics
+
+==================================================
+PRIORITY 15 – DEPARTMENT SUB-SECTIONS
+
+Verify every department contains proper sub-sections.
+
+Add missing professional sub-departments where required.
+
+Ensure patient data saves correctly within each section.
+
+==================================================
+PRIORITY 16 – PHARMACY WORKFLOW
+
+Verify:
+
+Prescriptions from:
+
+- Triage
+- Consultation
+
+must automatically appear in Pharmacy.
+
+Pharmacist must:
+
+- View
+- Dispense
+- Track status
+
+Verify end-to-end workflow.
+
+==================================================
+PRIORITY 17 – FINAL SYSTEM AUDIT
+
+Perform complete audit.
+
+Check:
+
+- Broken saves
+- Broken retrievals
+- Missing patient records
+- Missing appointments
+- Missing staff lists
+- Missing results
+- Queue workflow
+- Department transfers
+- Autosave functionality
+- API errors
+- Console errors
+- Build errors
+
+Fix everything discovered.
+
+==================================================
+FINAL REQUIREMENT
+
+Only mark complete after:
+
+- Implementation finished
+- End-to-end verification completed
+- Build succeeds
+- No critical errors remain
+- Repository is healthy
+- Code is deployment-ready
+- Only healthy commits remain

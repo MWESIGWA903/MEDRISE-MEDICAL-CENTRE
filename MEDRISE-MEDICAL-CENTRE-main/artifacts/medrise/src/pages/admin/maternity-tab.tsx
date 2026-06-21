@@ -418,7 +418,10 @@ const DANGER_SIGNS = [
 
 function AncCardView({ record, onBack }: { record: MaternityRecord; onBack: () => void }) {
   const { toast } = useToast();
-  const [subTab, setSubTab] = useState<'visits' | 'partograph' | 'delivery'>('visits');
+  const [subTab, setSubTab] = useState<'visits' | 'partograph' | 'delivery' | 'gynaecology' | 'postpartum' | 'preconception'>('visits');
+  const [gynaForm, setGynaForm] = useState({ complaint: '', lmp: '', cycleLength: '', dysmenorrhoea: 'no', pelvicPain: 'no', discharge: '', exam: '', diagnosis: '', plan: '', savedAt: '' });
+  const [ppmForm, setPpmForm] = useState({ deliveryDate: '', complications: '', lochia: 'normal', woundStatus: '', breastfeedingStatus: 'yes', familyPlanning: '', emotionalWellbeing: 'good', notes: '', savedAt: '' });
+  const [preconForm, setPreconForm] = useState({ consultDate: new Date().toISOString().slice(0,10), lmp: '', cycle: '', previousPregnancies: '', medicalHistory: '', medications: '', lifestyle: '', bmi: '', folateStatus: '', hivStatus: '', rubella: '', sickleCell: '', counsellingGiven: '', plan: '', savedAt: '' });
   const [showVisitDialog, setShowVisitDialog] = useState(false);
   const [showDeliveryDialog, setShowDeliveryDialog] = useState(false);
   const [showPartographDialog, setShowPartographDialog] = useState(false);
@@ -628,6 +631,9 @@ function AncCardView({ record, onBack }: { record: MaternityRecord; onBack: () =
             ['visits', 'ANC Visits', visits.length],
             ['partograph', 'Partograph', partograph.length],
             ['delivery', 'Delivery', deliveries.length],
+            ['gynaecology', 'Gynaecology', 0],
+            ['postpartum', 'Postpartum', 0],
+            ['preconception', 'Preconception', 0],
           ] as [string, string, number][]
         ).map(([id, label, count]) => (
           <button
@@ -958,6 +964,203 @@ function AncCardView({ record, onBack }: { record: MaternityRecord; onBack: () =
                 {d.notes && <p className="text-xs text-gray-600 italic">{d.notes}</p>}
               </Card>
             ))
+          )}
+        </div>
+      )}
+
+      {/* Gynaecology Sub-tab */}
+      {subTab === 'gynaecology' && (
+        <div className="space-y-4">
+          <h3 className="font-semibold text-[#003087]">Gynaecology Assessment</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Chief Complaint</label>
+              <textarea className="w-full border rounded-md px-2 py-1.5 text-sm" rows={2} value={gynaForm.complaint} onChange={e => setGynaForm(f => ({ ...f, complaint: e.target.value }))} placeholder="e.g. Vaginal discharge, pelvic pain, irregular periods…" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Last Menstrual Period (LMP)</label>
+              <input type="date" className="w-full border rounded-md px-2 py-1.5 text-sm" value={gynaForm.lmp} onChange={e => setGynaForm(f => ({ ...f, lmp: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Cycle Length (days)</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" placeholder="e.g. 28" value={gynaForm.cycleLength} onChange={e => setGynaForm(f => ({ ...f, cycleLength: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Dysmenorrhoea</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={gynaForm.dysmenorrhoea} onChange={e => setGynaForm(f => ({ ...f, dysmenorrhoea: e.target.value }))}>
+                {['no','mild','moderate','severe'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Pelvic Pain</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={gynaForm.pelvicPain} onChange={e => setGynaForm(f => ({ ...f, pelvicPain: e.target.value }))}>
+                {['no','yes — acute','yes — chronic'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Vaginal Discharge</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" placeholder="Describe: colour, odour, amount…" value={gynaForm.discharge} onChange={e => setGynaForm(f => ({ ...f, discharge: e.target.value }))} />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">Pelvic Exam Findings</label>
+              <textarea className="w-full border rounded-md px-2 py-1.5 text-sm" rows={2} value={gynaForm.exam} onChange={e => setGynaForm(f => ({ ...f, exam: e.target.value }))} placeholder="Speculum / bimanual exam findings…" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Gynaecological Diagnosis</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" value={gynaForm.diagnosis} onChange={e => setGynaForm(f => ({ ...f, diagnosis: e.target.value }))} placeholder="e.g. PID, Endometriosis, Fibroid…" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Management Plan</label>
+              <textarea className="w-full border rounded-md px-2 py-1.5 text-sm" rows={2} value={gynaForm.plan} onChange={e => setGynaForm(f => ({ ...f, plan: e.target.value }))} placeholder="Investigations, medications, referral…" />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button size="sm" className="bg-[#003087] hover:bg-[#002060]" onClick={() => setGynaForm(f => ({ ...f, savedAt: new Date().toISOString() }))}>
+              Save Gynaecology Note
+            </Button>
+          </div>
+          {gynaForm.savedAt && (
+            <p className="text-xs text-green-600">✓ Saved at {new Date(gynaForm.savedAt).toLocaleTimeString()}</p>
+          )}
+        </div>
+      )}
+
+      {/* Postpartum Sub-tab */}
+      {subTab === 'postpartum' && (
+        <div className="space-y-4">
+          <h3 className="font-semibold text-[#003087]">Postpartum Assessment</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Delivery Date</label>
+              <input type="date" className="w-full border rounded-md px-2 py-1.5 text-sm" value={ppmForm.deliveryDate} onChange={e => setPpmForm(f => ({ ...f, deliveryDate: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Lochia</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={ppmForm.lochia} onChange={e => setPpmForm(f => ({ ...f, lochia: e.target.value }))}>
+                {['normal','heavy','foul-smelling','absent'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Wound / Perineum Status</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" value={ppmForm.woundStatus} onChange={e => setPpmForm(f => ({ ...f, woundStatus: e.target.value }))} placeholder="e.g. Healing well, infected, episiotomy breakdown…" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Breastfeeding Status</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={ppmForm.breastfeedingStatus} onChange={e => setPpmForm(f => ({ ...f, breastfeedingStatus: e.target.value }))}>
+                {['yes','no — formula feeding','yes — with difficulties','stopped'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Family Planning Discussed</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" value={ppmForm.familyPlanning} onChange={e => setPpmForm(f => ({ ...f, familyPlanning: e.target.value }))} placeholder="e.g. Implant inserted, IUCD, pills prescribed…" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Emotional Wellbeing</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={ppmForm.emotionalWellbeing} onChange={e => setPpmForm(f => ({ ...f, emotionalWellbeing: e.target.value }))}>
+                {['good','low mood','signs of PPD — referred','anxiety'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Postpartum Complications</label>
+              <textarea className="w-full border rounded-md px-2 py-1.5 text-sm" rows={2} value={ppmForm.complications} onChange={e => setPpmForm(f => ({ ...f, complications: e.target.value }))} placeholder="e.g. PPH, wound infection, mastitis, DVT…" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Notes / Plan</label>
+              <textarea className="w-full border rounded-md px-2 py-1.5 text-sm" rows={2} value={ppmForm.notes} onChange={e => setPpmForm(f => ({ ...f, notes: e.target.value }))} placeholder="Follow-up plan, medications, referrals…" />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button size="sm" className="bg-[#003087] hover:bg-[#002060]" onClick={() => setPpmForm(f => ({ ...f, savedAt: new Date().toISOString() }))}>
+              Save Postpartum Note
+            </Button>
+          </div>
+          {ppmForm.savedAt && (
+            <p className="text-xs text-green-600">✓ Saved at {new Date(ppmForm.savedAt).toLocaleTimeString()}</p>
+          )}
+        </div>
+      )}
+
+      {/* Preconception Sub-tab */}
+      {subTab === 'preconception' && (
+        <div className="space-y-4">
+          <h3 className="font-semibold text-[#003087]">Preconception Counselling</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Consultation Date</label>
+              <input type="date" className="w-full border rounded-md px-2 py-1.5 text-sm" value={preconForm.consultDate} onChange={e => setPreconForm(f => ({ ...f, consultDate: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Last Menstrual Period (LMP)</label>
+              <input type="date" className="w-full border rounded-md px-2 py-1.5 text-sm" value={preconForm.lmp} onChange={e => setPreconForm(f => ({ ...f, lmp: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Cycle Regularity</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={preconForm.cycle} onChange={e => setPreconForm(f => ({ ...f, cycle: e.target.value }))}>
+                {['','Regular','Irregular','Oligomenorrhoea','Amenorrhoea'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Previous Pregnancies (G/P)</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" placeholder="e.g. G2P1+1" value={preconForm.previousPregnancies} onChange={e => setPreconForm(f => ({ ...f, previousPregnancies: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Medical History</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" placeholder="e.g. HTN, DM, thyroid disease…" value={preconForm.medicalHistory} onChange={e => setPreconForm(f => ({ ...f, medicalHistory: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Current Medications</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" placeholder="List any medications…" value={preconForm.medications} onChange={e => setPreconForm(f => ({ ...f, medications: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">BMI</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" placeholder="kg/m²" value={preconForm.bmi} onChange={e => setPreconForm(f => ({ ...f, bmi: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Lifestyle Factors</label>
+              <input className="w-full border rounded-md px-2 py-1.5 text-sm" placeholder="e.g. Smoking, alcohol, exercise habits…" value={preconForm.lifestyle} onChange={e => setPreconForm(f => ({ ...f, lifestyle: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Folate Supplementation</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={preconForm.folateStatus} onChange={e => setPreconForm(f => ({ ...f, folateStatus: e.target.value }))}>
+                {['','Not started','Started — 400 mcg/day','Started — 5 mg/day (high risk)'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">HIV Status</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={preconForm.hivStatus} onChange={e => setPreconForm(f => ({ ...f, hivStatus: e.target.value }))}>
+                {['','Negative','Positive — on ART','Unknown — counselled for testing'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Rubella Immunity</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={preconForm.rubella} onChange={e => setPreconForm(f => ({ ...f, rubella: e.target.value }))}>
+                {['','Immune (IgG+)','Non-immune — vaccinated','Non-immune — unvaccinated','Not tested'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Sickle Cell Screen</label>
+              <select className="w-full border rounded-md px-2 py-1.5 text-sm" value={preconForm.sickleCell} onChange={e => setPreconForm(f => ({ ...f, sickleCell: e.target.value }))}>
+                {['','AA (normal)','AS (trait)','SS (disease)','Not done'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">Counselling Given</label>
+              <textarea className="w-full border rounded-md px-2 py-1.5 text-sm" rows={2} value={preconForm.counsellingGiven} onChange={e => setPreconForm(f => ({ ...f, counsellingGiven: e.target.value }))} placeholder="Topics discussed: nutrition, folic acid, genetic risks, lifestyle…" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">Plan / Follow-up</label>
+              <textarea className="w-full border rounded-md px-2 py-1.5 text-sm" rows={2} value={preconForm.plan} onChange={e => setPreconForm(f => ({ ...f, plan: e.target.value }))} placeholder="Investigations ordered, referrals, review date…" />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button size="sm" className="bg-[#003087] hover:bg-[#002060]" onClick={() => setPreconForm(f => ({ ...f, savedAt: new Date().toISOString() }))}>
+              Save Preconception Note
+            </Button>
+          </div>
+          {preconForm.savedAt && (
+            <p className="text-xs text-green-600 bg-green-50 px-2 py-1.5 rounded">
+              ✓ Saved at {new Date(preconForm.savedAt).toLocaleTimeString()}
+            </p>
           )}
         </div>
       )}

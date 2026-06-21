@@ -86945,7 +86945,8 @@ router2.get("/appointments", async (req, res) => {
   const filtered = statusFilter ? all.filter((a) => a.status === statusFilter) : all;
   const mapped = filtered.map((a) => ({
     ...a,
-    createdAt: a.createdAt.toISOString()
+    createdAt: a.createdAt.toISOString(),
+    checkinTime: a.checkinTime?.toISOString() ?? null
   }));
   res.json(ListAppointmentsResponse.parse(mapped));
 });
@@ -90319,6 +90320,34 @@ router11.post("/lab/results", async (req, res) => {
   } catch (err) {
     console.error("POST /lab/results error:", err);
     res.status(500).json({ error: "Failed to record lab result", detail: err instanceof Error ? err.message : String(err) });
+  }
+});
+router11.patch("/lab/results/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const schema = external_exports.object({
+      result: external_exports.string().optional(),
+      unit: external_exports.string().optional(),
+      referenceRange: external_exports.string().optional(),
+      interpretation: external_exports.string().optional(),
+      notes: external_exports.string().optional()
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    const [row] = await db.update(labResultsTable).set(parsed.data).where(eq(labResultsTable.id, id)).returning();
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    logAudit(req, "update_lab_result", { entityType: "lab_result", entityId: row.id, details: "Result updated" }).catch(() => {
+    });
+    res.json({ ...row, recordedAt: row.recordedAt.toISOString() });
+  } catch (err) {
+    console.error("PATCH /lab/results/:id error:", err);
+    res.status(500).json({ error: "Failed to update lab result", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 router11.delete("/lab/results/:id", async (req, res) => {

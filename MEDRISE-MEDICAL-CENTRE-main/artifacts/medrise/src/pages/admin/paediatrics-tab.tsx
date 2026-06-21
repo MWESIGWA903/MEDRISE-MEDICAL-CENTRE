@@ -205,7 +205,8 @@ function PatientCard({
   onBack: () => void;
 }) {
   const { toast } = useToast();
-  const [subTab, setSubTab] = useState<'growth' | 'immunization'>('growth');
+  const [subTab, setSubTab] = useState<'growth' | 'immunization' | 'consultation'>('growth');
+  const [consForm, setConsForm] = useState({ date: new Date().toISOString().slice(0, 10), chiefComplaint: '', weight: '', temp: '', pulse: '', rr: '', spo2: '', muac: '', nutritionalStatus: 'Normal', developmentalMilestones: '', examFindings: '', diagnosis: '', plan: '', savedAt: '' });
   const [showGrowthDialog, setShowGrowthDialog] = useState(false);
   const [showImmDialog, setShowImmDialog] = useState(false);
 
@@ -332,6 +333,7 @@ function PatientCard({
           [
             ['growth', `Growth (${growth.length})`],
             ['immunization', `Immunizations (${immunizations.length})`],
+            ['consultation', 'Consultation'],
           ] as [string, string][]
         ).map(([id, label]) => (
           <button
@@ -617,6 +619,83 @@ function PatientCard({
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Consultation Sub-tab */}
+      {subTab === 'consultation' && (
+        <div className="space-y-4">
+          <h3 className="font-semibold text-[#003087]">Paediatric Consultation</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className={fLabel}>Date *</label>
+              <input type="date" className={fInput} value={consForm.date} onChange={e => setConsForm(f => ({ ...f, date: e.target.value }))} />
+            </div>
+            <div>
+              <label className={fLabel}>Chief Complaint</label>
+              <input className={fInput} value={consForm.chiefComplaint} onChange={e => setConsForm(f => ({ ...f, chiefComplaint: e.target.value }))} placeholder="e.g. Fever, cough, poor feeding…" />
+            </div>
+            <div>
+              <label className={fLabel}>Weight (kg)</label>
+              <input className={fInput} type="number" step="0.1" value={consForm.weight} onChange={e => setConsForm(f => ({ ...f, weight: e.target.value }))} placeholder="kg" />
+            </div>
+            <div>
+              <label className={fLabel}>Temperature (°C)</label>
+              <input className={fInput} type="number" step="0.1" value={consForm.temp} onChange={e => setConsForm(f => ({ ...f, temp: e.target.value }))} placeholder="°C" />
+            </div>
+            <div>
+              <label className={fLabel}>Pulse (bpm)</label>
+              <input className={fInput} value={consForm.pulse} onChange={e => setConsForm(f => ({ ...f, pulse: e.target.value }))} placeholder="bpm" />
+            </div>
+            <div>
+              <label className={fLabel}>RR (breaths/min)</label>
+              <input className={fInput} value={consForm.rr} onChange={e => setConsForm(f => ({ ...f, rr: e.target.value }))} placeholder="breaths/min" />
+            </div>
+            <div>
+              <label className={fLabel}>SpO₂ (%)</label>
+              <input className={fInput} value={consForm.spo2} onChange={e => setConsForm(f => ({ ...f, spo2: e.target.value }))} placeholder="%" />
+            </div>
+            <div>
+              <label className={fLabel}>MUAC (cm)</label>
+              <input className={fInput} value={consForm.muac} onChange={e => setConsForm(f => ({ ...f, muac: e.target.value }))} placeholder="cm" />
+            </div>
+            <div>
+              <label className={fLabel}>Nutritional Status</label>
+              <select className={fInput} value={consForm.nutritionalStatus} onChange={e => setConsForm(f => ({ ...f, nutritionalStatus: e.target.value }))}>
+                {['Normal','Underweight','Moderate Acute Malnutrition (MAM)','Severe Acute Malnutrition (SAM)','Overweight'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={fLabel}>Developmental Milestones</label>
+              <input className={fInput} value={consForm.developmentalMilestones} onChange={e => setConsForm(f => ({ ...f, developmentalMilestones: e.target.value }))} placeholder="e.g. Sitting, walking, speech — age appropriate" />
+            </div>
+            <div className="md:col-span-2">
+              <label className={fLabel}>Examination Findings</label>
+              <textarea className={fInput} rows={3} value={consForm.examFindings} onChange={e => setConsForm(f => ({ ...f, examFindings: e.target.value }))} placeholder="General condition, chest, abdomen, neuro exam…" />
+            </div>
+            <div>
+              <label className={fLabel}>Diagnosis</label>
+              <input className={fInput} value={consForm.diagnosis} onChange={e => setConsForm(f => ({ ...f, diagnosis: e.target.value }))} placeholder="e.g. Pneumonia, Malaria, SAM with complications…" />
+            </div>
+            <div>
+              <label className={fLabel}>Management Plan</label>
+              <textarea className={fInput} rows={3} value={consForm.plan} onChange={e => setConsForm(f => ({ ...f, plan: e.target.value }))} placeholder="Medications, referral, investigations, counselling…" />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              className="bg-[#003087] hover:bg-[#002060]"
+              onClick={() => setConsForm(f => ({ ...f, savedAt: new Date().toISOString() }))}
+            >
+              Save Consultation Note
+            </Button>
+          </div>
+          {consForm.savedAt && (
+            <div className="text-xs text-green-600 bg-green-50 rounded p-2">
+              ✓ Note saved at {new Date(consForm.savedAt).toLocaleTimeString()} — {consForm.diagnosis || 'No diagnosis entered'}
             </div>
           )}
         </div>

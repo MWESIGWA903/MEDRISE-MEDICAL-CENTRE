@@ -42,6 +42,7 @@ router.get("/appointments", async (req, res): Promise<void> => {
   const mapped = filtered.map((a) => ({
     ...a,
     createdAt: a.createdAt.toISOString(),
+    checkinTime: a.checkinTime?.toISOString() ?? null,
   }));
 
   res.json(ListAppointmentsResponse.parse(mapped));

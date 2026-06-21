@@ -1,3 +1,4 @@
 - [MedRise monorepo layout](medrise-layout.md) — pnpm monorepo; API on port 8080, frontend on 5000; api-zod patched manually, not regenerated.
 - [MedRise schema/api-zod fixes](medrise-schema-fixes.md) — gender/bloodType must be zod.string() not enums; UpdatePatientBody fields must be optional for PATCH; triage PATCH had delete-after-set bug.
 - [MedRise staff/seed facts](medrise-staff-seed.md) — 6 seeded accounts in `admins` table; queue table is `patient_queue`; queue requires auth (not PUBLIC_PATHS).
+- [MedRise completed priorities](medrise-priorities.md) — P1/P4/P8/P12/P13/P14 fixed this session; TheatreDialog parser at parseTheatreNotes(); admission POST in ConsultationDialog handleSave.
