@@ -1,0 +1,575 @@
+diff --git a/MEDRISE-MEDICAL-CENTRE-main/artifacts/medrise/src/pages/admin/queue-tab.tsx b/MEDRISE-MEDICAL-CENTRE-main/artifacts/medrise/src/pages/admin/queue-tab.tsx
+index 942d9a0..67857dc 100644
+--- a/MEDRISE-MEDICAL-CENTRE-main/artifacts/medrise/src/pages/admin/queue-tab.tsx
++++ b/MEDRISE-MEDICAL-CENTRE-main/artifacts/medrise/src/pages/admin/queue-tab.tsx
+@@ -2044,6 +2044,310 @@ export default function QueueTab({ staffId }: { staffId?: number }) {
+                   </Select>
+                 </div>
+ 
++                {/* Triage Assessment */}
++                <div className="border border-orange-200 bg-orange-50 rounded-xl p-4 space-y-4">
++                  <p className="text-xs font-semibold text-orange-700 uppercase tracking-wider flex items-center gap-1.5">
++                    🩺 Triage Assessment{' '}
++                    <span className="text-orange-400 font-normal normal-case">
++                      (optional — recorded at point of entry)
++                    </span>
++                  </p>
++
++                  {/* Vitals */}
++                  <div>
++                    <p className="text-xs text-gray-600 font-medium mb-2">Vital Signs</p>
++                    <div className="grid grid-cols-2 gap-2">
++                      {[
++                        {
++                          label: 'Blood Pressure (mmHg)',
++                          ph: 'e.g. 120/80',
++                          val: triageBp,
++                          set: setTriageBp,
++                        },
++                        {
++                          label: 'Temperature (°C)',
++                          ph: 'e.g. 36.5',
++                          val: triageTemp,
++                          set: setTriageTemp,
++                        },
++                        {
++                          label: 'Pulse (bpm)',
++                          ph: 'e.g. 72',
++                          val: triagePulse,
++                          set: setTriagePulse,
++                        },
++                        { label: 'SpO₂ (%)', ph: 'e.g. 98', val: triageSpo2, set: setTriageSpo2 },
++                        {
++                          label: 'Weight (kg)',
++                          ph: 'e.g. 68',
++                          val: triageWeight,
++                          set: setTriageWeight,
++                        },
++                        {
++                          label: 'Height (cm)',
++                          ph: 'e.g. 170',
++                          val: triageHeight,
++                          set: setTriageHeight,
++                        },
++                        {
++                          label: 'Resp. Rate (/min)',
++                          ph: 'e.g. 16',
++                          val: triageRr,
++                          set: setTriageRr,
++                        },
++                        {
++                          label: 'Blood Glucose (mmol/L)',
++                          ph: 'e.g. 5.4',
++                          val: triageGlucose,
++                          set: setTriageGlucose,
++                        },
++                        { label: 'MUAC (cm)', ph: 'e.g. 25', val: triageMuac, set: setTriageMuac },
++                        { label: 'GCS', ph: 'e.g. 15/15', val: triageGcs, set: setTriageGcs },
++                      ].map(({ label, ph, val, set }) => (
++                        <div key={label}>
++                          <label className="text-xs text-gray-500 block mb-0.5">{label}</label>
++                          <Input
++                            placeholder={ph}
++                            value={val}
++                            onChange={(e) => set(e.target.value)}
++                            className="h-8 text-sm"
++                          />
++                        </div>
++                      ))}
++                      <div>
++                        <label className="text-xs text-gray-500 block mb-0.5">Blood Group</label>
++                        <Select value={triageBloodGroup || 'none'} onValueChange={(v) => setTriageBloodGroup(v === 'none' ? '' : v)}>
++                          <SelectTrigger className="h-8 text-sm">
++                            <SelectValue placeholder="Select" />
++                          </SelectTrigger>
++                          <SelectContent>
++                            <SelectItem value="none">— Unknown —</SelectItem>
++                            {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
++                              <SelectItem key={bg} value={bg}>{bg}</SelectItem>
++                            ))}
++                          </SelectContent>
++                        </Select>
++                      </div>
++                    </div>
++                  </div>
++
++                  {/* Auto BMI */}
++                  {triageBmi && (
++                    <div
++                      className={`flex items-center gap-3 px-3 py-2 rounded-lg border text-sm ${
++                        triageBmi.cat === 'Normal'
++                          ? 'bg-green-50 border-green-200 text-green-800'
++                          : triageBmi.cat === 'Underweight'
++                            ? 'bg-yellow-50 border-yellow-200 text-yellow-800'
++                            : triageBmi.cat.startsWith('Obese')
++                              ? 'bg-red-50 border-red-200 text-red-800'
++                              : 'bg-orange-50 border-orange-200 text-orange-800'
++                      }`}
++                    >
++                      <span className="text-lg font-bold">{triageBmi.value}</span>
++                      <div>
++                        <p className="font-semibold text-xs">BMI — {triageBmi.cat}</p>
++                        <p className="text-[10px] opacity-75">Calculated from weight & height</p>
++                      </div>
++                    </div>
++                  )}
++
++                  {/* Triage Nursing Notes */}
++                  <div className="border border-blue-200 bg-blue-50 rounded-lg p-3 space-y-3">
++                    <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider flex items-center gap-1.5">
++                      📋 Triage Nursing Notes
++                    </p>
++                    <div>
++                      <label className="text-xs text-gray-600 font-medium block mb-1">
++                        Presenting Complaint(s) <span className="text-gray-400 font-normal">(chief complaint)</span>
++                      </label>
++                      <Textarea
++                        placeholder="e.g. Fever for 3 days, severe headache, vomiting…"
++                        value={triagePresentingComplaint}
++                        onChange={(e) => setTriagePresentingComplaint(e.target.value)}
++                        className="min-h-[52px] resize-none text-sm"
++                      />
++                    </div>
++                    <div>
++                      <label className="text-xs text-gray-600 font-medium block mb-1">
++                        Brief Medical History <span className="text-gray-400 font-normal">(known conditions, allergies, meds)</span>
++                      </label>
++                      <Textarea
++                        placeholder="e.g. Known diabetic on metformin, penicillin allergy, hypertensive…"
++                        value={triageBriefHistory}
++                        onChange={(e) => setTriageBriefHistory(e.target.value)}
++                        className="min-h-[52px] resize-none text-sm"
++                      />
++                    </div>
++                    <div>
++                      <label className="text-xs text-gray-600 font-medium block mb-1">
++                        Emergency Investigations Requested
++                      </label>
++                      <Textarea
++                        placeholder="e.g. FBC, Malaria RDT, Urine R/E, Blood sugar, Chest X-ray…"
++                        value={triageEmergencyInvestigations}
++                        onChange={(e) => setTriageEmergencyInvestigations(e.target.value)}
++                        className="min-h-[44px] resize-none text-sm"
++                      />
++                    </div>
++                    <div>
++                      <label className="text-xs text-gray-600 font-medium block mb-1">
++                        Investigation Results <span className="text-gray-400 font-normal">(if available)</span>
++                      </label>
++                      <Textarea
++                        placeholder="e.g. Malaria RDT: Positive (P. falciparum), Hb: 8.2 g/dL, RBS: 14.2 mmol/L…"
++                        value={triageInvestigationResults}
++                        onChange={(e) => setTriageInvestigationResults(e.target.value)}
++                        className="min-h-[44px] resize-none text-sm"
++                      />
++                    </div>
++                    <div className="grid grid-cols-2 gap-2">
++                      <div>
++                        <label className="text-xs text-gray-600 font-medium block mb-1">
++                          Lab Results Note
++                        </label>
++                        <Textarea
++                          placeholder="Lab report summary or pending…"
++                          value={triageLabResultsNote}
++                          onChange={(e) => setTriageLabResultsNote(e.target.value)}
++                          className="min-h-[44px] resize-none text-sm"
++                        />
++                      </div>
++                      <div>
++                        <label className="text-xs text-gray-600 font-medium block mb-1">
++                          Imaging Results Note
++                        </label>
++                        <Textarea
++                          placeholder="Radiology/imaging summary or pending…"
++                          value={triageImagingResultsNote}
++                          onChange={(e) => setTriageImagingResultsNote(e.target.value)}
++                          className="min-h-[44px] resize-none text-sm"
++                        />
++                      </div>
++                    </div>
++                  </div>
++
++                  {/* Emergency Initial Treatment */}
++                  <div>
++                    <label className="text-xs text-gray-600 font-medium block mb-1">
++                      Emergency / Initial Treatment Given
++                    </label>
++                    <Textarea
++                      placeholder="e.g. IV access secured, O₂ at 4L/min via nasal prongs, IV fluids commenced (NS 500ml), paracetamol given…"
++                      value={triageEmergencyTx}
++                      onChange={(e) => setTriageEmergencyTx(e.target.value)}
++                      className="min-h-[60px] resize-none text-sm"
++                    />
++                  </div>
++
++                  {/* Infection Control / Isolation */}
++                  <div>
++                    <p className="text-xs text-gray-600 font-semibold mb-2 flex items-center gap-1.5">
++                      <span>⚠️</span> Infection Control / Isolation Precautions
++                    </p>
++                    <div className="grid grid-cols-1 gap-1">
++                      {[
++                        'Standard Precautions',
++                        'Contact Precautions (MRSA / wound infection)',
++                        'Droplet Precautions (influenza / meningitis)',
++                        'Airborne / TB Isolation',
++                        'Suspected COVID-19 / SARI',
++                        'Strict Isolation (immunocompromised / neutropenic)',
++                      ].map((opt) => (
++                        <label
++                          key={opt}
++                          className={`flex items-center gap-2 text-xs px-2.5 py-2 rounded border cursor-pointer transition-colors ${
++                            triageIsolation.includes(opt)
++                              ? 'border-red-400 bg-red-50 text-red-800 font-semibold'
++                              : 'border-gray-200 bg-white hover:border-red-200 text-gray-700'
++                          }`}
++                        >
++                          <input
++                            type="checkbox"
++                            className="accent-red-600"
++                            checked={triageIsolation.includes(opt)}
++                            onChange={() =>
++                              setTriageIsolation((prev) =>
++                                prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt],
++                              )
++                            }
++                          />
++                          {opt}
++                        </label>
++                      ))}
++                    </div>
++                    {triageIsolation.length > 0 && (
++                      <p className="text-xs text-red-700 mt-1 font-medium">
++                        ⚠️ {triageIsolation.length} precaution(s) flagged — will be recorded in
++                        notes
++                      </p>
++                    )}
++                  </div>
++
++                  {/* Lab Investigations */}
++                  <div>
++                    <p className="text-xs text-gray-600 font-medium mb-2">
++                      🔬 Lab Investigations Requested at Triage
++                    </p>
++                    <div className="grid grid-cols-2 gap-1 max-h-40 overflow-y-auto pr-1">
++                      {LAB_TESTS.map((t) => (
++                        <label
++                          key={t}
++                          className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded border cursor-pointer transition-colors ${triageSelectedLab.includes(t) ? 'border-purple-400 bg-purple-50 text-purple-800 font-medium' : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'}`}
++                        >
++                          <input
++                            type="checkbox"
++                            className="accent-purple-600"
++                            checked={triageSelectedLab.includes(t)}
++                            onChange={() =>
++                              setTriageSelectedLab((prev) =>
++                                prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
++                              )
++                            }
++                          />
++                          {t}
++                        </label>
++                      ))}
++                    </div>
++                    {triageSelectedLab.length > 0 && (
++                      <p className="text-xs text-purple-700 mt-1">
++                        {triageSelectedLab.length} test(s) selected
++                      </p>
++                    )}
++                  </div>
++
++                  {/* Imaging Investigations */}
++                  <div>
++                    <p className="text-xs text-gray-600 font-medium mb-2">
++                      🩻 Imaging Requested at Triage
++                    </p>
++                    <div className="grid grid-cols-2 gap-1 max-h-40 overflow-y-auto pr-1">
++                      {IMAGING_TESTS.map((t) => (
++                        <label
++                          key={t}
++                          className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded border cursor-pointer transition-colors ${triageSelectedImaging.includes(t) ? 'border-orange-400 bg-orange-50 text-orange-800 font-medium' : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'}`}
++                        >
++                          <input
++                            type="checkbox"
++                            className="accent-orange-500"
++                            checked={triageSelectedImaging.includes(t)}
++                            onChange={() =>
++                              setTriageSelectedImaging((prev) =>
++                                prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
++                              )
++                            }
++                          />
++                          {t}
++                        </label>
++                      ))}
++                    </div>
++                    {triageSelectedImaging.length > 0 && (
++                      <p className="text-xs text-orange-700 mt-1">
++                        {triageSelectedImaging.length} study(ies) selected
++                      </p>
++                    )}
++                  </div>
++                </div>
+ 
+                 <Button
+                   onClick={handleAdd}
+@@ -3395,13 +3699,6 @@ function ConsultationDialog({
+   // Management plan
+   const [mgmtPlan, setMgmtPlan] = useState(entry.managementPlan || '');
+ 
+-  // Clinical decision (outpatient vs admit)
+-  const CONSULT_BASE = (import.meta.env.VITE_API_URL ?? import.meta.env.VITE_RENDER_URL ?? '') as string;
+-  const CONSULT_TOKEN = () => localStorage.getItem('medrise_admin_token') ?? '';
+-  const [admitDecision, setAdmitDecision] = useState<'outpatient' | 'admit' | null>(null);
+-  const [admitWard, setAdmitWard] = useState('General Ward');
+-  const [isAdmitting, setIsAdmitting] = useState(false);
+-
+   const toggleLab = (t: string) =>
+     setSelectedLabTests((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+   const toggleImaging = (t: string) =>
+@@ -3520,30 +3817,6 @@ function ConsultationDialog({
+     }
+     onSave(entry, data);
+ 
+-    // Create admission record if doctor chose to admit
+-    if (admitDecision === 'admit' && entry.patientId) {
+-      setIsAdmitting(true);
+-      try {
+-        await fetch(`${CONSULT_BASE}/api/admissions`, {
+-          method: 'POST',
+-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${CONSULT_TOKEN()}` },
+-          body: JSON.stringify({
+-            patientId: entry.patientId,
+-            queueEntryId: entry.id,
+-            ward: admitWard,
+-            admissionType: 'emergency',
+-            diagnosis: data.diagnosis || undefined,
+-            notes: data.mgmtPlan ? `Admitted from consultation. Plan: ${data.mgmtPlan}` : 'Admitted from consultation.',
+-          }),
+-        });
+-        toast({ title: `Patient admitted to ${admitWard}` });
+-      } catch {
+-        toast({ title: 'Admission record failed — please create manually', variant: 'destructive' });
+-      } finally {
+-        setIsAdmitting(false);
+-      }
+-    }
+-
+     // Auto-generate billing for registered patients (uses per-patient price overrides)
+     if (entry.patientId) {
+       const billingItems: { description: string; quantity: number; unitPrice: number }[] = [];
+@@ -4510,53 +4783,6 @@ function ConsultationDialog({
+                 will automatically create Pharmacy tasks when you save. Example:{' '}
+                 <code className="bg-purple-100 px-1 rounded">Tab Paracetamol | 500mg | TDS | 5 days | After meals</code>
+               </div>
+-
+-              {/* Clinical Decision */}
+-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 space-y-3">
+-                <p className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
+-                  ⚕️ Clinical Decision
+-                </p>
+-                <div className="grid grid-cols-2 gap-2">
+-                  <button
+-                    type="button"
+-                    onClick={() => setAdmitDecision('outpatient')}
+-                    className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${admitDecision === 'outpatient' ? 'bg-green-50 border-green-500 text-green-700' : 'border-gray-200 text-gray-600 hover:border-green-300'}`}
+-                  >
+-                    🏠 Manage As Outpatient
+-                  </button>
+-                  <button
+-                    type="button"
+-                    onClick={() => setAdmitDecision('admit')}
+-                    className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${admitDecision === 'admit' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-blue-300'}`}
+-                  >
+-                    🏥 Admit Patient
+-                  </button>
+-                </div>
+-                {admitDecision === 'admit' && (
+-                  <div className="space-y-2">
+-                    <div>
+-                      <label className="text-xs font-medium text-gray-600 block mb-1">Ward / Destination *</label>
+-                      <select
+-                        value={admitWard}
+-                        onChange={(e) => setAdmitWard(e.target.value)}
+-                        className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+-                      >
+-                        {['General Ward','Medical Ward','Surgical Ward','Maternity Ward','Paediatrics Ward','ICU','HDU','Isolation Ward','Dental Ward','Eye Ward','Orthopaedic Ward'].map(w => (
+-                          <option key={w}>{w}</option>
+-                        ))}
+-                      </select>
+-                    </div>
+-                    <p className="text-xs text-blue-600 bg-blue-50 px-2 py-1.5 rounded">
+-                      ℹ️ An admission record will be created for <strong>{admitWard}</strong> on save.
+-                    </p>
+-                  </div>
+-                )}
+-                {admitDecision === 'outpatient' && (
+-                  <p className="text-xs text-green-600 bg-green-50 px-2 py-1.5 rounded">
+-                    ✓ Patient will be managed as outpatient and discharged from queue.
+-                  </p>
+-                )}
+-              </div>
+             </div>
+           )}
+         </div>
+@@ -4597,7 +4823,7 @@ function ConsultationDialog({
+               onClick={handleSave}
+               disabled={isSaving}
+             >
+-              {isSaving || isAdmitting ? 'Saving…' : admitDecision === 'admit' ? '🏥 Save & Admit' : 'Save Consultation'}
++              {isSaving ? 'Saving…' : 'Save Consultation'}
+             </Button>
+           </div>
+         </div>
+@@ -5778,55 +6004,6 @@ function NursingDialog({
+ }
+ 
+ // ─── Theatre Dialog ───────────────────────────────────────────────────────────
+-function parseTheatreNotes(notes: string | null | undefined) {
+-  const ex = (label: string) => {
+-    const m = notes?.match(new RegExp(`^${label}:\\s*(.+)`, 'm'));
+-    return m?.[1]?.trim() ?? '';
+-  };
+-  return {
+-    preDiag: ex('Diagnosis'),
+-    prePlan: ex('Planned Procedure'),
+-    preConsent: ex('Consent'),
+-    preAllergies: ex('Allergies'),
+-    preNPO: ex('NPO since'),
+-    preIV: ex('IV Access'),
+-    preBloods: ex('Pre-op bloods'),
+-    preMeds: ex('Pre-op meds'),
+-    preAnaesType: ex('Anaesthesia type'),
+-    preSite: ex('Operative site'),
+-    preSurgeonNotes: ex('Surgeon notes'),
+-    intraSurgeon: ex('Surgeon'),
+-    intraAnaes: ex('Anaesthetist'),
+-    intraScrubNurse: ex('Scrub Nurse'),
+-    intraCircNurse: ex('Circulating Nurse'),
+-    intraProcedure: ex('Procedure performed'),
+-    intraFindings: ex('Operative findings'),
+-    intraDuration: ex('Duration'),
+-    intraBloodLoss: ex('Estimated blood loss').replace(' mL', ''),
+-    intraFluidsGiven: ex('IV fluids given'),
+-    intraSpecimen: ex('Specimen sent'),
+-    intraDrains: ex('Drains'),
+-    intraSwabs: ex('Swab/instrument count'),
+-    intraComplications: ex('Intra-op complications'),
+-    postDx: ex('Post-op diagnosis'),
+-    postWound: ex('Wound status'),
+-    postPlan: ex('Post-op plan'),
+-    postMeds: ex('Medications'),
+-    postDiet: ex('Diet orders'),
+-    postActivity: ex('Activity'),
+-    postFollowUp: ex('Follow-up'),
+-    postNotes: ex('Notes'),
+-    recVitals: ex('Vitals in recovery'),
+-    recAldrete: ex('Aldrete score'),
+-    recO2: ex('O₂ therapy'),
+-    recPain: ex('Pain score'),
+-    recNausea: ex('Nausea/vomiting'),
+-    recNurse: ex('Recovery nurse'),
+-    recDischarge: ex('Discharged from recovery'),
+-    recNotes: ex('Recovery notes'),
+-  };
+-}
+-
+ function TheatreDialog({
+   entry,
+   onSave,
+@@ -5841,55 +6018,54 @@ function TheatreDialog({
+   isSaving: boolean;
+ }) {
+   const [tab, setTab] = useState<'preop' | 'intraop' | 'postop' | 'recovery'>('preop');
+-  const p = React.useMemo(() => parseTheatreNotes(entry.notes), [entry.notes]);
+ 
+   // Preoperative
+-  const [preConsent, setPreConsent] = useState(p.preConsent);
+-  const [preAllergies, setPreAllergies] = useState(p.preAllergies);
+-  const [preNPO, setPreNPO] = useState(p.preNPO);
+-  const [preIV, setPreIV] = useState(p.preIV);
+-  const [preBloods, setPreBloods] = useState(p.preBloods);
+-  const [preMeds, setPreMeds] = useState(p.preMeds);
+-  const [preAnaesType, setPreAnaesType] = useState(p.preAnaesType);
+-  const [preSite, setPreSite] = useState(p.preSite);
+-  const [preDiag, setPreDiag] = useState(p.preDiag);
+-  const [prePlan, setPrePlan] = useState(p.prePlan);
+-  const [preSurgeonNotes, setPreSurgeonNotes] = useState(p.preSurgeonNotes);
++  const [preConsent, setPreConsent] = useState('');
++  const [preAllergies, setPreAllergies] = useState('');
++  const [preNPO, setPreNPO] = useState('');
++  const [preIV, setPreIV] = useState('');
++  const [preBloods, setPreBloods] = useState('');
++  const [preMeds, setPreMeds] = useState('');
++  const [preAnaesType, setPreAnaesType] = useState('');
++  const [preSite, setPreSite] = useState('');
++  const [preDiag, setPreDiag] = useState('');
++  const [prePlan, setPrePlan] = useState('');
++  const [preSurgeonNotes, setPreSurgeonNotes] = useState('');
+ 
+   // Intraoperative
+-  const [intraFindings, setIntraFindings] = useState(p.intraFindings);
+-  const [intraProcedure, setIntraProcedure] = useState(p.intraProcedure);
+-  const [intraScrubNurse, setIntraScrubNurse] = useState(p.intraScrubNurse);
+-  const [intraCircNurse, setIntraCircNurse] = useState(p.intraCircNurse);
+-  const [intraAnaes, setIntraAnaes] = useState(p.intraAnaes);
+-  const [intraSurgeon, setIntraSurgeon] = useState(p.intraSurgeon);
+-  const [intraSpecimen, setIntraSpecimen] = useState(p.intraSpecimen);
+-  const [intraDrains, setIntraDrains] = useState(p.intraDrains);
+-  const [intraComplications, setIntraComplications] = useState(p.intraComplications);
+-  const [intraSwabs, setIntraSwabs] = useState(p.intraSwabs);
+-  const [intraDuration, setIntraDuration] = useState(p.intraDuration);
+-  const [intraBloodLoss, setIntraBloodLoss] = useState(p.intraBloodLoss);
+-  const [intraFluidsGiven, setIntraFluidsGiven] = useState(p.intraFluidsGiven);
++  const [intraFindings, setIntraFindings] = useState('');
++  const [intraProcedure, setIntraProcedure] = useState('');
++  const [intraScrubNurse, setIntraScrubNurse] = useState('');
++  const [intraCircNurse, setIntraCircNurse] = useState('');
++  const [intraAnaes, setIntraAnaes] = useState('');
++  const [intraSurgeon, setIntraSurgeon] = useState('');
++  const [intraSpecimen, setIntraSpecimen] = useState('');
++  const [intraDrains, setIntraDrains] = useState('');
++  const [intraComplications, setIntraComplications] = useState('');
++  const [intraSwabs, setIntraSwabs] = useState('');
++  const [intraDuration, setIntraDuration] = useState('');
++  const [intraBloodLoss, setIntraBloodLoss] = useState('');
++  const [intraFluidsGiven, setIntraFluidsGiven] = useState('');
+ 
+   // Postoperative
+-  const [postDx, setPostDx] = useState(p.postDx);
+-  const [postPlan, setPostPlan] = useState(p.postPlan);
+-  const [postWound, setPostWound] = useState(p.postWound);
+-  const [postMeds, setPostMeds] = useState(p.postMeds);
+-  const [postDiet, setPostDiet] = useState(p.postDiet);
+-  const [postActivity, setPostActivity] = useState(p.postActivity);
+-  const [postFollowUp, setPostFollowUp] = useState(p.postFollowUp);
+-  const [postNotes, setPostNotes] = useState(p.postNotes);
++  const [postDx, setPostDx] = useState('');
++  const [postPlan, setPostPlan] = useState('');
++  const [postWound, setPostWound] = useState('');
++  const [postMeds, setPostMeds] = useState('');
++  const [postDiet, setPostDiet] = useState('');
++  const [postActivity, setPostActivity] = useState('');
++  const [postFollowUp, setPostFollowUp] = useState('');
++  const [postNotes, setPostNotes] = useState('');
+ 
+   // Recovery Room
+-  const [recVitals, setRecVitals] = useState(p.recVitals);
+-  const [recAldrete, setRecAldrete] = useState(p.recAldrete);
+-  const [recO2, setRecO2] = useState(p.recO2);
+-  const [recPain, setRecPain] = useState(p.recPain);
+-  const [recNausea, setRecNausea] = useState(p.recNausea);
+-  const [recDischarge, setRecDischarge] = useState(p.recDischarge);
+-  const [recNurse, setRecNurse] = useState(p.recNurse);
+-  const [recNotes, setRecNotes] = useState(p.recNotes);
++  const [recVitals, setRecVitals] = useState('');
++  const [recAldrete, setRecAldrete] = useState('');
++  const [recO2, setRecO2] = useState('');
++  const [recPain, setRecPain] = useState('');
++  const [recNausea, setRecNausea] = useState('');
++  const [recDischarge, setRecDischarge] = useState('');
++  const [recNurse, setRecNurse] = useState('');
++  const [recNotes, setRecNotes] = useState('');
+ 
+   const handleSave = () => {
+     const notes = [
