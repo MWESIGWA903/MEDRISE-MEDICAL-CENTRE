@@ -89545,7 +89545,9 @@ router7.post("/consultations", async (req, res) => {
           testCategory: "routine",
           priority: "routine",
           status: "pending",
-          // 🔥 FIXED (CRITICAL)
+          // ✅ CRITICAL FIX
+          source: "consultation",
+          // ✅ CRITICAL FIX
           clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
           orderedBy: staffId
         }).returning();
@@ -89574,8 +89576,10 @@ router7.post("/consultations", async (req, res) => {
           bodyPart: study,
           clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
           priority: "routine",
-          status: "pending"
-          // 🔥 FIXED (CRITICAL)
+          status: "pending",
+          // ✅ CRITICAL FIX
+          source: "consultation"
+          // ✅ CRITICAL FIX
         }).returning();
         await createAndBroadcast({
           type: "imaging_order",
@@ -89584,6 +89588,26 @@ router7.post("/consultations", async (req, res) => {
           severity: "info",
           relatedId: imagingOrder.id
         });
+      }
+    }
+    if (parsed.data.prescriptions) {
+      const lines = parsed.data.prescriptions.split("\n").map((s) => s.trim()).filter(Boolean);
+      for (const line2 of lines) {
+        const parts = line2.split("|").map((s) => s.trim());
+        if (parts.length >= 4) {
+          await db.insert(pharmacyOrdersTable).values({
+            patientId,
+            consultationId: row.id,
+            drugName: parts[0],
+            dose: parts[1],
+            frequency: parts[2],
+            duration: parts[3],
+            instructions: parts[4] || "As directed",
+            prescribedBy: staffId,
+            status: "pending",
+            priority: "routine"
+          });
+        }
       }
     }
     await logAudit(req, "create_consultation", {

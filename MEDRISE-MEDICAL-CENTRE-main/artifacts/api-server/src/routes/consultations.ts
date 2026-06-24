@@ -8,7 +8,6 @@ import {
   labOrdersTable,
   imagingOrdersTable,
   pharmacyOrdersTable,
-  triageTable,
 } from '@workspace/db';
 import { z } from 'zod';
 import { logAudit } from '../lib/audit';
@@ -22,13 +21,18 @@ const ConsultationInputSchema = z.object({
   patientId: z.number().int(),
   staffId: z.number().int().optional(),
   visitDate: z.string().min(1),
+
   chiefComplaint: z.string().optional(),
   diagnosis: z.string().optional(),
   treatmentPlan: z.string().optional(),
+
   prescriptions: z.string().optional(),
+
   referral: z.string().optional(),
   followUpDate: z.string().optional(),
   notes: z.string().optional(),
+
+  // MUST BE JSON STRING ARRAY
   labInvestigations: z.string().optional(),
   imagingInvestigations: z.string().optional(),
 });
@@ -61,6 +65,28 @@ async function mapConsultation(c: typeof consultationsTable.$inferSelect) {
   };
 }
 
+/* ───────────────────────── SAFE PARSE HELPER ───────────────────────── */
+
+function safeArray(input?: string): string[] {
+  if (!input) return [];
+
+  try {
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) {
+      return parsed
+        .map(String)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+  } catch {}
+
+  // fallback (old format support)
+  return input
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 /* ───────────────────────── CONSULTATION CREATE ───────────────────────── */
 
 router.post('/consultations', async (req, res): Promise<void> => {
@@ -90,79 +116,70 @@ router.post('/consultations', async (req, res): Promise<void> => {
     const patientId = parsed.data.patientId;
     const staffId = parsed.data.staffId ?? null;
 
-    /* ───────────────────────── LAB ORDERS (FIXED) ───────────────────────── */
+    /* ───────────────────────── LAB ORDERS ───────────────────────── */
 
-    if (parsed.data.labInvestigations) {
-      const tests = parsed.data.labInvestigations
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
+    const tests = safeArray(parsed.data.labInvestigations);
 
-      for (const testName of tests) {
-        const [labOrder] = await db
-          .insert(labOrdersTable)
-          .values({
-            patientId,
-            consultationId: row.id,
-            testName,
-            testCategory: 'routine',
-            priority: 'routine',
-            status: 'pending', // ✅ CRITICAL FIX
-            source: 'consultation', // ✅ CRITICAL FIX
-            clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
-            orderedBy: staffId,
-          })
-          .returning();
+    for (const testName of tests) {
+      const [labOrder] = await db
+        .insert(labOrdersTable)
+        .values({
+          patientId,
+          consultationId: row.id,
+          testName,
+          testCategory: 'routine',
+          priority: 'routine',
+          status: 'pending',
+          source: 'consultation',
+          clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
+          orderedBy: staffId,
+        })
+        .returning();
 
-        await createAndBroadcast({
-          type: 'lab_order',
-          title: 'New Lab Request',
-          body: `${testName} requested for patient ${patientId}`,
-          severity: 'info',
-          relatedId: labOrder.id,
-        });
-      }
+      await createAndBroadcast({
+        type: 'lab_order',
+        title: `Lab Request: ${testName}`,
+        body: `New lab test ordered for patient ${patientId}`,
+        severity: 'info',
+        relatedId: labOrder.id,
+      });
     }
 
-    /* ───────────────────────── IMAGING ORDERS (FIXED) ───────────────────────── */
+    /* ───────────────────────── IMAGING ORDERS ───────────────────────── */
 
-    if (parsed.data.imagingInvestigations) {
-      const studies = parsed.data.imagingInvestigations
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
+    const studies = safeArray(parsed.data.imagingInvestigations);
 
-      for (const study of studies) {
-        const lower = study.toLowerCase();
+    for (const study of studies) {
+      const lower = study.toLowerCase();
 
-        let modality = 'X-Ray';
-        if (lower.includes('ct')) modality = 'CT Scan';
-        else if (lower.includes('mri')) modality = 'MRI';
-        else if (lower.includes('ultrasound') || lower.includes('doppler')) modality = 'Ultrasound';
-        else if (lower.includes('mammogram')) modality = 'Mammography';
+      let modality = 'X-Ray';
+      if (lower.includes('ct')) modality = 'CT Scan';
+      else if (lower.includes('mri')) modality = 'MRI';
+      else if (lower.includes('ultrasound')) modality = 'Ultrasound';
+      else if (lower.includes('doppler')) modality = 'Ultrasound';
+      else if (lower.includes('mammogram')) modality = 'Mammography';
 
-        const [imagingOrder] = await db
-          .insert(imagingOrdersTable)
-          .values({
-            patientId,
-            consultationId: row.id,
-            modality,
-            bodyPart: study,
-            clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
-            priority: 'routine',
-            status: 'pending', // ✅ CRITICAL FIX
-            source: 'consultation', // ✅ CRITICAL FIX
-          })
-          .returning();
+      const [imagingOrder] = await db
+        .insert(imagingOrdersTable)
+        .values({
+          patientId,
+          consultationId: row.id,
+          modality,
+          bodyPart: study,
+          clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
+          priority: 'routine',
+          status: 'pending',
+          source: 'consultation',
+        })
+        .returning();
 
-        await createAndBroadcast({
-          type: 'imaging_order',
-          title: 'New Imaging Request',
-          body: `${study} requested for patient ${patientId}`,
-          severity: 'info',
-          relatedId: imagingOrder.id,
-        });
-      }
+      await createAndBroadcast({
+        type: 'imaging_order',
+        title: `Imaging Request: ${study}`,
+        body: `New imaging ordered for patient ${patientId}`,
+        severity: 'info',
+        relatedId: imagingOrder.id,
+      });
     }
 
     /* ───────────────────────── PHARMACY ───────────────────────── */
@@ -175,6 +192,7 @@ router.post('/consultations', async (req, res): Promise<void> => {
 
       for (const line of lines) {
         const parts = line.split('|').map((s) => s.trim());
+
         if (parts.length >= 4) {
           await db.insert(pharmacyOrdersTable).values({
             patientId,
@@ -210,7 +228,7 @@ router.post('/consultations', async (req, res): Promise<void> => {
   }
 });
 
-/* ───────────────────────── GET CONSULTATIONS ───────────────────────── */
+/* ───────────────────────── GET ───────────────────────── */
 
 router.get('/consultations', async (req, res) => {
   try {
