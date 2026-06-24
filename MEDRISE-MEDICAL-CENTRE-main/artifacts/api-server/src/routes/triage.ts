@@ -1,11 +1,14 @@
-import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
-import { db, triageTable, labOrdersTable, imagingOrdersTable } from "@workspace/db";
-import { z } from "zod";
-import { getSessionFromRequest } from "../lib/session";
-import { logAudit } from "../lib/audit";
+import { Router, type IRouter } from 'express';
+import { desc, eq } from 'drizzle-orm';
+import { db, triageTable, labOrdersTable, imagingOrdersTable } from '@workspace/db';
+import { z } from 'zod';
+import { getSessionFromRequest } from '../lib/session';
+import { logAudit } from '../lib/audit';
+import { createAndBroadcast } from '../lib/notificationHelper';
 
 const router: IRouter = Router();
+
+/* ───────────────────────── SCHEMA ───────────────────────── */
 
 const TriageInputSchema = z.object({
   patientId: z.number().int().positive(),
@@ -23,31 +26,41 @@ const TriageInputSchema = z.object({
   nursingAssessment: z.string().optional(),
   interventionsPerformed: z.string().optional(),
   reassessmentNotes: z.string().optional(),
-  // Triage Nursing Notes
+
   presentingComplaints: z.string().optional(),
   briefMedicalHistory: z.string().optional(),
   emergencyInvestigationsRequested: z.string().optional(),
   investigationResults: z.string().optional(),
   laboratoryResultsUpload: z.string().optional(),
   imagingResultsUpload: z.string().optional(),
-  priority: z.enum(["normal", "non-urgent", "urgent", "emergency", "deceased"]).default("normal"),
-  status: z.enum(["active", "completed", "referred"]).default("active"),
+
+  priority: z.enum(['normal', 'non-urgent', 'urgent', 'emergency', 'deceased']).default('normal'),
+
+  status: z.enum(['active', 'completed', 'referred']).default('active'),
   isEmergency: z.boolean().default(false),
   triageTime: z.string().optional(),
 });
 
-const TriageUpdateSchema = TriageInputSchema.partial().omit({ patientId: true });
+const TriageUpdateSchema = TriageInputSchema.partial().omit({
+  patientId: true,
+});
 
-router.get("/triage", async (req, res): Promise<void> => {
-  // Explicit session guard for consistency (global middleware also checks this)
+/* ───────────────────────── GET ───────────────────────── */
+
+router.get('/triage', async (req, res): Promise<void> => {
   const session = getSessionFromRequest(req);
-  if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
-
-  const patientId = req.query.patientId ? parseInt(req.query.patientId as string) : null;
-  if (!patientId || isNaN(patientId)) {
-    res.status(400).json({ error: "patientId query parameter is required" });
+  if (!session) {
+    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
+
+  const patientId = req.query.patientId ? parseInt(req.query.patientId as string) : null;
+
+  if (!patientId || isNaN(patientId)) {
+    res.status(400).json({ error: 'patientId query parameter is required' });
+    return;
+  }
+
   try {
     const rows = await db
       .select()
@@ -56,27 +69,41 @@ router.get("/triage", async (req, res): Promise<void> => {
       .orderBy(desc(triageTable.triageTime))
       .limit(10);
 
-    res.json(rows.map(r => ({
-      ...r,
-      triageTime: r.triageTime.toISOString(),
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    })));
+    res.json(
+      rows.map((r) => ({
+        ...r,
+        triageTime: r.triageTime.toISOString(),
+        createdAt: r.createdAt.toISOString(),
+        updatedAt: r.updatedAt.toISOString(),
+      })),
+    );
   } catch (err) {
-    console.error("GET /triage error:", err);
-    res.status(500).json({ error: "Failed to fetch triage records", detail: err instanceof Error ? err.message : String(err) });
+    console.error('GET /triage error:', err);
+    res.status(500).json({
+      error: 'Failed to fetch triage records',
+      detail: err instanceof Error ? err.message : String(err),
+    });
   }
 });
 
-router.post("/triage", async (req, res): Promise<void> => {
+/* ───────────────────────── CREATE TRIAGE ───────────────────────── */
+
+router.post('/triage', async (req, res): Promise<void> => {
   const session = getSessionFromRequest(req);
-  if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
+  if (!session) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
 
   const parsed = TriageInputSchema.safeParse(req.body);
-  if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
 
   try {
-    const { triageTime, ...rest } = parsed.data;
+    const { triageTime, emergencyInvestigationsRequested, ...rest } = parsed.data;
+
     const [record] = await db
       .insert(triageTable)
       .values({
@@ -87,34 +114,59 @@ router.post("/triage", async (req, res): Promise<void> => {
       })
       .returning();
 
-    // Investigation Request Automation
-    // Automatically create lab orders when investigations are requested
-    if (parsed.data.emergencyInvestigationsRequested) {
-      const investigations = parsed.data.emergencyInvestigationsRequested.split(',').map(s => s.trim()).filter(Boolean);
+    /* ───────────────────────── LAB ORDERS + BROADCAST FIX ───────────────────────── */
+
+    if (emergencyInvestigationsRequested) {
+      const investigations = emergencyInvestigationsRequested
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
       for (const investigation of investigations) {
-        const investigationLower = investigation.toLowerCase();
-        // Check if it's a lab test
-        if (investigationLower.includes('blood') || investigationLower.includes('cbc') || 
-            investigationLower.includes('urine') || investigationLower.includes('culture') ||
-            investigationLower.includes('biochemistry') || investigationLower.includes('serology') ||
-            investigationLower.includes('hematology') || investigationLower.includes('lab')) {
-          await db.insert(labOrdersTable).values({
-            patientId: parsed.data.patientId,
-            testName: investigation,
-            testCategory: 'routine',
-            priority: parsed.data.isEmergency ? 'stat' : 'routine',
-            status: 'pending',
-            clinicalInfo: parsed.data.chiefComplaint,
-            orderedBy: session.id,
+        const lower = investigation.toLowerCase();
+
+        const isLab =
+          lower.includes('blood') ||
+          lower.includes('cbc') ||
+          lower.includes('urine') ||
+          lower.includes('culture') ||
+          lower.includes('biochemistry') ||
+          lower.includes('serology') ||
+          lower.includes('hematology') ||
+          lower.includes('lab');
+
+        if (isLab) {
+          const [labOrder] = await db
+            .insert(labOrdersTable)
+            .values({
+              patientId: parsed.data.patientId,
+              testName: investigation,
+              testCategory: 'routine',
+              priority: parsed.data.isEmergency ? 'stat' : 'routine',
+              status: 'pending',
+              clinicalInfo: parsed.data.chiefComplaint,
+              orderedBy: session.id,
+            })
+            .returning();
+
+          // ✅ FIX: THIS IS WHAT WAS MISSING (LAB WAS BLIND)
+          await createAndBroadcast({
+            type: 'lab_order',
+            title: 'New Lab Request',
+            body: `${parsed.data.patientId} requested ${investigation}`,
+            severity: 'info',
+            relatedId: labOrder.id,
           });
         }
       }
     }
 
-    await logAudit(req, "record_triage", {
-      entityType: "triage",
+    /* ───────────────────────── AUDIT ───────────────────────── */
+
+    await logAudit(req, 'record_triage', {
+      entityType: 'triage',
       entityId: record.id,
-      details: `Triage recorded for patient ID ${parsed.data.patientId} — ${parsed.data.priority} priority`,
+      details: `Triage recorded for patient ${parsed.data.patientId}`,
     });
 
     res.status(201).json({
@@ -124,25 +176,43 @@ router.post("/triage", async (req, res): Promise<void> => {
       updatedAt: record.updatedAt.toISOString(),
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to record triage", detail: err instanceof Error ? err.message : String(err) });
+    console.error('TRIAGE ERROR:', err);
+    res.status(500).json({
+      error: 'Failed to record triage',
+      detail: err instanceof Error ? err.message : String(err),
+    });
   }
 });
 
-router.patch("/triage/:id", async (req, res): Promise<void> => {
+/* ───────────────────────── UPDATE ───────────────────────── */
+
+router.patch('/triage/:id', async (req, res): Promise<void> => {
   const session = getSessionFromRequest(req);
-  if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
+  if (!session) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
 
   const id = Number(req.params.id);
-  if (!id) { res.status(400).json({ error: "Invalid ID" }); return; }
+  if (!id) {
+    res.status(400).json({ error: 'Invalid ID' });
+    return;
+  }
 
   const parsed = TriageUpdateSchema.safeParse(req.body);
-  if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
 
   try {
-    const updates: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
+    const updates: Record<string, unknown> = {
+      ...parsed.data,
+      updatedAt: new Date(),
+    };
+
     if (parsed.data.triageTime) {
-      updates.triageTime = new Date(parsed.data.triageTime as string);
+      updates.triageTime = new Date(parsed.data.triageTime);
     }
 
     const [updated] = await db
@@ -151,9 +221,15 @@ router.patch("/triage/:id", async (req, res): Promise<void> => {
       .where(eq(triageTable.id, id))
       .returning();
 
-    if (!updated) { res.status(404).json({ error: "Triage record not found" }); return; }
+    if (!updated) {
+      res.status(404).json({ error: 'Triage record not found' });
+      return;
+    }
 
-    await logAudit(req, "update_triage", { entityType: "triage", entityId: id });
+    await logAudit(req, 'update_triage', {
+      entityType: 'triage',
+      entityId: id,
+    });
 
     res.json({
       ...updated,
@@ -162,8 +238,11 @@ router.patch("/triage/:id", async (req, res): Promise<void> => {
       updatedAt: updated.updatedAt.toISOString(),
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to update triage", detail: err instanceof Error ? err.message : String(err) });
+    console.error('UPDATE TRIAGE ERROR:', err);
+    res.status(500).json({
+      error: 'Failed to update triage',
+      detail: err instanceof Error ? err.message : String(err),
+    });
   }
 });
 
