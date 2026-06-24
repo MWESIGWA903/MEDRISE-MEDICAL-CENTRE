@@ -61,7 +61,7 @@ async function mapConsultation(c: typeof consultationsTable.$inferSelect) {
   };
 }
 
-/* ───────────────────────── CREATE CONSULTATION ───────────────────────── */
+/* ───────────────────────── CONSULTATION CREATE ───────────────────────── */
 
 router.post('/consultations', async (req, res): Promise<void> => {
   try {
@@ -107,7 +107,8 @@ router.post('/consultations', async (req, res): Promise<void> => {
             testName,
             testCategory: 'routine',
             priority: 'routine',
-            status: 'pending', // 🔥 FIXED (CRITICAL)
+            status: 'pending', // ✅ CRITICAL FIX
+            source: 'consultation', // ✅ CRITICAL FIX
             clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
             orderedBy: staffId,
           })
@@ -149,7 +150,8 @@ router.post('/consultations', async (req, res): Promise<void> => {
             bodyPart: study,
             clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
             priority: 'routine',
-            status: 'pending', // 🔥 FIXED (CRITICAL)
+            status: 'pending', // ✅ CRITICAL FIX
+            source: 'consultation', // ✅ CRITICAL FIX
           })
           .returning();
 
@@ -160,6 +162,33 @@ router.post('/consultations', async (req, res): Promise<void> => {
           severity: 'info',
           relatedId: imagingOrder.id,
         });
+      }
+    }
+
+    /* ───────────────────────── PHARMACY ───────────────────────── */
+
+    if (parsed.data.prescriptions) {
+      const lines = parsed.data.prescriptions
+        .split('\n')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      for (const line of lines) {
+        const parts = line.split('|').map((s) => s.trim());
+        if (parts.length >= 4) {
+          await db.insert(pharmacyOrdersTable).values({
+            patientId,
+            consultationId: row.id,
+            drugName: parts[0],
+            dose: parts[1],
+            frequency: parts[2],
+            duration: parts[3],
+            instructions: parts[4] || 'As directed',
+            prescribedBy: staffId,
+            status: 'pending',
+            priority: 'routine',
+          });
+        }
       }
     }
 

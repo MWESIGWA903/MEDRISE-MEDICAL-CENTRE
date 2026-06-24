@@ -86943,21 +86943,22 @@ router2.get("/appointments", async (req, res) => {
   const statusFilter = typeof req.query.status === "string" && req.query.status !== "all" ? req.query.status : null;
   const all = await db.select().from(appointmentsTable).orderBy(appointmentsTable.createdAt);
   const filtered = statusFilter ? all.filter((a) => a.status === statusFilter) : all;
-  const mapped = filtered.map((a) => ({
-    ...a,
-    createdAt: a.createdAt.toISOString(),
-    checkinTime: a.checkinTime?.toISOString() ?? null
-  }));
-  res.json(ListAppointmentsResponse.parse(mapped));
+  res.json(
+    ListAppointmentsResponse.parse(
+      filtered.map((a) => ({
+        ...a,
+        createdAt: a.createdAt.toISOString(),
+        checkinTime: a.checkinTime ? a.checkinTime.toISOString() : null
+      }))
+    )
+  );
 });
 router2.post("/appointments", async (req, res) => {
-  const startTime = Date.now();
   const parsed = CreateAppointmentBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const dbStartTime = Date.now();
   const [appointment] = await db.insert(appointmentsTable).values({
     patientName: parsed.data.patientName,
     phone: parsed.data.phone,
@@ -86971,67 +86972,37 @@ router2.post("/appointments", async (req, res) => {
     message: parsed.data.message ?? null,
     status: "pending"
   }).returning();
-  const dbEndTime = Date.now();
-  console.log(`Appointment database save completed in ${dbEndTime - dbStartTime}ms`);
-  const apptDetails = {
-    patientName: appointment.patientName,
-    phone: appointment.phone,
-    email: appointment.email,
-    service: appointment.service,
-    preferredDate: appointment.preferredDate,
-    preferredTime: appointment.preferredTime,
-    message: appointment.message
-  };
   void Promise.all([
-    sendAppointmentNotificationToClinic(apptDetails),
+    sendAppointmentNotificationToClinic({
+      patientName: appointment.patientName,
+      phone: appointment.phone,
+      email: appointment.email,
+      service: appointment.service,
+      preferredDate: appointment.preferredDate,
+      preferredTime: appointment.preferredTime,
+      message: appointment.message
+    }),
     createAndBroadcast({
       type: "appointment",
-      title: "New Appointment Request",
-      body: `${appointment.patientName} \u2014 ${appointment.service} on ${appointment.preferredDate} at ${appointment.preferredTime}`,
+      title: "New Appointment",
+      body: `${appointment.patientName} \u2014 ${appointment.service}`,
       severity: "info",
       relatedId: appointment.id
     })
-  ]).catch((err) => {
-    console.error("Failed to send appointment notifications:", err);
-  });
-  const responseTime = Date.now() - startTime;
-  console.log(`Appointment HTTP response returned in ${responseTime}ms`);
+  ]).catch(console.error);
   res.status(201).json(
     GetAppointmentResponse.parse({
       ...appointment,
-      createdAt: appointment.createdAt.toISOString()
-    })
-  );
-});
-router2.get("/appointments/stats/summary", async (req, res) => {
-  const rows = await db.select().from(appointmentsTable);
-  const total = rows.length;
-  const pending = rows.filter((r) => r.status === "pending").length;
-  const confirmed = rows.filter((r) => r.status === "confirmed").length;
-  const cancelled = rows.filter((r) => r.status === "cancelled").length;
-  const completed = rows.filter((r) => r.status === "completed").length;
-  const now = /* @__PURE__ */ new Date();
-  const todayStr = now.toISOString().slice(0, 10);
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay());
-  const weekStartStr = weekStart.toISOString().slice(0, 10);
-  const todayCount = rows.filter((r) => r.preferredDate === todayStr).length;
-  const thisWeekCount = rows.filter((r) => r.preferredDate >= weekStartStr).length;
-  res.json(
-    GetAppointmentStatsResponse.parse({
-      total,
-      pending,
-      confirmed,
-      cancelled,
-      completed,
-      todayCount,
-      thisWeekCount
+      createdAt: appointment.createdAt.toISOString(),
+      checkinTime: null
     })
   );
 });
 router2.get("/appointments/:id", async (req, res) => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = GetAppointmentParams.safeParse({ id: parseInt(raw, 10) });
+  const raw = req.params.id;
+  const params = GetAppointmentParams.safeParse({
+    id: parseInt(raw, 10)
+  });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
@@ -87044,13 +87015,16 @@ router2.get("/appointments/:id", async (req, res) => {
   res.json(
     GetAppointmentResponse.parse({
       ...appointment,
-      createdAt: appointment.createdAt.toISOString()
+      createdAt: appointment.createdAt.toISOString(),
+      checkinTime: appointment.checkinTime ? appointment.checkinTime.toISOString() : null
     })
   );
 });
 router2.patch("/appointments/:id", async (req, res) => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = UpdateAppointmentStatusParams.safeParse({ id: parseInt(raw, 10) });
+  const raw = req.params.id;
+  const params = UpdateAppointmentStatusParams.safeParse({
+    id: parseInt(raw, 10)
+  });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
@@ -87060,7 +87034,9 @@ router2.patch("/appointments/:id", async (req, res) => {
     res.status(400).json({ error: body.error.message });
     return;
   }
-  const updateSet = { status: body.data.status };
+  const updateSet = {
+    status: body.data.status
+  };
   if (req.body.assignedStaffId !== void 0) {
     updateSet.assignedStaffId = req.body.assignedStaffId || null;
   }
@@ -87070,10 +87046,27 @@ router2.patch("/appointments/:id", async (req, res) => {
   if (body.data.status === "checked_in") {
     updateSet.checkinTime = /* @__PURE__ */ new Date();
   }
-  const [appointment] = await db.update(appointmentsTable).set(updateSet).where(eq(appointmentsTable.id, params.data.id)).returning();
+  let appointment;
+  try {
+    [appointment] = await db.update(appointmentsTable).set(updateSet).where(eq(appointmentsTable.id, params.data.id)).returning();
+  } catch (err) {
+    console.error("PATCH ERROR:", err);
+    res.status(500).json({ error: "Failed to update appointment" });
+    return;
+  }
   if (!appointment) {
     res.status(404).json({ error: "Appointment not found" });
     return;
+  }
+  if (body.data.status === "checked_in") {
+    try {
+      await db.execute(`
+        INSERT INTO patient_queue (appointment_id, status, created_at)
+        VALUES (${appointment.id}, 'waiting', NOW())
+      `);
+    } catch (err) {
+      console.error("QUEUE INSERT FAILED:", err);
+    }
   }
   if ((body.data.status === "confirmed" || body.data.status === "cancelled") && appointment.email) {
     void sendAppointmentStatusUpdateToPatient({
@@ -87085,20 +87078,20 @@ router2.patch("/appointments/:id", async (req, res) => {
       preferredTime: appointment.preferredTime,
       message: appointment.message,
       status: body.data.status
-    }).catch((err) => {
-      console.error("Failed to send appointment status update notification:", err);
-    });
+    }).catch(console.error);
   }
   res.json(
     UpdateAppointmentStatusResponse.parse({
       ...appointment,
-      createdAt: appointment.createdAt.toISOString()
+      createdAt: appointment.createdAt.toISOString(),
+      checkinTime: appointment.checkinTime ? appointment.checkinTime.toISOString() : null
     })
   );
 });
 router2.delete("/appointments/:id", async (req, res) => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = DeleteAppointmentParams.safeParse({ id: parseInt(raw, 10) });
+  const params = DeleteAppointmentParams.safeParse({
+    id: parseInt(req.params.id, 10)
+  });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
@@ -89521,17 +89514,6 @@ async function mapConsultation(c) {
     updatedAt: c.updatedAt.toISOString()
   };
 }
-router7.get("/consultations", async (req, res) => {
-  try {
-    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
-    const rows = patientId ? await db.select().from(consultationsTable).where(eq(consultationsTable.patientId, patientId)).orderBy(desc(consultationsTable.visitDate)) : await db.select().from(consultationsTable).orderBy(desc(consultationsTable.visitDate));
-    const mapped = await Promise.all(rows.map(mapConsultation));
-    res.json(mapped);
-  } catch (err) {
-    console.error("GET /consultations error:", err);
-    res.status(500).json({ error: "Failed to fetch consultations", detail: err instanceof Error ? err.message : String(err) });
-  }
-});
 router7.post("/consultations", async (req, res) => {
   try {
     const parsed = ConsultationInputSchema.safeParse(req.body);
@@ -89551,131 +89533,84 @@ router7.post("/consultations", async (req, res) => {
       followUpDate: parsed.data.followUpDate ?? null,
       notes: parsed.data.notes ?? null
     }).returning();
+    const patientId = parsed.data.patientId;
+    const staffId = parsed.data.staffId ?? null;
     if (parsed.data.labInvestigations) {
-      const investigations = parsed.data.labInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
-      for (const investigation of investigations) {
-        await db.insert(labOrdersTable).values({
-          patientId: parsed.data.patientId,
+      const tests = parsed.data.labInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
+      for (const testName of tests) {
+        const [labOrder] = await db.insert(labOrdersTable).values({
+          patientId,
           consultationId: row.id,
-          testName: investigation,
+          testName,
           testCategory: "routine",
           priority: "routine",
           status: "pending",
-          clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis,
-          orderedBy: parsed.data.staffId
+          // 🔥 FIXED (CRITICAL)
+          clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
+          orderedBy: staffId
+        }).returning();
+        await createAndBroadcast({
+          type: "lab_order",
+          title: "New Lab Request",
+          body: `${testName} requested for patient ${patientId}`,
+          severity: "info",
+          relatedId: labOrder.id
         });
       }
     }
     if (parsed.data.imagingInvestigations) {
       const studies = parsed.data.imagingInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
       for (const study of studies) {
-        const studyLower = study.toLowerCase();
+        const lower = study.toLowerCase();
         let modality = "X-Ray";
-        if (studyLower.includes("ct scan") || studyLower.includes("computed tomography")) modality = "CT Scan";
-        else if (studyLower.includes("mri") || studyLower.includes("magnetic resonance")) modality = "MRI";
-        else if (studyLower.includes("ultrasound") || studyLower.includes("echo") || studyLower.includes("doppler")) modality = "Ultrasound";
-        else if (studyLower.includes("mammogram") || studyLower.includes("mammography")) modality = "Mammography";
-        await db.insert(imagingOrdersTable).values({
-          patientId: parsed.data.patientId,
+        if (lower.includes("ct")) modality = "CT Scan";
+        else if (lower.includes("mri")) modality = "MRI";
+        else if (lower.includes("ultrasound") || lower.includes("doppler")) modality = "Ultrasound";
+        else if (lower.includes("mammogram")) modality = "Mammography";
+        const [imagingOrder] = await db.insert(imagingOrdersTable).values({
+          patientId,
           consultationId: row.id,
           modality,
           bodyPart: study,
-          clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis,
+          clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
           priority: "routine",
-          status: "requested"
+          status: "pending"
+          // 🔥 FIXED (CRITICAL)
+        }).returning();
+        await createAndBroadcast({
+          type: "imaging_order",
+          title: "New Imaging Request",
+          body: `${study} requested for patient ${patientId}`,
+          severity: "info",
+          relatedId: imagingOrder.id
         });
       }
     }
-    if (parsed.data.prescriptions) {
-      const prescriptionLines = parsed.data.prescriptions.split("\n").map((s) => s.trim()).filter(Boolean);
-      for (const prescription of prescriptionLines) {
-        const parts = prescription.split("|").map((s) => s.trim());
-        if (parts.length >= 4) {
-          await db.insert(pharmacyOrdersTable).values({
-            patientId: parsed.data.patientId,
-            consultationId: row.id,
-            drugName: parts[0],
-            dose: parts[1],
-            frequency: parts[2],
-            duration: parts[3],
-            instructions: parts[4] || "As directed",
-            prescribedBy: parsed.data.staffId,
-            status: "pending",
-            priority: "routine"
-          });
-        }
-      }
-    }
-    if (parsed.data.followUpDate) {
-      await db.update(consultationsTable).set({ followUpStatus: "scheduled" }).where(eq(consultationsTable.id, row.id));
-    }
-    logAudit(req, "create_consultation", { entityType: "consultation", entityId: row.id, details: parsed.data.chiefComplaint ?? parsed.data.diagnosis ?? "" }).catch(() => {
+    await logAudit(req, "create_consultation", {
+      entityType: "consultation",
+      entityId: row.id,
+      details: parsed.data.chiefComplaint || parsed.data.diagnosis || ""
+    }).catch(() => {
     });
     res.status(201).json(await mapConsultation(row));
   } catch (err) {
     console.error("POST /consultations error:", err);
-    res.status(500).json({ error: "Failed to save consultation", detail: err instanceof Error ? err.message : String(err) });
+    res.status(500).json({
+      error: "Failed to save consultation",
+      detail: err instanceof Error ? err.message : String(err)
+    });
   }
 });
-router7.get("/consultations/:id", async (req, res) => {
+router7.get("/consultations", async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
-    const [row] = await db.select().from(consultationsTable).where(eq(consultationsTable.id, id));
-    if (!row) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    const triageData = await db.select().from(triageTable).where(eq(triageTable.patientId, row.patientId)).orderBy(desc(triageTable.triageTime)).limit(1).then((r) => r[0] || null);
-    const consultation = await mapConsultation(row);
-    res.json({
-      ...consultation,
-      triageData: triageData ? {
-        ...triageData,
-        triageTime: triageData.triageTime.toISOString(),
-        createdAt: triageData.createdAt.toISOString(),
-        updatedAt: triageData.updatedAt.toISOString()
-      } : null
-    });
+    const patientId = req.query.patientId ? parseInt(String(req.query.patientId), 10) : void 0;
+    const rows = patientId ? await db.select().from(consultationsTable).where(eq(consultationsTable.patientId, patientId)).orderBy(desc(consultationsTable.visitDate)) : await db.select().from(consultationsTable).orderBy(desc(consultationsTable.visitDate));
+    res.json(await Promise.all(rows.map(mapConsultation)));
   } catch (err) {
-    console.error("GET /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to fetch consultation", detail: err instanceof Error ? err.message : String(err) });
-  }
-});
-router7.patch("/consultations/:id", async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    const parsed = ConsultationInputSchema.partial().safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.message });
-      return;
-    }
-    const [row] = await db.update(consultationsTable).set({ ...parsed.data, updatedAt: /* @__PURE__ */ new Date() }).where(eq(consultationsTable.id, id)).returning();
-    if (!row) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    logAudit(req, "update_consultation", { entityType: "consultation", entityId: row.id, details: parsed.data.diagnosis ?? "" }).catch(() => {
+    res.status(500).json({
+      error: "Failed to fetch consultations",
+      detail: String(err)
     });
-    res.json(await mapConsultation(row));
-  } catch (err) {
-    console.error("PATCH /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to update consultation", detail: err instanceof Error ? err.message : String(err) });
-  }
-});
-router7.delete("/consultations/:id", async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    const [row] = await db.delete(consultationsTable).where(eq(consultationsTable.id, id)).returning();
-    if (!row) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    logAudit(req, "delete_consultation", { entityType: "consultation", entityId: row.id }).catch(() => {
-    });
-    res.sendStatus(204);
-  } catch (err) {
-    console.error("DELETE /consultations/:id error:", err);
-    res.status(500).json({ error: "Failed to delete consultation", detail: err instanceof Error ? err.message : String(err) });
   }
 });
 var consultations_default = router7;
@@ -91270,7 +91205,6 @@ var TriageInputSchema = external_exports.object({
   nursingAssessment: external_exports.string().optional(),
   interventionsPerformed: external_exports.string().optional(),
   reassessmentNotes: external_exports.string().optional(),
-  // Triage Nursing Notes
   presentingComplaints: external_exports.string().optional(),
   briefMedicalHistory: external_exports.string().optional(),
   emergencyInvestigationsRequested: external_exports.string().optional(),
@@ -91282,7 +91216,9 @@ var TriageInputSchema = external_exports.object({
   isEmergency: external_exports.boolean().default(false),
   triageTime: external_exports.string().optional()
 });
-var TriageUpdateSchema = TriageInputSchema.partial().omit({ patientId: true });
+var TriageUpdateSchema = TriageInputSchema.partial().omit({
+  patientId: true
+});
 router21.get("/triage", async (req, res) => {
   const session = getSessionFromRequest(req);
   if (!session) {
@@ -91296,15 +91232,20 @@ router21.get("/triage", async (req, res) => {
   }
   try {
     const rows = await db.select().from(triageTable).where(eq(triageTable.patientId, patientId)).orderBy(desc(triageTable.triageTime)).limit(10);
-    res.json(rows.map((r) => ({
-      ...r,
-      triageTime: r.triageTime.toISOString(),
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString()
-    })));
+    res.json(
+      rows.map((r) => ({
+        ...r,
+        triageTime: r.triageTime.toISOString(),
+        createdAt: r.createdAt.toISOString(),
+        updatedAt: r.updatedAt.toISOString()
+      }))
+    );
   } catch (err) {
     console.error("GET /triage error:", err);
-    res.status(500).json({ error: "Failed to fetch triage records", detail: err instanceof Error ? err.message : String(err) });
+    res.status(500).json({
+      error: "Failed to fetch triage records",
+      detail: err instanceof Error ? err.message : String(err)
+    });
   }
 });
 router21.post("/triage", async (req, res) => {
@@ -91319,19 +91260,20 @@ router21.post("/triage", async (req, res) => {
     return;
   }
   try {
-    const { triageTime, ...rest } = parsed.data;
+    const { triageTime, emergencyInvestigationsRequested, ...rest } = parsed.data;
     const [record2] = await db.insert(triageTable).values({
       ...rest,
       assignedNurseId: rest.assignedNurseId ?? session.id,
       assignedNurseName: rest.assignedNurseName ?? session.name,
       triageTime: triageTime ? new Date(triageTime) : /* @__PURE__ */ new Date()
     }).returning();
-    if (parsed.data.emergencyInvestigationsRequested) {
-      const investigations = parsed.data.emergencyInvestigationsRequested.split(",").map((s) => s.trim()).filter(Boolean);
+    if (emergencyInvestigationsRequested) {
+      const investigations = emergencyInvestigationsRequested.split(",").map((s) => s.trim()).filter(Boolean);
       for (const investigation of investigations) {
-        const investigationLower = investigation.toLowerCase();
-        if (investigationLower.includes("blood") || investigationLower.includes("cbc") || investigationLower.includes("urine") || investigationLower.includes("culture") || investigationLower.includes("biochemistry") || investigationLower.includes("serology") || investigationLower.includes("hematology") || investigationLower.includes("lab")) {
-          await db.insert(labOrdersTable).values({
+        const lower = investigation.toLowerCase();
+        const isLab = lower.includes("blood") || lower.includes("cbc") || lower.includes("urine") || lower.includes("culture") || lower.includes("biochemistry") || lower.includes("serology") || lower.includes("hematology") || lower.includes("lab");
+        if (isLab) {
+          const [labOrder] = await db.insert(labOrdersTable).values({
             patientId: parsed.data.patientId,
             testName: investigation,
             testCategory: "routine",
@@ -91339,6 +91281,13 @@ router21.post("/triage", async (req, res) => {
             status: "pending",
             clinicalInfo: parsed.data.chiefComplaint,
             orderedBy: session.id
+          }).returning();
+          await createAndBroadcast({
+            type: "lab_order",
+            title: "New Lab Request",
+            body: `${parsed.data.patientId} requested ${investigation}`,
+            severity: "info",
+            relatedId: labOrder.id
           });
         }
       }
@@ -91346,7 +91295,7 @@ router21.post("/triage", async (req, res) => {
     await logAudit(req, "record_triage", {
       entityType: "triage",
       entityId: record2.id,
-      details: `Triage recorded for patient ID ${parsed.data.patientId} \u2014 ${parsed.data.priority} priority`
+      details: `Triage recorded for patient ${parsed.data.patientId}`
     });
     res.status(201).json({
       ...record2,
@@ -91355,8 +91304,11 @@ router21.post("/triage", async (req, res) => {
       updatedAt: record2.updatedAt.toISOString()
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to record triage", detail: err instanceof Error ? err.message : String(err) });
+    console.error("TRIAGE ERROR:", err);
+    res.status(500).json({
+      error: "Failed to record triage",
+      detail: err instanceof Error ? err.message : String(err)
+    });
   }
 });
 router21.patch("/triage/:id", async (req, res) => {
@@ -91376,7 +91328,10 @@ router21.patch("/triage/:id", async (req, res) => {
     return;
   }
   try {
-    const updates = { ...parsed.data, updatedAt: /* @__PURE__ */ new Date() };
+    const updates = {
+      ...parsed.data,
+      updatedAt: /* @__PURE__ */ new Date()
+    };
     if (parsed.data.triageTime) {
       updates.triageTime = new Date(parsed.data.triageTime);
     }
@@ -91385,7 +91340,10 @@ router21.patch("/triage/:id", async (req, res) => {
       res.status(404).json({ error: "Triage record not found" });
       return;
     }
-    await logAudit(req, "update_triage", { entityType: "triage", entityId: id });
+    await logAudit(req, "update_triage", {
+      entityType: "triage",
+      entityId: id
+    });
     res.json({
       ...updated,
       triageTime: updated.triageTime.toISOString(),
@@ -91393,8 +91351,11 @@ router21.patch("/triage/:id", async (req, res) => {
       updatedAt: updated.updatedAt.toISOString()
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to update triage", detail: err instanceof Error ? err.message : String(err) });
+    console.error("UPDATE TRIAGE ERROR:", err);
+    res.status(500).json({
+      error: "Failed to update triage",
+      detail: err instanceof Error ? err.message : String(err)
+    });
   }
 });
 var triage_default = router21;
