@@ -14,7 +14,6 @@ import {
   GetAppointmentStatsResponse,
 } from "@workspace/api-zod";
 import {
-  sendAppointmentConfirmationToPatient,
   sendAppointmentNotificationToClinic,
   sendAppointmentStatusUpdateToPatient,
 } from "../lib/email";
@@ -22,13 +21,13 @@ import { createAndBroadcast } from "../lib/notificationHelper";
 
 const router: IRouter = Router();
 
+/* ───────────────────────── GET ALL APPOINTMENTS ───────────────────────── */
+
 router.get("/appointments", async (req, res): Promise<void> => {
-  // All authenticated roles see all appointments (consistent with stats summary).
-  // Optional ?status= filter allows the client to request a specific status subset
-  // so server and client are consistent (no client-side-only filtering).
-  const statusFilter = typeof req.query.status === "string" && req.query.status !== "all"
-    ? req.query.status
-    : null;
+  const statusFilter =
+    typeof req.query.status === "string" && req.query.status !== "all"
+      ? req.query.status
+      : null;
 
   const all = await db
     .select()
@@ -42,39 +41,39 @@ router.get("/appointments", async (req, res): Promise<void> => {
   const mapped = filtered.map((a) => ({
     ...a,
     createdAt: a.createdAt.toISOString(),
-    checkinTime: a.checkinTime?.toISOString() ?? null,
+    checkinTime: a.checkinTime ? a.checkinTime.toISOString() : null,
   }));
 
   res.json(ListAppointmentsResponse.parse(mapped));
 });
 
+/* ───────────────────────── CREATE APPOINTMENT ───────────────────────── */
+
 router.post("/appointments", async (req, res): Promise<void> => {
   const startTime = Date.now();
   const parsed = CreateAppointmentBody.safeParse(req.body);
+
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
 
-  const dbStartTime = Date.now();
   const [appointment] = await db
     .insert(appointmentsTable)
     .values({
       patientName: parsed.data.patientName,
       phone: parsed.data.phone,
-      email: parsed.data.email ?? '',
-      age: (parsed.data as { age?: number }).age ?? null,
-      sex: (parsed.data as { sex?: string }).sex ?? null,
+      email: parsed.data.email ?? "",
+      age: (parsed.data as any).age ?? null,
+      sex: (parsed.data as any).sex ?? null,
       service: parsed.data.service,
       preferredDate: parsed.data.preferredDate,
       preferredTime: parsed.data.preferredTime,
-      preferredDoctor: (parsed.data as { preferredDoctor?: string }).preferredDoctor ?? null,
+      preferredDoctor: (parsed.data as any).preferredDoctor ?? null,
       message: parsed.data.message ?? null,
       status: "pending",
     })
     .returning();
-  const dbEndTime = Date.now();
-  console.log(`Appointment database save completed in ${dbEndTime - dbStartTime}ms`);
 
   const apptDetails = {
     patientName: appointment.patientName,
@@ -86,8 +85,6 @@ router.post("/appointments", async (req, res): Promise<void> => {
     message: appointment.message,
   };
 
-  // Fire-and-forget email sending - do not await
-  // Temporary: Only send clinic notification, not patient confirmation
   void Promise.all([
     sendAppointmentNotificationToClinic(apptDetails),
     createAndBroadcast({
@@ -97,53 +94,24 @@ router.post("/appointments", async (req, res): Promise<void> => {
       severity: "info",
       relatedId: appointment.id,
     }),
-  ]).catch((err) => {
-    console.error("Failed to send appointment notifications:", err);
-  });
+  ]).catch((err) => console.error("Notification error:", err));
 
-  const responseTime = Date.now() - startTime;
-  console.log(`Appointment HTTP response returned in ${responseTime}ms`);
   res.status(201).json(
     GetAppointmentResponse.parse({
       ...appointment,
       createdAt: appointment.createdAt.toISOString(),
+      checkinTime: null,
     })
   );
 });
 
-router.get("/appointments/stats/summary", async (req, res): Promise<void> => {
-  const rows = await db.select().from(appointmentsTable);
-  const total = rows.length;
-  const pending = rows.filter((r) => r.status === "pending").length;
-  const confirmed = rows.filter((r) => r.status === "confirmed").length;
-  const cancelled = rows.filter((r) => r.status === "cancelled").length;
-  const completed = rows.filter((r) => r.status === "completed").length;
-
-  const now = new Date();
-  const todayStr = now.toISOString().slice(0, 10);
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay());
-  const weekStartStr = weekStart.toISOString().slice(0, 10);
-
-  const todayCount = rows.filter((r) => r.preferredDate === todayStr).length;
-  const thisWeekCount = rows.filter((r) => r.preferredDate >= weekStartStr).length;
-
-  res.json(
-    GetAppointmentStatsResponse.parse({
-      total,
-      pending,
-      confirmed,
-      cancelled,
-      completed,
-      todayCount,
-      thisWeekCount,
-    })
-  );
-});
+/* ───────────────────────── GET SINGLE APPOINTMENT ───────────────────────── */
 
 router.get("/appointments/:id", async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
   const params = GetAppointmentParams.safeParse({ id: parseInt(raw, 10) });
+
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
@@ -163,34 +131,50 @@ router.get("/appointments/:id", async (req, res): Promise<void> => {
     GetAppointmentResponse.parse({
       ...appointment,
       createdAt: appointment.createdAt.toISOString(),
+      checkinTime: appointment.checkinTime
+        ? appointment.checkinTime.toISOString()
+        : null,
     })
   );
 });
 
+/* ───────────────────────── UPDATE (CHECK-IN FIXED HERE) ───────────────────────── */
+
 router.patch("/appointments/:id", async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = UpdateAppointmentStatusParams.safeParse({ id: parseInt(raw, 10) });
+
+  const params = UpdateAppointmentStatusParams.safeParse({
+    id: parseInt(raw, 10),
+  });
+
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
 
   const body = UpdateAppointmentStatusBody.safeParse(req.body);
+
   if (!body.success) {
     res.status(400).json({ error: body.error.message });
     return;
   }
 
-  // Build update set — include optional assignment + check-in fields
-  const updateSet: Record<string, unknown> = { status: body.data.status };
-  if ((req.body as Record<string, unknown>).assignedStaffId !== undefined) {
-    updateSet.assignedStaffId = (req.body as Record<string, unknown>).assignedStaffId || null;
+  const updateSet: Record<string, unknown> = {
+    status: body.data.status,
+  };
+
+  if ((req.body as any).assignedStaffId !== undefined) {
+    updateSet.assignedStaffId = (req.body as any).assignedStaffId || null;
   }
-  if ((req.body as Record<string, unknown>).assignedDoctorName !== undefined) {
-    updateSet.assignedDoctorName = (req.body as Record<string, unknown>).assignedDoctorName || null;
+
+  if ((req.body as any).assignedDoctorName !== undefined) {
+    updateSet.assignedDoctorName =
+      (req.body as any).assignedDoctorName || null;
   }
+
+  // ✅ FIX: store ISO string instead of Date object (CRITICAL FIX)
   if (body.data.status === "checked_in") {
-    updateSet.checkinTime = new Date();
+    updateSet.checkinTime = new Date().toISOString();
   }
 
   const [appointment] = await db
@@ -204,9 +188,11 @@ router.patch("/appointments/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  // Send patient email notification when confirmed or cancelled
-  if ((body.data.status === "confirmed" || body.data.status === "cancelled") && appointment.email) {
-    // Fire-and-forget email sending - do not await
+  if (
+    (body.data.status === "confirmed" ||
+      body.data.status === "cancelled") &&
+    appointment.email
+  ) {
     void sendAppointmentStatusUpdateToPatient({
       patientName: appointment.patientName,
       phone: appointment.phone,
@@ -216,22 +202,32 @@ router.patch("/appointments/:id", async (req, res): Promise<void> => {
       preferredTime: appointment.preferredTime,
       message: appointment.message,
       status: body.data.status,
-    }).catch((err) => {
-      console.error("Failed to send appointment status update notification:", err);
-    });
+    }).catch((err) =>
+      console.error("Email notification error:", err)
+    );
   }
 
+  // ✅ FIX: normalize response (no Date objects anywhere)
   res.json(
     UpdateAppointmentStatusResponse.parse({
       ...appointment,
       createdAt: appointment.createdAt.toISOString(),
+      checkinTime: appointment.checkinTime
+        ? appointment.checkinTime.toISOString()
+        : null,
     })
   );
 });
 
+/* ───────────────────────── DELETE ───────────────────────── */
+
 router.delete("/appointments/:id", async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = DeleteAppointmentParams.safeParse({ id: parseInt(raw, 10) });
+
+  const params = DeleteAppointmentParams.safeParse({
+    id: parseInt(raw, 10),
+  });
+
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
