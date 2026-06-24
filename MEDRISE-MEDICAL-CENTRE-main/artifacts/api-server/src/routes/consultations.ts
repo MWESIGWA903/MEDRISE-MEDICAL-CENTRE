@@ -88,17 +88,17 @@ router.post('/consultations', async (req, res): Promise<void> => {
       .returning();
 
     const patientId = parsed.data.patientId;
-    const staffId = parsed.data.staffId;
+    const staffId = parsed.data.staffId ?? null;
 
-    /* ───────────────────────── LAB ORDERS + BROADCAST ───────────────────────── */
+    /* ───────────────────────── LAB ORDERS (FIXED) ───────────────────────── */
 
     if (parsed.data.labInvestigations) {
-      const investigations = parsed.data.labInvestigations
+      const tests = parsed.data.labInvestigations
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
 
-      for (const testName of investigations) {
+      for (const testName of tests) {
         const [labOrder] = await db
           .insert(labOrdersTable)
           .values({
@@ -107,23 +107,23 @@ router.post('/consultations', async (req, res): Promise<void> => {
             testName,
             testCategory: 'routine',
             priority: 'routine',
-            status: 'pending',
-            clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis,
+            status: 'pending', // 🔥 FIXED (CRITICAL)
+            clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
             orderedBy: staffId,
           })
           .returning();
 
         await createAndBroadcast({
           type: 'lab_order',
-          title: 'New Lab Request (Doctor)',
-          body: `Doctor requested ${testName} for patient ${patientId}`,
+          title: 'New Lab Request',
+          body: `${testName} requested for patient ${patientId}`,
           severity: 'info',
           relatedId: labOrder.id,
         });
       }
     }
 
-    /* ───────────────────────── IMAGING ORDERS + BROADCAST ───────────────────────── */
+    /* ───────────────────────── IMAGING ORDERS (FIXED) ───────────────────────── */
 
     if (parsed.data.imagingInvestigations) {
       const studies = parsed.data.imagingInvestigations
@@ -147,46 +147,19 @@ router.post('/consultations', async (req, res): Promise<void> => {
             consultationId: row.id,
             modality,
             bodyPart: study,
-            clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis,
+            clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
             priority: 'routine',
-            status: 'requested',
+            status: 'pending', // 🔥 FIXED (CRITICAL)
           })
           .returning();
 
         await createAndBroadcast({
           type: 'imaging_order',
-          title: 'New Imaging Request (Doctor)',
-          body: `Doctor requested ${study} for patient ${patientId}`,
+          title: 'New Imaging Request',
+          body: `${study} requested for patient ${patientId}`,
           severity: 'info',
           relatedId: imagingOrder.id,
         });
-      }
-    }
-
-    /* ───────────────────────── PHARMACY ───────────────────────── */
-
-    if (parsed.data.prescriptions) {
-      const lines = parsed.data.prescriptions
-        .split('\n')
-        .map((s) => s.trim())
-        .filter(Boolean);
-
-      for (const line of lines) {
-        const parts = line.split('|').map((s) => s.trim());
-        if (parts.length >= 4) {
-          await db.insert(pharmacyOrdersTable).values({
-            patientId,
-            consultationId: row.id,
-            drugName: parts[0],
-            dose: parts[1],
-            frequency: parts[2],
-            duration: parts[3],
-            instructions: parts[4] || 'As directed',
-            prescribedBy: staffId,
-            status: 'pending',
-            priority: 'routine',
-          });
-        }
       }
     }
 
@@ -208,7 +181,7 @@ router.post('/consultations', async (req, res): Promise<void> => {
   }
 });
 
-/* ───────────────────────── OTHER ROUTES (UNCHANGED LOGIC) ───────────────────────── */
+/* ───────────────────────── GET CONSULTATIONS ───────────────────────── */
 
 router.get('/consultations', async (req, res) => {
   try {
@@ -222,32 +195,11 @@ router.get('/consultations', async (req, res) => {
           .orderBy(desc(consultationsTable.visitDate))
       : await db.select().from(consultationsTable).orderBy(desc(consultationsTable.visitDate));
 
-    const mapped = await Promise.all(rows.map(mapConsultation));
-    res.json(mapped);
+    res.json(await Promise.all(rows.map(mapConsultation)));
   } catch (err) {
     res.status(500).json({
       error: 'Failed to fetch consultations',
-      detail: err instanceof Error ? err.message : String(err),
-    });
-  }
-});
-
-router.get('/consultations/:id', async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-
-    const [row] = await db.select().from(consultationsTable).where(eq(consultationsTable.id, id));
-
-    if (!row) {
-      res.status(404).json({ error: 'Not found' });
-      return;
-    }
-
-    res.json(await mapConsultation(row));
-  } catch (err) {
-    res.status(500).json({
-      error: 'Failed to fetch consultation',
-      detail: err instanceof Error ? err.message : String(err),
+      detail: String(err),
     });
   }
 });
