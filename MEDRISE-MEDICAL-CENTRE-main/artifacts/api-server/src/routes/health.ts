@@ -3,7 +3,6 @@ import { Router } from 'express';
 const router = Router();
 
 /**
- * Main health endpoint
  * GET /api/health
  */
 router.get('/health', (_req, res) => {
@@ -16,8 +15,8 @@ router.get('/health', (_req, res) => {
 });
 
 /**
- * Legacy health check (optional fallback)
  * GET /api/healthz
+ * Used by Render internal health checks.
  */
 router.get('/healthz', (_req, res) => {
   res.status(200).json({
