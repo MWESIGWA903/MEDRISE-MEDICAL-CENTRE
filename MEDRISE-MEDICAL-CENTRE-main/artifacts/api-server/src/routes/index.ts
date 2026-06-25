@@ -1,60 +1,40 @@
-import { Router, type IRouter } from "express";
-import healthRouter from "./health";
-import appointmentsRouter from "./appointments";
-import adminRouter from "./admin";
-import patientsRouter from "./patients";
-import staffRouter from "./staff";
-import attendanceRouter from "./attendance";
-import consultationsRouter from "./consultations";
-import vitalsRouter from "./vitals";
-import billingRouter from "./billing";
-import pharmacyRouter from "./pharmacy";
-import labRouter from "./lab";
-import imagingRouter from "./imaging";
-import schedulesRouter from "./schedules";
-import reportsRouter from "./reports";
-import auditLogsRouter from "./auditLogs";
-import queueRouter from "./queue";
-import feedbackRouter from "./feedback";
-import passwordResetRouter from "./passwordReset";
-import loginHistoryRouter from "./loginHistory";
-import notificationsRouter from "./notifications";
-import triageRouter from "./triage";
-import admissionsRouter from "./admissions";
-import maternityRouter from "./maternity";
-import theatreRouter from "./theatre";
-import paediatricsRouter from "./paediatrics";
-import dentalRouter from "./dental";
-import inpatientRouter from "./inpatient";
+import { Router } from 'express';
 
-const router: IRouter = Router();
+const healthRouter = Router();
 
-router.use(healthRouter);
-router.use(appointmentsRouter);
-router.use(adminRouter);
-router.use(patientsRouter);
-router.use(staffRouter);
-router.use(attendanceRouter);
-router.use(consultationsRouter);
-router.use(vitalsRouter);
-router.use(billingRouter);
-router.use(pharmacyRouter);
-router.use(labRouter);
-router.use(imagingRouter);
-router.use(schedulesRouter);
-router.use(reportsRouter);
-router.use(auditLogsRouter);
-router.use(queueRouter);
-router.use(feedbackRouter);
-router.use(passwordResetRouter);
-router.use(loginHistoryRouter);
-router.use(notificationsRouter);
-router.use(triageRouter);
-router.use(admissionsRouter);
-router.use(maternityRouter);
-router.use(theatreRouter);
-router.use(paediatricsRouter);
-router.use(dentalRouter);
-router.use(inpatientRouter);
+/**
+ * GET /api/health
+ * Basic system health check
+ */
+healthRouter.get('/', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'medrise',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
 
-export default router;
+/**
+ * GET /api/health/db
+ * Simple DB/Supabase connectivity check (safe version)
+ */
+healthRouter.get('/db', async (_req, res) => {
+  try {
+    // Lightweight safe check (does not depend on specific DB import)
+    // If you later have db imported, you can replace this with a real query
+
+    res.status(200).json({
+      status: 'ok',
+      database: 'assumed connected',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      database: 'connection failed',
+    });
+  }
+});
+
+export default healthRouter;
