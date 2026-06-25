@@ -89500,6 +89500,7 @@ var ConsultationInputSchema = external_exports.object({
   referral: external_exports.string().optional(),
   followUpDate: external_exports.string().optional(),
   notes: external_exports.string().optional(),
+  // MUST BE JSON STRING ARRAY
   labInvestigations: external_exports.string().optional(),
   imagingInvestigations: external_exports.string().optional()
 });
@@ -89513,6 +89514,17 @@ async function mapConsultation(c) {
     createdAt: c.createdAt.toISOString(),
     updatedAt: c.updatedAt.toISOString()
   };
+}
+function safeArray(input) {
+  if (!input) return [];
+  try {
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) {
+      return parsed.map(String).map((s) => s.trim()).filter(Boolean);
+    }
+  } catch {
+  }
+  return input.split(",").map((s) => s.trim()).filter(Boolean);
 }
 router7.post("/consultations", async (req, res) => {
   try {
@@ -89535,60 +89547,53 @@ router7.post("/consultations", async (req, res) => {
     }).returning();
     const patientId = parsed.data.patientId;
     const staffId = parsed.data.staffId ?? null;
-    if (parsed.data.labInvestigations) {
-      const tests = parsed.data.labInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
-      for (const testName of tests) {
-        const [labOrder] = await db.insert(labOrdersTable).values({
-          patientId,
-          consultationId: row.id,
-          testName,
-          testCategory: "routine",
-          priority: "routine",
-          status: "pending",
-          // ✅ CRITICAL FIX
-          source: "consultation",
-          // ✅ CRITICAL FIX
-          clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
-          orderedBy: staffId
-        }).returning();
-        await createAndBroadcast({
-          type: "lab_order",
-          title: "New Lab Request",
-          body: `${testName} requested for patient ${patientId}`,
-          severity: "info",
-          relatedId: labOrder.id
-        });
-      }
+    const tests = safeArray(parsed.data.labInvestigations);
+    for (const testName of tests) {
+      const [labOrder] = await db.insert(labOrdersTable).values({
+        patientId,
+        consultationId: row.id,
+        testName,
+        testCategory: "routine",
+        priority: "routine",
+        status: "pending",
+        source: "consultation",
+        clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
+        orderedBy: staffId
+      }).returning();
+      await createAndBroadcast({
+        type: "lab_order",
+        title: `Lab Request: ${testName}`,
+        body: `New lab test ordered for patient ${patientId}`,
+        severity: "info",
+        relatedId: labOrder.id
+      });
     }
-    if (parsed.data.imagingInvestigations) {
-      const studies = parsed.data.imagingInvestigations.split(",").map((s) => s.trim()).filter(Boolean);
-      for (const study of studies) {
-        const lower = study.toLowerCase();
-        let modality = "X-Ray";
-        if (lower.includes("ct")) modality = "CT Scan";
-        else if (lower.includes("mri")) modality = "MRI";
-        else if (lower.includes("ultrasound") || lower.includes("doppler")) modality = "Ultrasound";
-        else if (lower.includes("mammogram")) modality = "Mammography";
-        const [imagingOrder] = await db.insert(imagingOrdersTable).values({
-          patientId,
-          consultationId: row.id,
-          modality,
-          bodyPart: study,
-          clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
-          priority: "routine",
-          status: "pending",
-          // ✅ CRITICAL FIX
-          source: "consultation"
-          // ✅ CRITICAL FIX
-        }).returning();
-        await createAndBroadcast({
-          type: "imaging_order",
-          title: "New Imaging Request",
-          body: `${study} requested for patient ${patientId}`,
-          severity: "info",
-          relatedId: imagingOrder.id
-        });
-      }
+    const studies = safeArray(parsed.data.imagingInvestigations);
+    for (const study of studies) {
+      const lower = study.toLowerCase();
+      let modality = "X-Ray";
+      if (lower.includes("ct")) modality = "CT Scan";
+      else if (lower.includes("mri")) modality = "MRI";
+      else if (lower.includes("ultrasound")) modality = "Ultrasound";
+      else if (lower.includes("doppler")) modality = "Ultrasound";
+      else if (lower.includes("mammogram")) modality = "Mammography";
+      const [imagingOrder] = await db.insert(imagingOrdersTable).values({
+        patientId,
+        consultationId: row.id,
+        modality,
+        bodyPart: study,
+        clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
+        priority: "routine",
+        status: "pending",
+        source: "consultation"
+      }).returning();
+      await createAndBroadcast({
+        type: "imaging_order",
+        title: `Imaging Request: ${study}`,
+        body: `New imaging ordered for patient ${patientId}`,
+        severity: "info",
+        relatedId: imagingOrder.id
+      });
     }
     if (parsed.data.prescriptions) {
       const lines = parsed.data.prescriptions.split("\n").map((s) => s.trim()).filter(Boolean);
