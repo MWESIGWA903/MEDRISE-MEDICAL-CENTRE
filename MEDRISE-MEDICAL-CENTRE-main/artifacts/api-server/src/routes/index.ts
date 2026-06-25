@@ -1,12 +1,14 @@
 import { Router } from 'express';
 
-const healthRouter = Router();
+const router = Router();
 
-/**
- * GET /api/health
- * Basic system health check
- */
-healthRouter.get('/', (_req, res) => {
+router.get('/healthz', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+  });
+});
+
+router.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'ok',
     service: 'medrise',
@@ -15,26 +17,12 @@ healthRouter.get('/', (_req, res) => {
   });
 });
 
-/**
- * GET /api/health/db
- * Simple DB/Supabase connectivity check (safe version)
- */
-healthRouter.get('/db', async (_req, res) => {
-  try {
-    // Lightweight safe check (does not depend on specific DB import)
-    // If you later have db imported, you can replace this with a real query
-
-    res.status(200).json({
-      status: 'ok',
-      database: 'assumed connected',
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      database: 'connection failed',
-    });
-  }
+router.get('/health/db', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    database: 'assumed connected',
+    timestamp: new Date().toISOString(),
+  });
 });
 
-export default healthRouter;
+export default router;
