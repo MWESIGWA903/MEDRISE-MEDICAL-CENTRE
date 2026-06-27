@@ -51714,22 +51714,13 @@ var import_pino_http = __toESM(require_logger(), 1);
 var import_express = __toESM(require_express2(), 1);
 var router = (0, import_express.Router)();
 router.get("/healthz", (_req, res) => {
-  res.status(200).json({
-    status: "ok"
-  });
+  res.status(200).json({ status: "ok" });
 });
 router.get("/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
     service: "medrise",
     uptime: process.uptime(),
-    timestamp: (/* @__PURE__ */ new Date()).toISOString()
-  });
-});
-router.get("/health/db", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    database: "assumed connected",
     timestamp: (/* @__PURE__ */ new Date()).toISOString()
   });
 });
