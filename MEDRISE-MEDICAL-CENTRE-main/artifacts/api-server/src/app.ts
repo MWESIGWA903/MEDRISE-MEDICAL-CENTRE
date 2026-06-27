@@ -13,9 +13,8 @@ const app: Express = express();
 
 /**
  * =========================
- * HEALTH CHECK (FIXED)
+ * HEALTH CHECKS
  * =========================
- * MUST BE HERE (before /api router mounting issues affect it)
  */
 
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -26,18 +25,32 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+/**
+ * Render Health Check
+ */
+app.get('/api/healthz', (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'medrise',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/**
+ * Database Health Check
+ */
 app.get('/api/health/db', async (_req: Request, res: Response) => {
   try {
-    // lightweight safe placeholder check
     res.status(200).json({
       status: 'ok',
       database: 'supabase assumed connected',
       timestamp: new Date().toISOString(),
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({
       status: 'error',
       database: 'failed',
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -53,10 +66,16 @@ app.use(
     logger,
     serializers: {
       req(req) {
-        return { id: req.id, method: req.method, url: req.url?.split('?')[0] };
+        return {
+          id: req.id,
+          method: req.method,
+          url: req.url?.split('?')[0],
+        };
       },
       res(res) {
-        return { statusCode: res.statusCode };
+        return {
+          statusCode: res.statusCode,
+        };
       },
     },
   }),
@@ -64,11 +83,17 @@ app.use(
 
 /**
  * =========================
- * TRUST / SECURITY
+ * TRUST PROXY
  * =========================
  */
 
 app.set('trust proxy', 1);
+
+/**
+ * =========================
+ * SECURITY
+ * =========================
+ */
 
 app.use(
   helmet({
@@ -101,17 +126,17 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin(origin, callback) {
       if (!origin) return callback(null, true);
 
       if (
         origin.endsWith('.netlify.app') ||
         origin.endsWith('.onrender.com') ||
         origin.endsWith('.vercel.app') ||
-        origin.startsWith('http://localhost') ||
-        origin.startsWith('http://127.0.0.1') ||
         origin.includes('.replit.app') ||
         origin.includes('.replit.dev') ||
+        origin.startsWith('http://localhost') ||
+        origin.startsWith('http://127.0.0.1') ||
         allowedOrigins.includes(origin)
       ) {
         return callback(null, true);
@@ -125,20 +150,63 @@ app.use(
 
 /**
  * =========================
- * BODY PARSING
+ * RATE LIMIT
  * =========================
  */
 
-app.use(express.json());
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 1000,
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+);
+
+/**
+ * =========================
+ * BODY PARSERS
+ * =========================
+ */
+
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 /**
  * =========================
- * ROUTES
+ * SESSION ATTACHMENT
+ * =========================
+ */
+
+app.use(async (req, _res, next) => {
+  try {
+    (req as any).session = await getSessionFromRequestAsync(req);
+  } catch (err) {
+    logger.warn({ err }, 'Failed to load session');
+  }
+
+  next();
+});
+
+/**
+ * =========================
+ * API ROUTES
  * =========================
  */
 
 app.use('/api', router);
+
+/**
+ * =========================
+ * 404 HANDLER
+ * =========================
+ */
+
+app.use((_req: Request, res: Response) => {
+  res.status(404).json({
+    error: 'Route not found',
+  });
+});
 
 /**
  * =========================
@@ -147,8 +215,11 @@ app.use('/api', router);
  */
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error(err);
-  res.status(500).json({ error: 'Internal server error' });
+  logger.error({ err }, 'Unhandled application error');
+
+  res.status(500).json({
+    error: 'Internal server error',
+  });
 });
 
 export default app;
