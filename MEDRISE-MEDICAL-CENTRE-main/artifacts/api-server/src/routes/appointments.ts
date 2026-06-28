@@ -43,13 +43,38 @@ router.get('/appointments', async (req, res): Promise<void> => {
   );
 });
 
+/* ──────────────────────── STATS SUMMARY ──────────────────────── */
+
+router.get('/appointments/stats/summary', async (_req, res): Promise<void> => {
+  try {
+    const appointments = await db.select().from(appointmentsTable);
+
+    res.json({
+      totalAppointments: appointments.length,
+      pending: appointments.filter((a) => a.status === 'pending').length,
+
+      checkedIn: appointments.filter((a) => a.status === 'checked_in').length,
+
+      completed: appointments.filter((a) => a.status === 'completed').length,
+    });
+  } catch (err) {
+    console.error('APPOINTMENT STATS ERROR:', err);
+
+    res.status(500).json({
+      error: 'Failed to load appointment stats',
+    });
+  }
+});
+
 /* ───────────────────────── CREATE ───────────────────────── */
 
 router.post('/appointments', async (req, res): Promise<void> => {
   const parsed = CreateAppointmentBody.safeParse(req.body);
 
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
+    res.status(400).json({
+      error: parsed.error.message,
+    });
     return;
   }
 
@@ -109,7 +134,10 @@ router.get('/appointments/:id', async (req, res): Promise<void> => {
   });
 
   if (!params.success) {
-    res.status(400).json({ error: params.error.message });
+    res.status(400).json({
+      error: params.error.message,
+    });
+
     return;
   }
 
@@ -119,7 +147,10 @@ router.get('/appointments/:id', async (req, res): Promise<void> => {
     .where(eq(appointmentsTable.id, params.data.id));
 
   if (!appointment) {
-    res.status(404).json({ error: 'Appointment not found' });
+    res.status(404).json({
+      error: 'Appointment not found',
+    });
+
     return;
   }
 
@@ -132,7 +163,7 @@ router.get('/appointments/:id', async (req, res): Promise<void> => {
   );
 });
 
-/* ───────────────────────── PATCH (FIXED CHECK-IN FLOW) ───────────────────────── */
+/* ───────────────────────── PATCH ───────────────────────── */
 
 router.patch('/appointments/:id', async (req, res): Promise<void> => {
   const raw = req.params.id;
@@ -142,14 +173,20 @@ router.patch('/appointments/:id', async (req, res): Promise<void> => {
   });
 
   if (!params.success) {
-    res.status(400).json({ error: params.error.message });
+    res.status(400).json({
+      error: params.error.message,
+    });
+
     return;
   }
 
   const body = UpdateAppointmentStatusBody.safeParse(req.body);
 
   if (!body.success) {
-    res.status(400).json({ error: body.error.message });
+    res.status(400).json({
+      error: body.error.message,
+    });
+
     return;
   }
 
@@ -165,7 +202,6 @@ router.patch('/appointments/:id', async (req, res): Promise<void> => {
     updateSet.assignedDoctorName = (req.body as any).assignedDoctorName || null;
   }
 
-  // ✅ correct DB type = Date (NOT string)
   if (body.data.status === 'checked_in') {
     updateSet.checkinTime = new Date();
   }
@@ -180,28 +216,35 @@ router.patch('/appointments/:id', async (req, res): Promise<void> => {
       .returning();
   } catch (err) {
     console.error('PATCH ERROR:', err);
-    res.status(500).json({ error: 'Failed to update appointment' });
+
+    res.status(500).json({
+      error: 'Failed to update appointment',
+    });
+
     return;
   }
 
   if (!appointment) {
-    res.status(404).json({ error: 'Appointment not found' });
+    res.status(404).json({
+      error: 'Appointment not found',
+    });
+
     return;
   }
 
-  // ✅ AUTO QUEUE CREATION (FIXES YOUR MISSING PATIENT ISSUE)
   if (body.data.status === 'checked_in') {
     try {
       await db.execute(`
-        INSERT INTO patient_queue (appointment_id, status, created_at)
-        VALUES (${appointment.id}, 'waiting', NOW())
+        INSERT INTO patient_queue
+        (appointment_id, status, created_at)
+        VALUES
+        (${appointment.id}, 'waiting', NOW())
       `);
     } catch (err) {
       console.error('QUEUE INSERT FAILED:', err);
     }
   }
 
-  // Email update
   if ((body.data.status === 'confirmed' || body.data.status === 'cancelled') && appointment.email) {
     void sendAppointmentStatusUpdateToPatient({
       patientName: appointment.patientName,
@@ -232,7 +275,10 @@ router.delete('/appointments/:id', async (req, res): Promise<void> => {
   });
 
   if (!params.success) {
-    res.status(400).json({ error: params.error.message });
+    res.status(400).json({
+      error: params.error.message,
+    });
+
     return;
   }
 
@@ -242,7 +288,10 @@ router.delete('/appointments/:id', async (req, res): Promise<void> => {
     .returning();
 
   if (!appointment) {
-    res.status(404).json({ error: 'Appointment not found' });
+    res.status(404).json({
+      error: 'Appointment not found',
+    });
+
     return;
   }
 

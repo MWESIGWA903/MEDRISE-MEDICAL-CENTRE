@@ -86960,10 +86960,28 @@ router2.get("/appointments", async (req, res) => {
     )
   );
 });
+router2.get("/appointments/stats/summary", async (_req, res) => {
+  try {
+    const appointments = await db.select().from(appointmentsTable);
+    res.json({
+      totalAppointments: appointments.length,
+      pending: appointments.filter((a) => a.status === "pending").length,
+      checkedIn: appointments.filter((a) => a.status === "checked_in").length,
+      completed: appointments.filter((a) => a.status === "completed").length
+    });
+  } catch (err) {
+    console.error("APPOINTMENT STATS ERROR:", err);
+    res.status(500).json({
+      error: "Failed to load appointment stats"
+    });
+  }
+});
 router2.post("/appointments", async (req, res) => {
   const parsed = CreateAppointmentBody.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
+    res.status(400).json({
+      error: parsed.error.message
+    });
     return;
   }
   const [appointment] = await db.insert(appointmentsTable).values({
@@ -87011,12 +87029,16 @@ router2.get("/appointments/:id", async (req, res) => {
     id: parseInt(raw, 10)
   });
   if (!params.success) {
-    res.status(400).json({ error: params.error.message });
+    res.status(400).json({
+      error: params.error.message
+    });
     return;
   }
   const [appointment] = await db.select().from(appointmentsTable).where(eq(appointmentsTable.id, params.data.id));
   if (!appointment) {
-    res.status(404).json({ error: "Appointment not found" });
+    res.status(404).json({
+      error: "Appointment not found"
+    });
     return;
   }
   res.json(
@@ -87033,12 +87055,16 @@ router2.patch("/appointments/:id", async (req, res) => {
     id: parseInt(raw, 10)
   });
   if (!params.success) {
-    res.status(400).json({ error: params.error.message });
+    res.status(400).json({
+      error: params.error.message
+    });
     return;
   }
   const body = UpdateAppointmentStatusBody.safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({ error: body.error.message });
+    res.status(400).json({
+      error: body.error.message
+    });
     return;
   }
   const updateSet = {
@@ -87058,18 +87084,24 @@ router2.patch("/appointments/:id", async (req, res) => {
     [appointment] = await db.update(appointmentsTable).set(updateSet).where(eq(appointmentsTable.id, params.data.id)).returning();
   } catch (err) {
     console.error("PATCH ERROR:", err);
-    res.status(500).json({ error: "Failed to update appointment" });
+    res.status(500).json({
+      error: "Failed to update appointment"
+    });
     return;
   }
   if (!appointment) {
-    res.status(404).json({ error: "Appointment not found" });
+    res.status(404).json({
+      error: "Appointment not found"
+    });
     return;
   }
   if (body.data.status === "checked_in") {
     try {
       await db.execute(`
-        INSERT INTO patient_queue (appointment_id, status, created_at)
-        VALUES (${appointment.id}, 'waiting', NOW())
+        INSERT INTO patient_queue
+        (appointment_id, status, created_at)
+        VALUES
+        (${appointment.id}, 'waiting', NOW())
       `);
     } catch (err) {
       console.error("QUEUE INSERT FAILED:", err);
@@ -87100,12 +87132,16 @@ router2.delete("/appointments/:id", async (req, res) => {
     id: parseInt(req.params.id, 10)
   });
   if (!params.success) {
-    res.status(400).json({ error: params.error.message });
+    res.status(400).json({
+      error: params.error.message
+    });
     return;
   }
   const [appointment] = await db.delete(appointmentsTable).where(eq(appointmentsTable.id, params.data.id)).returning();
   if (!appointment) {
-    res.status(404).json({ error: "Appointment not found" });
+    res.status(404).json({
+      error: "Appointment not found"
+    });
     return;
   }
   res.sendStatus(204);
