@@ -1,12 +1,13 @@
 [build]
-  base      = "."
-  command   = "npx pnpm@10 install --no-frozen-lockfile && npx pnpm@10 --filter @workspace/medrise run build"
-  publish   = "artifacts/medrise/dist/public"
+  base = "."
+  command = "corepack enable && pnpm install --no-frozen-lockfile && pnpm --filter @workspace/medrise run build"
+  publish = "artifacts/medrise/dist/public"
 
 [build.environment]
   NODE_VERSION = "20"
+  NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
 
 [[redirects]]
-  from   = "/*"
-  to     = "/index.html"
+  from = "/*"
+  to = "/index.html"
   status = 200
