@@ -1,11 +1,12 @@
 [build]
   base = "."
-  command = "corepack enable && pnpm install --no-frozen-lockfile && pnpm --filter @workspace/medrise run build"
+  command = "pnpm install && pnpm --filter @workspace/medrise run build"
   publish = "artifacts/medrise/dist/public"
 
 [build.environment]
   NODE_VERSION = "20"
   NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
+  PNPM_FLAGS = "--shamefully-hoist"
 
 [[redirects]]
   from = "/*"
