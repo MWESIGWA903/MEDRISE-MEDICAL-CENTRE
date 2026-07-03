@@ -1,11 +1,18 @@
 import { Helmet } from 'react-helmet-async';
+import { getSeoMeta } from '@/lib/seo';
+
+const seoMeta = getSeoMeta('privacy');
 
 export default function PrivacyPage() {
   return (
     <>
       <Helmet>
-        <title>Privacy Policy | MedRise Medical Centre</title>
-        <meta name="description" content="Privacy Policy and Medical Disclaimer for MedRise Medical Centre. Learn how we protect your personal and medical information." />
+        <title>{seoMeta.title}</title>
+        <meta name="description" content={seoMeta.description} />
+        <link rel="canonical" href={seoMeta.canonicalUrl} />
+        <meta property="og:title" content={seoMeta.title} />
+        <meta property="og:description" content={seoMeta.description} />
+        <meta property="og:url" content={seoMeta.canonicalUrl} />
       </Helmet>
       
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

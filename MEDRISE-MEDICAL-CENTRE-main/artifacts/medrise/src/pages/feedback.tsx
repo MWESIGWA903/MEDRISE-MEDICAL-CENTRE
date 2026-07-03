@@ -16,6 +16,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { DEPARTMENTS } from '@/lib/constants';
+import { getSeoMeta } from '@/lib/seo';
+
+const seoMeta = getSeoMeta('feedback');
 
 const RECOMMEND_OPTIONS = [
   { value: 'yes', label: 'Yes, definitely' },
@@ -78,14 +81,14 @@ export default function FeedbackPage() {
   return (
     <Layout>
       <Helmet>
-        <title>Share Your Experience | MedRise Medical Centre</title>
-        <meta name="description" content="Share your feedback about MedRise Medical Centre. Your experience helps us improve our healthcare services in Matugga, Wakiso District." />
-        <link rel="canonical" href="https://medrise-medical-centre-medrise.vercel.app/feedback" />
-        <meta property="og:title" content="Share Your Experience | MedRise Medical Centre" />
-        <meta property="og:description" content="Share your feedback about MedRise Medical Centre. Your experience helps us improve our healthcare services." />
-        <meta property="og:url" content="https://medrise-medical-centre-medrise.vercel.app/feedback" />
-        <meta name="twitter:title" content="Share Your Experience | MedRise Medical Centre" />
-        <meta name="twitter:description" content="Share your feedback about MedRise Medical Centre. Your experience helps us improve our healthcare services." />
+        <title>{seoMeta.title}</title>
+        <meta name="description" content={seoMeta.description} />
+        <link rel="canonical" href={seoMeta.canonicalUrl} />
+        <meta property="og:title" content={seoMeta.title} />
+        <meta property="og:description" content={seoMeta.description} />
+        <meta property="og:url" content={seoMeta.canonicalUrl} />
+        <meta name="twitter:title" content={seoMeta.title} />
+        <meta name="twitter:description" content={seoMeta.description} />
       </Helmet>
       <section className="bg-primary/5 py-16 border-b border-primary/10">
         <div className="container mx-auto px-4 text-center">
@@ -141,6 +144,8 @@ export default function FeedbackPage() {
                         <button
                           key={star}
                           type="button"
+                          aria-label={`Rate ${starLabels[star]} (${star} of 5 stars)`}
+                          aria-pressed={star <= rating}
                           onMouseEnter={() => setHovered(star)}
                           onClick={() => setRating(star)}
                           className="transition-transform hover:scale-110 focus:outline-none"

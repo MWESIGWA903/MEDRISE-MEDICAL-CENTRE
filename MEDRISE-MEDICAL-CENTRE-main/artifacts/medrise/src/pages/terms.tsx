@@ -1,11 +1,18 @@
 import { Helmet } from 'react-helmet-async';
+import { getSeoMeta } from '@/lib/seo';
+
+const seoMeta = getSeoMeta('terms');
 
 export default function Terms() {
   return (
     <>
       <Helmet>
-        <title>Terms of Service | MedRise Medical Centre</title>
-        <meta name="description" content="Terms of Service for MedRise Medical Centre. Read our terms and conditions for using our healthcare services." />
+        <title>{seoMeta.title}</title>
+        <meta name="description" content={seoMeta.description} />
+        <link rel="canonical" href={seoMeta.canonicalUrl} />
+        <meta property="og:title" content={seoMeta.title} />
+        <meta property="og:description" content={seoMeta.description} />
+        <meta property="og:url" content={seoMeta.canonicalUrl} />
       </Helmet>
       
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

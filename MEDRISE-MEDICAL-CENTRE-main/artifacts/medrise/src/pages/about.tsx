@@ -3,19 +3,22 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { Layout } from '@/components/layout/Layout';
+import { getSeoMeta } from '@/lib/seo';
+
+const seoMeta = getSeoMeta('about');
 
 export default function About() {
   return (
     <Layout>
       <Helmet>
-        <title>About Us | MedRise Medical Centre</title>
-        <meta name="description" content="Learn about MedRise Medical Centre in Matugga, Wakiso District. Our mission, vision, and core values of compassion, excellence, integrity, and respect." />
-        <link rel="canonical" href="https://medrise-medical-centre-medrise.vercel.app/about" />
-        <meta property="og:title" content="About Us | MedRise Medical Centre" />
-        <meta property="og:description" content="Learn about MedRise Medical Centre in Matugga, Wakiso District. Our mission, vision, and core values." />
-        <meta property="og:url" content="https://medrise-medical-centre-medrise.vercel.app/about" />
-        <meta name="twitter:title" content="About Us | MedRise Medical Centre" />
-        <meta name="twitter:description" content="Learn about MedRise Medical Centre in Matugga, Wakiso District. Our mission, vision, and core values." />
+        <title>{seoMeta.title}</title>
+        <meta name="description" content={seoMeta.description} />
+        <link rel="canonical" href={seoMeta.canonicalUrl} />
+        <meta property="og:title" content={seoMeta.title} />
+        <meta property="og:description" content={seoMeta.description} />
+        <meta property="og:url" content={seoMeta.canonicalUrl} />
+        <meta name="twitter:title" content={seoMeta.title} />
+        <meta name="twitter:description" content={seoMeta.description} />
       </Helmet>
       {/* Page Header */}
       <section className="bg-primary/5 py-16 border-b border-primary/10">
@@ -34,6 +37,7 @@ export default function About() {
               <img
                 src="/images/about.jpg"
                 alt="Doctor talking to patient"
+                loading="lazy"
                 className="rounded-xl shadow-xl w-full h-[500px] object-cover"
               />
             </div>

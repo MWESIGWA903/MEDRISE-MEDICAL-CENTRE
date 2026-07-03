@@ -31,7 +31,10 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { DEPARTMENTS } from '@/lib/constants';
+import { getSeoMeta } from '@/lib/seo';
 import { cn } from '@/lib/utils';
+
+const seoMeta = getSeoMeta('appointment');
 
 const CLINICAL_ROLES = ['medical_director', 'doctor', 'clinical_officer', 'nurse', 'midwife'];
 
@@ -141,14 +144,14 @@ export default function Appointment() {
   return (
     <Layout>
       <Helmet>
-        <title>Book an Appointment | MedRise Medical Centre</title>
-        <meta name="description" content="Schedule your appointment at MedRise Medical Centre in Matugga, Wakiso District. Book online for general medicine, maternity, laboratory, pharmacy, dental, and specialist care." />
-        <link rel="canonical" href="https://medrise-medical-centre-medrise.vercel.app/appointment" />
-        <meta property="og:title" content="Book an Appointment | MedRise Medical Centre" />
-        <meta property="og:description" content="Schedule your appointment at MedRise Medical Centre. Book online for comprehensive healthcare services." />
-        <meta property="og:url" content="https://medrise-medical-centre-medrise.vercel.app/appointment" />
-        <meta name="twitter:title" content="Book an Appointment | MedRise Medical Centre" />
-        <meta name="twitter:description" content="Schedule your appointment at MedRise Medical Centre. Book online for comprehensive healthcare services." />
+        <title>{seoMeta.title}</title>
+        <meta name="description" content={seoMeta.description} />
+        <link rel="canonical" href={seoMeta.canonicalUrl} />
+        <meta property="og:title" content={seoMeta.title} />
+        <meta property="og:description" content={seoMeta.description} />
+        <meta property="og:url" content={seoMeta.canonicalUrl} />
+        <meta name="twitter:title" content={seoMeta.title} />
+        <meta name="twitter:description" content={seoMeta.description} />
       </Helmet>
       <section className="bg-primary/5 py-16 border-b border-primary/10">
         <div className="container mx-auto px-4 text-center">

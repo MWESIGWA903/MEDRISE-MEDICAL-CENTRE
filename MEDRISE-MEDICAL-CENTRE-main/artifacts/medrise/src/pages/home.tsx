@@ -4,57 +4,35 @@ import {
   Shield,
   Award,
   Users,
-  Stethoscope,
-  Heart,
-  Scissors,
-  Activity,
-  Baby,
-  ScanLine,
-  FlaskConical,
-  Pill,
-  Smile,
-  Mic2,
-  ClipboardList,
 } from 'lucide-react';
 import React from 'react';
 import { Link } from 'wouter';
+import { Helmet } from 'react-helmet-async';
 
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { DEPARTMENTS } from '@/lib/constants';
+import { getSeoMeta } from '@/lib/seo';
+import { DEPT_ICONS, COLOR_MAP } from '@/lib/ui-constants';
 
-const DEPT_ICONS: Record<string, React.ReactNode> = {
-  ClipboardList: <ClipboardList className="h-6 w-6" />,
-  Stethoscope: <Stethoscope className="h-6 w-6" />,
-  Heart: <Heart className="h-6 w-6" />,
-  Scissors: <Scissors className="h-6 w-6" />,
-  Activity: <Activity className="h-6 w-6" />,
-  Baby: <Baby className="h-6 w-6" />,
-  ScanLine: <ScanLine className="h-6 w-6" />,
-  FlaskConical: <FlaskConical className="h-6 w-6" />,
-  Pill: <Pill className="h-6 w-6" />,
-  Smile: <Smile className="h-6 w-6" />,
-  Mic2: <Mic2 className="h-6 w-6" />,
-};
-
-const COLOR_MAP: Record<string, { bg: string; text: string }> = {
-  lime: { bg: 'bg-lime-50', text: 'text-lime-600' },
-  rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
-  blue: { bg: 'bg-blue-50', text: 'text-blue-600' },
-  pink: { bg: 'bg-pink-50', text: 'text-pink-600' },
-  red: { bg: 'bg-red-50', text: 'text-red-600' },
-  green: { bg: 'bg-green-50', text: 'text-green-600' },
-  yellow: { bg: 'bg-yellow-50', text: 'text-yellow-600' },
-  purple: { bg: 'bg-purple-50', text: 'text-purple-600' },
-  teal: { bg: 'bg-teal-50', text: 'text-teal-600' },
-  orange: { bg: 'bg-orange-50', text: 'text-orange-600' },
-  cyan: { bg: 'bg-cyan-50', text: 'text-cyan-600' },
-  indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600' },
-};
+const seoMeta = getSeoMeta('home');
 
 export default function Home() {
   return (
     <Layout>
+      <Helmet>
+        <title>{seoMeta.title}</title>
+        <meta name="description" content={seoMeta.description} />
+        <meta name="keywords" content={seoMeta.keywords} />
+        <link rel="canonical" href={seoMeta.canonicalUrl} />
+        <meta property="og:title" content={seoMeta.title} />
+        <meta property="og:description" content={seoMeta.description} />
+        <meta property="og:url" content={seoMeta.canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:title" content={seoMeta.title} />
+        <meta name="twitter:description" content={seoMeta.description} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center bg-gray-50 overflow-hidden">
         <div className="absolute inset-0 z-0">

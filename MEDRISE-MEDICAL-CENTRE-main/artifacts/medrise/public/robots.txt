@@ -1,7 +1,25 @@
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /admin/
 Disallow: /patient
+Disallow: /patient/
 Disallow: /staff
+Disallow: /staff/
+Disallow: /dashboard
+Disallow: /api/private
+Disallow: /auth/private
+Disallow: /login
 
-Sitemap: https://medrise-medical-centre-medrise.vercel.app/sitemap.xml
+# Allow specific search engines for optimal crawling
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Crawl delay to prevent server overload
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://medrise-medical-centre.onrender.com/sitemap.xml
