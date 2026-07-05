@@ -77,7 +77,7 @@ type DocType = 'discharge' | 'referral' | 'sickleave' | 'birthcert' | 'deathnoti
 const DOC_TYPES: { id: DocType; label: string; icon: string; color: string }[] = [
   {
     id: 'discharge',
-    label: 'Discharge Summary',
+    label: 'Discharge Form',
     icon: '🏥',
     color: 'text-green-700 bg-green-50 border-green-200',
   },
@@ -1225,7 +1225,7 @@ export default function EhrTab({ adminId }: { adminId?: number }) {
               )}
             </h3>
 
-            {/* DISCHARGE SUMMARY */}
+            {/* DISCHARGE FORM */}
             {docType === 'discharge' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

@@ -397,9 +397,9 @@ export function printPrescription(data: PrintPrescriptionData): void {
 
 export function printDischarge(data: PrintDischargeData): void {
   const dischargeDateStr = data.dischargeDate ?? new Date().toLocaleDateString("en-UG");
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Discharge Summary — ${data.patientName}</title>${baseStyles()}</head><body>
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Discharge Form — ${data.patientName}</title>${baseStyles()}</head><body>
     ${clinicHeader()}
-    <div class="doc-title">DISCHARGE SUMMARY</div>
+    <div class="doc-title">DISCHARGE FORM</div>
     ${demogBar({
       name: data.patientName,
       age: data.patientAge,

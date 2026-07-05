@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import http from "http";
 import app from "./app";
 import { logger } from "./lib/logger";
@@ -92,47 +94,51 @@ async function start() {
   }
 
   setInterval(async () => {
-    try { await pruneExpiredSessions(); } catch {}
+    try {
+      await pruneExpiredSessions();
+    } catch {}
   }, 60 * 60 * 1000);
 
-  // Daily appointment reminder — runs at 8:00 AM every day
   cron.schedule("0 8 * * *", () => {
     void sendTodayAppointmentReminders();
   });
+
   logger.info("Appointment reminder scheduler started (daily at 08:00)");
 
   const server = http.createServer(app);
   setupWebSocketServer(server);
 
   server.listen(port, (err?: Error) => {
-    if (err) { logger.error({ err }, "Error listening on port"); process.exit(1); }
+    if (err) {
+      logger.error({ err }, "Error listening on port");
+      process.exit(1);
+    }
     logger.info({ port }, "Server listening");
   });
 
-  // Graceful shutdown handlers
   const shutdown = async (signal: string) => {
     logger.info({ signal }, "Shutdown signal received");
-    
-    // Stop accepting new connections
+
     server.close(() => {
       logger.info("HTTP server closed");
     });
 
-    // Give existing connections time to close gracefully
     setTimeout(() => {
       logger.info("Forcing shutdown after timeout");
       process.exit(0);
     }, 10000);
 
-    // Exit gracefully after server closes
-    server.on('close', () => {
+    server.on("close", () => {
       logger.info("Graceful shutdown complete");
       process.exit(0);
     });
   };
 
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
-  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 }
 
-start().catch((err) => { logger.error({ err }, "Startup failed"); process.exit(1); });
+start().catch((err) => {
+  logger.error({ err }, "Startup failed");
+  process.exit(1);
+});

@@ -840,7 +840,7 @@ export default function AdmissionsTab({ adminId }: { adminId?: number }) {
             )}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                Discharge Summary
+                Discharge Form
               </label>
               <Textarea
                 placeholder="Summary of treatment, discharge instructions, follow-up plan..."

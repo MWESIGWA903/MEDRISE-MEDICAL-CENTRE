@@ -8,6 +8,7 @@ import {
   labOrdersTable,
   imagingOrdersTable,
   pharmacyOrdersTable,
+  admissionsTable,
 } from '@workspace/db';
 import { z } from 'zod';
 import { logAudit } from '../lib/audit';
@@ -35,6 +36,9 @@ const ConsultationInputSchema = z.object({
   // MUST BE JSON STRING ARRAY
   labInvestigations: z.string().optional(),
   imagingInvestigations: z.string().optional(),
+
+  // Admission decision
+  admissionDecision: z.enum(['outpatient', 'inpatient']).default('outpatient'),
 });
 
 /* ───────────────────────── MAPPER ───────────────────────── */
@@ -110,6 +114,7 @@ router.post('/consultations', async (req, res): Promise<void> => {
         referral: parsed.data.referral ?? null,
         followUpDate: parsed.data.followUpDate ?? null,
         notes: parsed.data.notes ?? null,
+        admissionDecision: parsed.data.admissionDecision ?? 'outpatient',
       })
       .returning();
 
@@ -152,12 +157,18 @@ router.post('/consultations', async (req, res): Promise<void> => {
     for (const study of studies) {
       const lower = study.toLowerCase();
 
-      let modality = 'X-Ray';
-      if (lower.includes('ct')) modality = 'CT Scan';
-      else if (lower.includes('mri')) modality = 'MRI';
-      else if (lower.includes('ultrasound')) modality = 'Ultrasound';
-      else if (lower.includes('doppler')) modality = 'Ultrasound';
-      else if (lower.includes('mammogram')) modality = 'Mammography';
+      // Use the exact study name as modality to ensure consistency
+      // Only map to standard modalities if it's a generic request
+      let modality = study;
+      if (lower === 'x-ray' || lower === 'xray') modality = 'X-Ray';
+      else if (lower === 'ct' || lower === 'ct scan') modality = 'CT Scan';
+      else if (lower === 'mri') modality = 'MRI';
+      else if (lower === 'ultrasound' && !lower.includes('doppler')) modality = 'Ultrasound';
+      else if (lower.includes('doppler')) modality = 'Doppler Ultrasound';
+      else if (lower.includes('mammogram') || lower.includes('mammography')) modality = 'Mammography';
+      else if (lower.includes('fluoroscopy')) modality = 'Fluoroscopy';
+      else if (lower.includes('echocardiogram') || lower.includes('echo')) modality = 'Echocardiography';
+      else if (lower.includes('ecg') || lower.includes('electrocardiogram')) modality = 'ECG';
 
       const [imagingOrder] = await db
         .insert(imagingOrdersTable)
@@ -165,7 +176,7 @@ router.post('/consultations', async (req, res): Promise<void> => {
           patientId,
           consultationId: row.id,
           modality,
-          bodyPart: study,
+          bodyPart: null, // Will be specified separately if needed
           clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
           priority: 'routine',
           status: 'pending',
@@ -208,6 +219,39 @@ router.post('/consultations', async (req, res): Promise<void> => {
           });
         }
       }
+    }
+
+    /* ───────────────────────── ADMISSION CREATION ───────────────────────── */
+
+    if (parsed.data.admissionDecision === 'inpatient') {
+      const [admission] = await db
+        .insert(admissionsTable)
+        .values({
+          patientId,
+          admittedBy: staffId,
+          admissionDate: parsed.data.visitDate,
+          admissionTime: new Date().toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }),
+          ward: 'General Ward', // Default ward, can be specified later
+          bedNumber: 'TBD', // To be assigned
+          admissionType: 'Emergency',
+          diagnosis: parsed.data.diagnosis || parsed.data.chiefComplaint || '',
+          status: 'admitted',
+        })
+        .returning();
+
+      // Link admission to consultation
+      await db
+        .update(consultationsTable)
+        .set({ admissionId: admission.id })
+        .where(eq(consultationsTable.id, row.id));
+
+      await createAndBroadcast({
+        type: 'admission',
+        title: 'Patient Admitted',
+        body: `Patient ${patientId} has been admitted from consultation`,
+        severity: 'warning',
+        relatedId: admission.id,
+      });
     }
 
     /* ───────────────────────── AUDIT ───────────────────────── */

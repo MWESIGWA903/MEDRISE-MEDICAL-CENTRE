@@ -1,6 +1,7 @@
 import { pgTable, serial, integer, text, timestamp, index } from "drizzle-orm/pg-core";
 import { patientsTable } from "./patients";
 import { adminsTable } from "./admins";
+import { admissionsTable } from "./admissions";
 
 export const consultationsTable = pgTable("consultations", {
   id: serial("id").primaryKey(),
@@ -15,6 +16,8 @@ export const consultationsTable = pgTable("consultations", {
   followUpDate: text("follow_up_date"),
   followUpStatus: text("follow_up_status").default("pending"),
   notes: text("notes"),
+  admissionDecision: text("admission_decision").notNull().default("outpatient"), // 'outpatient' or 'inpatient'
+  admissionId: integer("admission_id").references(() => admissionsTable.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [

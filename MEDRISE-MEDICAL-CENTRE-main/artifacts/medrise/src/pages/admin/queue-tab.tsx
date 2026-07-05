@@ -123,10 +123,10 @@ function printForm(type: 'discharge' | 'referral', entry: QueueEntry) {
   const html =
     type === 'discharge'
       ? `
-    <html><head><title>Discharge Summary</title>
+    <html><head><title>Discharge Form</title>
     <style>${PRINT_BASE_STYLES()}</style></head><body>
     ${printHeader()}
-    <p class="doc-title">Patient Discharge Summary</p>
+    <p class="doc-title">Patient Discharge Form</p>
     <div class="section"><h3>Patient Information</h3>
       <table>
       <tr><td style="border:1px solid #e5e7eb;padding:5px 8px;"><b>Name</b></td><td style="border:1px solid #e5e7eb;padding:5px 8px;">${entry.patientName}</td><td style="border:1px solid #e5e7eb;padding:5px 8px;"><b>Date</b></td><td style="border:1px solid #e5e7eb;padding:5px 8px;">${today}</td></tr>
@@ -3269,7 +3269,7 @@ function QueueCard({
               variant="outline"
               className="h-7 text-xs px-2 text-green-700 hover:bg-green-50 border-green-200"
               onClick={() => printForm('discharge', entry)}
-              title="Print Discharge Summary"
+              title="Print Discharge Form"
             >
               <Printer className="h-3 w-3 mr-0.5" />D
             </Button>

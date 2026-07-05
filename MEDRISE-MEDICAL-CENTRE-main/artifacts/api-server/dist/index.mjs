@@ -45,6 +45,371 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// ../../node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv/lib/main.js
+var require_main = __commonJS({
+  "../../node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv/lib/main.js"(exports, module) {
+    var fs = __require("fs");
+    var path = __require("path");
+    var os = __require("os");
+    var crypto4 = __require("crypto");
+    var TIPS = [
+      "\u25C8 encrypted .env [www.dotenvx.com]",
+      "\u25C8 secrets for agents [www.dotenvx.com]",
+      "\u2301 auth for agents [www.vestauth.com]",
+      "\u2318 custom filepath { path: '/custom/path/.env' }",
+      "\u2318 enable debugging { debug: true }",
+      "\u2318 override existing { override: true }",
+      "\u2318 suppress logs { quiet: true }",
+      "\u2318 multiple files { path: ['.env.local', '.env'] }"
+    ];
+    function _getRandomTip() {
+      return TIPS[Math.floor(Math.random() * TIPS.length)];
+    }
+    function parseBoolean(value) {
+      if (typeof value === "string") {
+        return !["false", "0", "no", "off", ""].includes(value.toLowerCase());
+      }
+      return Boolean(value);
+    }
+    function supportsAnsi() {
+      return process.stdout.isTTY;
+    }
+    function dim(text2) {
+      return supportsAnsi() ? `\x1B[2m${text2}\x1B[0m` : text2;
+    }
+    var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
+    function parse3(src) {
+      const obj = {};
+      let lines = src.toString();
+      lines = lines.replace(/\r\n?/mg, "\n");
+      let match;
+      while ((match = LINE.exec(lines)) != null) {
+        const key = match[1];
+        let value = match[2] || "";
+        value = value.trim();
+        const maybeQuote = value[0];
+        value = value.replace(/^(['"`])([\s\S]*)\1$/mg, "$2");
+        if (maybeQuote === '"') {
+          value = value.replace(/\\n/g, "\n");
+          value = value.replace(/\\r/g, "\r");
+        }
+        obj[key] = value;
+      }
+      return obj;
+    }
+    function _parseVault(options) {
+      options = options || {};
+      const vaultPath = _vaultPath(options);
+      options.path = vaultPath;
+      const result = DotenvModule.configDotenv(options);
+      if (!result.parsed) {
+        const err = new Error(`MISSING_DATA: Cannot parse ${vaultPath} for an unknown reason`);
+        err.code = "MISSING_DATA";
+        throw err;
+      }
+      const keys = _dotenvKey(options).split(",");
+      const length = keys.length;
+      let decrypted;
+      for (let i = 0; i < length; i++) {
+        try {
+          const key = keys[i].trim();
+          const attrs = _instructions(result, key);
+          decrypted = DotenvModule.decrypt(attrs.ciphertext, attrs.key);
+          break;
+        } catch (error40) {
+          if (i + 1 >= length) {
+            throw error40;
+          }
+        }
+      }
+      return DotenvModule.parse(decrypted);
+    }
+    function _warn(message) {
+      console.error(`\u26A0 ${message}`);
+    }
+    function _debug(message) {
+      console.log(`\u2506 ${message}`);
+    }
+    function _log(message) {
+      console.log(`\u25C7 ${message}`);
+    }
+    function _dotenvKey(options) {
+      if (options && options.DOTENV_KEY && options.DOTENV_KEY.length > 0) {
+        return options.DOTENV_KEY;
+      }
+      if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) {
+        return process.env.DOTENV_KEY;
+      }
+      return "";
+    }
+    function _instructions(result, dotenvKey) {
+      let uri;
+      try {
+        uri = new URL(dotenvKey);
+      } catch (error40) {
+        if (error40.code === "ERR_INVALID_URL") {
+          const err = new Error("INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenvx.com/vault/.env.vault?environment=development");
+          err.code = "INVALID_DOTENV_KEY";
+          throw err;
+        }
+        throw error40;
+      }
+      const key = uri.password;
+      if (!key) {
+        const err = new Error("INVALID_DOTENV_KEY: Missing key part");
+        err.code = "INVALID_DOTENV_KEY";
+        throw err;
+      }
+      const environment = uri.searchParams.get("environment");
+      if (!environment) {
+        const err = new Error("INVALID_DOTENV_KEY: Missing environment part");
+        err.code = "INVALID_DOTENV_KEY";
+        throw err;
+      }
+      const environmentKey = `DOTENV_VAULT_${environment.toUpperCase()}`;
+      const ciphertext = result.parsed[environmentKey];
+      if (!ciphertext) {
+        const err = new Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${environmentKey} in your .env.vault file.`);
+        err.code = "NOT_FOUND_DOTENV_ENVIRONMENT";
+        throw err;
+      }
+      return { ciphertext, key };
+    }
+    function _vaultPath(options) {
+      let possibleVaultPath = null;
+      if (options && options.path && options.path.length > 0) {
+        if (Array.isArray(options.path)) {
+          for (const filepath of options.path) {
+            if (fs.existsSync(filepath)) {
+              possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
+            }
+          }
+        } else {
+          possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
+        }
+      } else {
+        possibleVaultPath = path.resolve(process.cwd(), ".env.vault");
+      }
+      if (fs.existsSync(possibleVaultPath)) {
+        return possibleVaultPath;
+      }
+      return null;
+    }
+    function _resolveHome(envPath) {
+      return envPath[0] === "~" ? path.join(os.homedir(), envPath.slice(1)) : envPath;
+    }
+    function _configVault(options) {
+      const debug = parseBoolean(process.env.DOTENV_CONFIG_DEBUG || options && options.debug);
+      const quiet = parseBoolean(process.env.DOTENV_CONFIG_QUIET || options && options.quiet);
+      if (debug || !quiet) {
+        _log("loading env from encrypted .env.vault");
+      }
+      const parsed = DotenvModule._parseVault(options);
+      let processEnv = process.env;
+      if (options && options.processEnv != null) {
+        processEnv = options.processEnv;
+      }
+      DotenvModule.populate(processEnv, parsed, options);
+      return { parsed };
+    }
+    function configDotenv(options) {
+      const dotenvPath = path.resolve(process.cwd(), ".env");
+      let encoding = "utf8";
+      let processEnv = process.env;
+      if (options && options.processEnv != null) {
+        processEnv = options.processEnv;
+      }
+      let debug = parseBoolean(processEnv.DOTENV_CONFIG_DEBUG || options && options.debug);
+      let quiet = parseBoolean(processEnv.DOTENV_CONFIG_QUIET || options && options.quiet);
+      if (options && options.encoding) {
+        encoding = options.encoding;
+      } else {
+        if (debug) {
+          _debug("no encoding is specified (UTF-8 is used by default)");
+        }
+      }
+      let optionPaths = [dotenvPath];
+      if (options && options.path) {
+        if (!Array.isArray(options.path)) {
+          optionPaths = [_resolveHome(options.path)];
+        } else {
+          optionPaths = [];
+          for (const filepath of options.path) {
+            optionPaths.push(_resolveHome(filepath));
+          }
+        }
+      }
+      let lastError;
+      const parsedAll = {};
+      for (const path2 of optionPaths) {
+        try {
+          const parsed = DotenvModule.parse(fs.readFileSync(path2, { encoding }));
+          DotenvModule.populate(parsedAll, parsed, options);
+        } catch (e) {
+          if (debug) {
+            _debug(`failed to load ${path2} ${e.message}`);
+          }
+          lastError = e;
+        }
+      }
+      const populated = DotenvModule.populate(processEnv, parsedAll, options);
+      debug = parseBoolean(processEnv.DOTENV_CONFIG_DEBUG || debug);
+      quiet = parseBoolean(processEnv.DOTENV_CONFIG_QUIET || quiet);
+      if (debug || !quiet) {
+        const keysCount = Object.keys(populated).length;
+        const shortPaths = [];
+        for (const filePath of optionPaths) {
+          try {
+            const relative = path.relative(process.cwd(), filePath);
+            shortPaths.push(relative);
+          } catch (e) {
+            if (debug) {
+              _debug(`failed to load ${filePath} ${e.message}`);
+            }
+            lastError = e;
+          }
+        }
+        _log(`injected env (${keysCount}) from ${shortPaths.join(",")} ${dim(`// tip: ${_getRandomTip()}`)}`);
+      }
+      if (lastError) {
+        return { parsed: parsedAll, error: lastError };
+      } else {
+        return { parsed: parsedAll };
+      }
+    }
+    function config2(options) {
+      if (_dotenvKey(options).length === 0) {
+        return DotenvModule.configDotenv(options);
+      }
+      const vaultPath = _vaultPath(options);
+      if (!vaultPath) {
+        _warn(`you set DOTENV_KEY but you are missing a .env.vault file at ${vaultPath}`);
+        return DotenvModule.configDotenv(options);
+      }
+      return DotenvModule._configVault(options);
+    }
+    function decrypt(encrypted, keyStr) {
+      const key = Buffer.from(keyStr.slice(-64), "hex");
+      let ciphertext = Buffer.from(encrypted, "base64");
+      const nonce = ciphertext.subarray(0, 12);
+      const authTag = ciphertext.subarray(-16);
+      ciphertext = ciphertext.subarray(12, -16);
+      try {
+        const aesgcm = crypto4.createDecipheriv("aes-256-gcm", key, nonce);
+        aesgcm.setAuthTag(authTag);
+        return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
+      } catch (error40) {
+        const isRange = error40 instanceof RangeError;
+        const invalidKeyLength = error40.message === "Invalid key length";
+        const decryptionFailed = error40.message === "Unsupported state or unable to authenticate data";
+        if (isRange || invalidKeyLength) {
+          const err = new Error("INVALID_DOTENV_KEY: It must be 64 characters long (or more)");
+          err.code = "INVALID_DOTENV_KEY";
+          throw err;
+        } else if (decryptionFailed) {
+          const err = new Error("DECRYPTION_FAILED: Please check your DOTENV_KEY");
+          err.code = "DECRYPTION_FAILED";
+          throw err;
+        } else {
+          throw error40;
+        }
+      }
+    }
+    function populate(processEnv, parsed, options = {}) {
+      const debug = Boolean(options && options.debug);
+      const override = Boolean(options && options.override);
+      const populated = {};
+      if (typeof parsed !== "object") {
+        const err = new Error("OBJECT_REQUIRED: Please check the processEnv argument being passed to populate");
+        err.code = "OBJECT_REQUIRED";
+        throw err;
+      }
+      for (const key of Object.keys(parsed)) {
+        if (Object.prototype.hasOwnProperty.call(processEnv, key)) {
+          if (override === true) {
+            processEnv[key] = parsed[key];
+            populated[key] = parsed[key];
+          }
+          if (debug) {
+            if (override === true) {
+              _debug(`"${key}" is already defined and WAS overwritten`);
+            } else {
+              _debug(`"${key}" is already defined and was NOT overwritten`);
+            }
+          }
+        } else {
+          processEnv[key] = parsed[key];
+          populated[key] = parsed[key];
+        }
+      }
+      return populated;
+    }
+    var DotenvModule = {
+      configDotenv,
+      _configVault,
+      _parseVault,
+      config: config2,
+      decrypt,
+      parse: parse3,
+      populate
+    };
+    module.exports.configDotenv = DotenvModule.configDotenv;
+    module.exports._configVault = DotenvModule._configVault;
+    module.exports._parseVault = DotenvModule._parseVault;
+    module.exports.config = DotenvModule.config;
+    module.exports.decrypt = DotenvModule.decrypt;
+    module.exports.parse = DotenvModule.parse;
+    module.exports.populate = DotenvModule.populate;
+    module.exports = DotenvModule;
+  }
+});
+
+// ../../node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv/lib/env-options.js
+var require_env_options = __commonJS({
+  "../../node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv/lib/env-options.js"(exports, module) {
+    var options = {};
+    if (process.env.DOTENV_CONFIG_ENCODING != null) {
+      options.encoding = process.env.DOTENV_CONFIG_ENCODING;
+    }
+    if (process.env.DOTENV_CONFIG_PATH != null) {
+      options.path = process.env.DOTENV_CONFIG_PATH;
+    }
+    if (process.env.DOTENV_CONFIG_QUIET != null) {
+      options.quiet = process.env.DOTENV_CONFIG_QUIET;
+    }
+    if (process.env.DOTENV_CONFIG_DEBUG != null) {
+      options.debug = process.env.DOTENV_CONFIG_DEBUG;
+    }
+    if (process.env.DOTENV_CONFIG_OVERRIDE != null) {
+      options.override = process.env.DOTENV_CONFIG_OVERRIDE;
+    }
+    if (process.env.DOTENV_CONFIG_DOTENV_KEY != null) {
+      options.DOTENV_KEY = process.env.DOTENV_CONFIG_DOTENV_KEY;
+    }
+    module.exports = options;
+  }
+});
+
+// ../../node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv/lib/cli-options.js
+var require_cli_options = __commonJS({
+  "../../node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv/lib/cli-options.js"(exports, module) {
+    var re = /^dotenv_config_(encoding|path|quiet|debug|override|DOTENV_KEY)=(.+)$/;
+    module.exports = function optionMatcher(args) {
+      const options = args.reduce(function(acc, cur) {
+        const matches = cur.match(re);
+        if (matches) {
+          acc[matches[1]] = matches[2];
+        }
+        return acc;
+      }, {});
+      if (!("quiet" in options)) {
+        options.quiet = "true";
+      }
+      return options;
+    };
+  }
+});
+
 // ../../node_modules/.pnpm/ms@2.1.3/node_modules/ms/index.js
 var require_ms = __commonJS({
   "../../node_modules/.pnpm/ms@2.1.3/node_modules/ms/index.js"(exports, module) {
@@ -28270,7 +28635,7 @@ var require_pino = __commonJS({
     function pinoBundlerAbsolutePath(p) {
       try {
         const path = __require("path");
-        const outputDir = "/home/runner/workspace/MEDRISE-MEDICAL-CENTRE-main/artifacts/api-server/dist";
+        const outputDir = "C:\\Users\\ADMIN\\Downloads\\MEDRISE-MEDICAL-CENTRE-main (8)\\MEDRISE-MEDICAL-CENTRE-main\\MEDRISE-MEDICAL-CENTRE\\MEDRISE-MEDICAL-CENTRE-main\\artifacts\\api-server\\dist";
         return path.resolve(outputDir, p.replace(/^\.\//, ""));
       } catch (e) {
         const f = new Function("p", "return new URL(p, import.meta.url).pathname");
@@ -55765,7 +56130,7 @@ var init_v4 = __esm({
   }
 });
 
-// ../../node_modules/.pnpm/drizzle-zod@0.8.3_drizzle-orm@0.45.2_@types+pg@8.20.0_pg@8.21.0__zod@3.25.76/node_modules/drizzle-zod/index.mjs
+// ../../node_modules/.pnpm/drizzle-zod@0.8.3_drizzle-o_75717ee7f6436df081a15a148acf053c/node_modules/drizzle-zod/index.mjs
 function isColumnType(column, columnTypes) {
   return columnTypes.includes(column.columnType);
 }
@@ -55977,7 +56342,7 @@ function handleColumns(columns, refinements, conditions, factory) {
 }
 var CONSTANTS, literalSchema, jsonSchema, bufferSchema, insertConditions, createInsertSchema;
 var init_drizzle_zod = __esm({
-  "../../node_modules/.pnpm/drizzle-zod@0.8.3_drizzle-orm@0.45.2_@types+pg@8.20.0_pg@8.21.0__zod@3.25.76/node_modules/drizzle-zod/index.mjs"() {
+  "../../node_modules/.pnpm/drizzle-zod@0.8.3_drizzle-o_75717ee7f6436df081a15a148acf053c/node_modules/drizzle-zod/index.mjs"() {
     init_v4();
     init_drizzle_orm();
     CONSTANTS = {
@@ -60277,6 +60642,39 @@ var init_attendance = __esm({
   }
 });
 
+// ../../lib/db/src/schema/admissions.ts
+var admissionsTable;
+var init_admissions = __esm({
+  "../../lib/db/src/schema/admissions.ts"() {
+    "use strict";
+    init_pg_core();
+    init_patients();
+    init_admins();
+    admissionsTable = pgTable("admissions", {
+      id: serial("id").primaryKey(),
+      patientId: integer("patient_id").notNull().references(() => patientsTable.id),
+      queueEntryId: integer("queue_entry_id"),
+      ward: text("ward").notNull().default("General Ward"),
+      bedNumber: text("bed_number"),
+      admittedBy: integer("admitted_by").references(() => adminsTable.id),
+      admittedByName: text("admitted_by_name"),
+      admissionType: text("admission_type").notNull().default("elective"),
+      diagnosis: text("diagnosis"),
+      notes: text("notes"),
+      status: text("status").notNull().default("active"),
+      dischargedAt: timestamp("discharged_at"),
+      dischargeSummary: text("discharge_summary"),
+      dischargedByName: text("discharged_by_name"),
+      createdAt: timestamp("created_at").defaultNow().notNull(),
+      updatedAt: timestamp("updated_at").defaultNow().notNull()
+    }, (t) => [
+      index("admissions_patient_id_idx").on(t.patientId),
+      index("admissions_status_idx").on(t.status),
+      index("admissions_ward_idx").on(t.ward)
+    ]);
+  }
+});
+
 // ../../lib/db/src/schema/consultations.ts
 var consultationsTable;
 var init_consultations = __esm({
@@ -60285,6 +60683,7 @@ var init_consultations = __esm({
     init_pg_core();
     init_patients();
     init_admins();
+    init_admissions();
     consultationsTable = pgTable("consultations", {
       id: serial("id").primaryKey(),
       patientId: integer("patient_id").references(() => patientsTable.id).notNull(),
@@ -60298,6 +60697,9 @@ var init_consultations = __esm({
       followUpDate: text("follow_up_date"),
       followUpStatus: text("follow_up_status").default("pending"),
       notes: text("notes"),
+      admissionDecision: text("admission_decision").notNull().default("outpatient"),
+      // 'outpatient' or 'inpatient'
+      admissionId: integer("admission_id").references(() => admissionsTable.id),
       createdAt: timestamp("created_at").defaultNow().notNull(),
       updatedAt: timestamp("updated_at").defaultNow().notNull()
     }, (t) => [
@@ -60748,39 +61150,6 @@ var init_hmisTargets = __esm({
       updatedAt: timestamp("updated_at").defaultNow().notNull()
     }, (t) => [
       unique("hmis_targets_metric_period_unique").on(t.metricKey, t.periodType)
-    ]);
-  }
-});
-
-// ../../lib/db/src/schema/admissions.ts
-var admissionsTable;
-var init_admissions = __esm({
-  "../../lib/db/src/schema/admissions.ts"() {
-    "use strict";
-    init_pg_core();
-    init_patients();
-    init_admins();
-    admissionsTable = pgTable("admissions", {
-      id: serial("id").primaryKey(),
-      patientId: integer("patient_id").notNull().references(() => patientsTable.id),
-      queueEntryId: integer("queue_entry_id"),
-      ward: text("ward").notNull().default("General Ward"),
-      bedNumber: text("bed_number"),
-      admittedBy: integer("admitted_by").references(() => adminsTable.id),
-      admittedByName: text("admitted_by_name"),
-      admissionType: text("admission_type").notNull().default("elective"),
-      diagnosis: text("diagnosis"),
-      notes: text("notes"),
-      status: text("status").notNull().default("active"),
-      dischargedAt: timestamp("discharged_at"),
-      dischargeSummary: text("discharge_summary"),
-      dischargedByName: text("discharged_by_name"),
-      createdAt: timestamp("created_at").defaultNow().notNull(),
-      updatedAt: timestamp("updated_at").defaultNow().notNull()
-    }, (t) => [
-      index("admissions_patient_id_idx").on(t.patientId),
-      index("admissions_status_idx").on(t.status),
-      index("admissions_ward_idx").on(t.ward)
     ]);
   }
 });
@@ -78764,6 +79133,17 @@ var require_node_cron = __commonJS({
   }
 });
 
+// ../../node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv/config.js
+(function() {
+  require_main().config(
+    Object.assign(
+      {},
+      require_env_options(),
+      require_cli_options()(process.argv)
+    )
+  );
+})();
+
 // src/index.ts
 import http from "http";
 
@@ -86418,20 +86798,13 @@ var import_nodemailer = __toESM(require_nodemailer(), 1);
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
-var isProduction = process.env.NODE_ENV === "production";
 var logger = (0, import_pino.default)({
   level: process.env.LOG_LEVEL ?? "info",
   redact: [
     "req.headers.authorization",
     "req.headers.cookie",
     "res.headers['set-cookie']"
-  ],
-  ...isProduction ? {} : {
-    transport: {
-      target: "pino-pretty",
-      options: { colorize: true }
-    }
-  }
+  ]
 });
 
 // src/lib/email.ts
@@ -92725,7 +93098,9 @@ var ConsultationInputSchema = external_exports2.object({
   notes: external_exports2.string().optional(),
   // MUST BE JSON STRING ARRAY
   labInvestigations: external_exports2.string().optional(),
-  imagingInvestigations: external_exports2.string().optional()
+  imagingInvestigations: external_exports2.string().optional(),
+  // Admission decision
+  admissionDecision: external_exports2.enum(["outpatient", "inpatient"]).default("outpatient")
 });
 async function mapConsultation(c) {
   const patient = c.patientId ? await db.select({ fullName: patientsTable.fullName }).from(patientsTable).where(eq(patientsTable.id, c.patientId)).then((r) => r[0]) : null;
@@ -92766,7 +93141,8 @@ router25.post("/consultations", async (req, res) => {
       prescriptions: parsed.data.prescriptions ?? null,
       referral: parsed.data.referral ?? null,
       followUpDate: parsed.data.followUpDate ?? null,
-      notes: parsed.data.notes ?? null
+      notes: parsed.data.notes ?? null,
+      admissionDecision: parsed.data.admissionDecision ?? "outpatient"
     }).returning();
     const patientId = parsed.data.patientId;
     const staffId = parsed.data.staffId ?? null;
@@ -92794,17 +93170,22 @@ router25.post("/consultations", async (req, res) => {
     const studies = safeArray(parsed.data.imagingInvestigations);
     for (const study of studies) {
       const lower = study.toLowerCase();
-      let modality = "X-Ray";
-      if (lower.includes("ct")) modality = "CT Scan";
-      else if (lower.includes("mri")) modality = "MRI";
-      else if (lower.includes("ultrasound")) modality = "Ultrasound";
-      else if (lower.includes("doppler")) modality = "Ultrasound";
-      else if (lower.includes("mammogram")) modality = "Mammography";
+      let modality = study;
+      if (lower === "x-ray" || lower === "xray") modality = "X-Ray";
+      else if (lower === "ct" || lower === "ct scan") modality = "CT Scan";
+      else if (lower === "mri") modality = "MRI";
+      else if (lower === "ultrasound" && !lower.includes("doppler")) modality = "Ultrasound";
+      else if (lower.includes("doppler")) modality = "Doppler Ultrasound";
+      else if (lower.includes("mammogram") || lower.includes("mammography")) modality = "Mammography";
+      else if (lower.includes("fluoroscopy")) modality = "Fluoroscopy";
+      else if (lower.includes("echocardiogram") || lower.includes("echo")) modality = "Echocardiography";
+      else if (lower.includes("ecg") || lower.includes("electrocardiogram")) modality = "ECG";
       const [imagingOrder] = await db.insert(imagingOrdersTable).values({
         patientId,
         consultationId: row.id,
         modality,
-        bodyPart: study,
+        bodyPart: null,
+        // Will be specified separately if needed
         clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || "",
         priority: "routine",
         status: "pending",
@@ -92837,6 +93218,29 @@ router25.post("/consultations", async (req, res) => {
           });
         }
       }
+    }
+    if (parsed.data.admissionDecision === "inpatient") {
+      const [admission] = await db.insert(admissionsTable).values({
+        patientId,
+        admittedBy: staffId,
+        admissionDate: parsed.data.visitDate,
+        admissionTime: (/* @__PURE__ */ new Date()).toLocaleTimeString("en-UG", { hour: "2-digit", minute: "2-digit" }),
+        ward: "General Ward",
+        // Default ward, can be specified later
+        bedNumber: "TBD",
+        // To be assigned
+        admissionType: "Emergency",
+        diagnosis: parsed.data.diagnosis || parsed.data.chiefComplaint || "",
+        status: "admitted"
+      }).returning();
+      await db.update(consultationsTable).set({ admissionId: admission.id }).where(eq(consultationsTable.id, row.id));
+      await createAndBroadcast({
+        type: "admission",
+        title: "Patient Admitted",
+        body: `Patient ${patientId} has been admitted from consultation`,
+        severity: "warning",
+        relatedId: admission.id
+      });
     }
     await logAudit(req, "create_consultation", {
       entityType: "consultation",
