@@ -29,6 +29,7 @@ import loginHistoryRouter from './loginHistory';
 import consultationsRouter from './consultations';
 import passwordResetRouter from './passwordReset';
 import notificationsRouter from './notifications';
+// import documentVersionsRouter from './documentVersions'; // TODO: Requires build setup for new schema
 
 const router = Router();
 
@@ -61,6 +62,7 @@ router.use(loginHistoryRouter);
 router.use(consultationsRouter);
 router.use(passwordResetRouter);
 router.use(notificationsRouter);
+// router.use(documentVersionsRouter); // TODO: Requires build setup for new schema
 
 /* ===================== ROUTE DEBUG (SAFE) ===================== */
 /* This only runs once at startup */
@@ -94,6 +96,7 @@ if (process.env.NODE_ENV !== 'production') {
     'consultations',
     'passwordReset',
     'notifications',
+    // 'documentVersions', // TODO: Requires build setup for new schema
   ];
 
   console.log('🚀 Medrise API Routes Loaded:');

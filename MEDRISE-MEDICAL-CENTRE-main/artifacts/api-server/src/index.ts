@@ -32,6 +32,8 @@ async function runMigrations() {
       ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "laboratory_results_upload" text;
       ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "imaging_results_upload" text;
       ALTER TABLE "growth_records" ADD COLUMN IF NOT EXISTS "age_weeks" integer;
+      ALTER TABLE "consultations" ADD COLUMN IF NOT EXISTS "admission_decision" text DEFAULT 'outpatient';
+      ALTER TABLE "consultations" ADD COLUMN IF NOT EXISTS "admission_id" integer;
       CREATE TABLE IF NOT EXISTS "pharmacy_orders" (
         "id" serial PRIMARY KEY NOT NULL,
         "patient_id" integer NOT NULL,
@@ -47,6 +49,21 @@ async function runMigrations() {
         "created_at" timestamp DEFAULT now() NOT NULL,
         "updated_at" timestamp DEFAULT now() NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS "document_versions" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "document_type" text NOT NULL,
+        "document_id" integer NOT NULL,
+        "patient_id" integer NOT NULL,
+        "version" integer NOT NULL DEFAULT 1,
+        "content" json NOT NULL,
+        "change_reason" text,
+        "created_by_id" integer,
+        "created_by_name" text,
+        "created_at" timestamp DEFAULT now() NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS "document_versions_document_id_idx" ON "document_versions"("document_id");
+      CREATE INDEX IF NOT EXISTS "document_versions_document_type_idx" ON "document_versions"("document_type");
+      CREATE INDEX IF NOT EXISTS "document_versions_patient_id_idx" ON "document_versions"("patient_id");
     `);
     logger.info("Schema migrations complete");
   } catch (err) {

@@ -62,10 +62,13 @@ export default function Appointment() {
   const [success, setSuccess] = React.useState(false);
 
   const apiBase = (import.meta as any).env?.VITE_API_URL ?? '';
-  const { data: staffData = [] } = useQuery<{ id: number; name: string; role: string | null; title: string | null }[]>({
-    queryKey: ['staff-public'],
+  const [staffSearch, setStaffSearch] = React.useState('');
+  const { data: staffData = [], isLoading: staffLoading } = useQuery<{ id: number; name: string; role: string | null; title: string | null; department: string | null }[]>({
+    queryKey: ['staff-public', staffSearch],
     queryFn: async () => {
-      const res = await fetch(`${apiBase}/api/staff/public`);
+      const url = new URL(`${apiBase}/api/staff/public`);
+      if (staffSearch) url.searchParams.set('search', staffSearch);
+      const res = await fetch(url.toString());
       if (!res.ok) return [];
       return res.json();
     },
@@ -354,21 +357,41 @@ export default function Appointment() {
                           <FormLabel className="text-gray-700">
                             Preferred Doctor / Midwife / Nurse (Optional)
                           </FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="h-12">
-                                <SelectValue placeholder="No preference — any available clinician" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="no-preference">No preference</SelectItem>
-                              {clinicalStaff.map((s) => (
-                                <SelectItem key={s.id} value={s.name}>
-                                  {s.title ? `${s.title} ${s.name}` : s.name}{s.role ? ` — ${s.role.replace(/_/g, ' ')}` : ''}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="space-y-2">
+                            <Input
+                              placeholder="Search by name or title..."
+                              value={staffSearch}
+                              onChange={(e) => setStaffSearch(e.target.value)}
+                              className="h-10"
+                            />
+                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={staffLoading}>
+                              <FormControl>
+                                <SelectTrigger className="h-12">
+                                  <SelectValue placeholder="No preference — any available clinician" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {staffLoading ? (
+                                  <div className="flex items-center justify-center p-4">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                ) : clinicalStaff.length === 0 ? (
+                                  <div className="p-4 text-sm text-gray-500">
+                                    {staffSearch ? 'No matching staff found' : 'No clinical staff available'}
+                                  </div>
+                                ) : (
+                                  <>
+                                    <SelectItem value="no-preference">No preference</SelectItem>
+                                    {clinicalStaff.map((s) => (
+                                      <SelectItem key={s.id} value={s.name}>
+                                        {s.title ? `${s.title} ${s.name}` : s.name}{s.role ? ` — ${s.role.replace(/_/g, ' ')}` : ''}
+                                      </SelectItem>
+                                    ))}
+                                  </>
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

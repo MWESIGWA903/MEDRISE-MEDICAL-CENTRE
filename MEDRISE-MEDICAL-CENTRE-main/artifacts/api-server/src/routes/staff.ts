@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, or, like, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db, adminsTable } from "@workspace/db";
 import { PROFESSIONAL_ROLES } from "@workspace/db";
@@ -32,22 +32,74 @@ function mapStaff(a: typeof adminsTable.$inferSelect) {
 
 router.get("/staff", async (req, res): Promise<void> => {
   try {
-    const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
-    res.json(ListStaffResponse.parse(rows.map(mapStaff)));
+    const search = typeof req.query.search === "string" ? req.query.search : undefined;
+    const department = typeof req.query.department === "string" ? req.query.department : undefined;
+    const role = typeof req.query.role === "string" ? req.query.role : undefined;
+
+    let conditions = [eq(adminsTable.isActive, true)];
+
+    if (search) {
+      const searchPattern = `%${search}%`;
+      conditions.push(
+        or(
+          like(adminsTable.name, searchPattern),
+          like(adminsTable.username, searchPattern),
+          like(adminsTable.title || "", searchPattern)
+        )!
+      );
+    }
+
+    const rows = await db.select().from(adminsTable).where(and(...conditions)).orderBy(adminsTable.name);
+    
+    let filtered = rows;
+    if (department) {
+      filtered = filtered.filter(s => s.department === department);
+    }
+    if (role) {
+      filtered = filtered.filter(s => s.role === role);
+    }
+
+    res.json(ListStaffResponse.parse(filtered.map(mapStaff)));
   } catch (err) {
     console.error("GET /staff error:", err);
     res.status(500).json({ error: "Failed to fetch staff" });
   }
 });
 
-router.get("/staff/public", async (_req, res): Promise<void> => {
+router.get("/staff/public", async (req, res): Promise<void> => {
   try {
-    const rows = await db.select().from(adminsTable).where(eq(adminsTable.isActive, true)).orderBy(adminsTable.name);
-    res.json(rows.map(a => ({
+    const search = typeof req.query.search === "string" ? req.query.search : undefined;
+    const department = typeof req.query.department === "string" ? req.query.department : undefined;
+    const role = typeof req.query.role === "string" ? req.query.role : undefined;
+
+    let conditions = [eq(adminsTable.isActive, true)];
+
+    if (search) {
+      const searchPattern = `%${search}%`;
+      conditions.push(
+        or(
+          like(adminsTable.name, searchPattern),
+          like(adminsTable.title || "", searchPattern)
+        )!
+      );
+    }
+
+    const rows = await db.select().from(adminsTable).where(and(...conditions)).orderBy(adminsTable.name);
+    
+    let filtered = rows;
+    if (department) {
+      filtered = filtered.filter(s => s.department === department);
+    }
+    if (role) {
+      filtered = filtered.filter(s => s.role === role);
+    }
+
+    res.json(filtered.map(a => ({
       id: a.id,
       name: a.name,
       role: a.role,
       title: a.title ?? null,
+      department: a.department ?? null,
     })));
   } catch (err) {
     console.error("GET /staff/public error:", err);

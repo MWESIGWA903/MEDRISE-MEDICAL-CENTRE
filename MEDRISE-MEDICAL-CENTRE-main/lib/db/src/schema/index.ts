@@ -32,3 +32,4 @@ export * from "./dentalProcedures";
 export * from "./wardRoundNotes";
 export * from "./inpatientDrugChart";
 export * from "./nursingNotes";
+export * from "./documentVersions";

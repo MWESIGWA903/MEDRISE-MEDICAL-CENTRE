@@ -13,6 +13,7 @@ import {
 import { z } from 'zod';
 import { logAudit } from '../lib/audit';
 import { createAndBroadcast } from '../lib/notificationHelper';
+import { getSessionFromRequestAsync } from '../lib/session';
 
 const router: IRouter = Router();
 
@@ -95,6 +96,7 @@ function safeArray(input?: string): string[] {
 
 router.post('/consultations', async (req, res): Promise<void> => {
   try {
+    const session = await getSessionFromRequestAsync(req);
     const parsed = ConsultationInputSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.message });
@@ -115,7 +117,7 @@ router.post('/consultations', async (req, res): Promise<void> => {
         followUpDate: parsed.data.followUpDate ?? null,
         notes: parsed.data.notes ?? null,
         admissionDecision: parsed.data.admissionDecision ?? 'outpatient',
-      })
+      } as any)
       .returning();
 
     const patientId = parsed.data.patientId;
@@ -135,7 +137,6 @@ router.post('/consultations', async (req, res): Promise<void> => {
           testCategory: 'routine',
           priority: 'routine',
           status: 'pending',
-          source: 'consultation',
           clinicalInfo: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
           orderedBy: staffId,
         })
@@ -179,8 +180,8 @@ router.post('/consultations', async (req, res): Promise<void> => {
           bodyPart: null, // Will be specified separately if needed
           clinicalIndication: parsed.data.chiefComplaint || parsed.data.diagnosis || '',
           priority: 'routine',
-          status: 'pending',
-          source: 'consultation',
+          status: 'requested',
+          requestedBy: staffId,
         })
         .returning();
 
@@ -229,20 +230,19 @@ router.post('/consultations', async (req, res): Promise<void> => {
         .values({
           patientId,
           admittedBy: staffId,
-          admissionDate: parsed.data.visitDate,
-          admissionTime: new Date().toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }),
+          admittedByName: session?.username || null,
           ward: 'General Ward', // Default ward, can be specified later
           bedNumber: 'TBD', // To be assigned
           admissionType: 'Emergency',
           diagnosis: parsed.data.diagnosis || parsed.data.chiefComplaint || '',
-          status: 'admitted',
+          status: 'active',
         })
         .returning();
 
       // Link admission to consultation
       await db
         .update(consultationsTable)
-        .set({ admissionId: admission.id })
+        .set({ admissionId: admission.id } as any)
         .where(eq(consultationsTable.id, row.id));
 
       await createAndBroadcast({
