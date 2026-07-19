@@ -33,3 +33,4 @@ export * from "./wardRoundNotes";
 export * from "./inpatientDrugChart";
 export * from "./nursingNotes";
 export * from "./documentVersions";
+export * from "./gynaeClinics";

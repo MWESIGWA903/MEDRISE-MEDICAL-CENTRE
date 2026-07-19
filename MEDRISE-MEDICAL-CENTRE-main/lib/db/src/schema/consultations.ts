@@ -18,12 +18,16 @@ export const consultationsTable = pgTable("consultations", {
   notes: text("notes"),
   admissionDecision: text("admission_decision").notNull().default("outpatient"), // 'outpatient' or 'inpatient'
   admissionId: integer("admission_id").references(() => admissionsTable.id),
+  disposition: text("disposition").notNull().default("outpatient"), // 'outpatient', 'admit', 'refer', 'transfer', 'discharge', 'death'
+  dispositionNotes: text("disposition_notes"),
+  dispositionDate: timestamp("disposition_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [
   index("consultations_patient_id_idx").on(t.patientId),
   index("consultations_staff_id_idx").on(t.staffId),
   index("consultations_created_at_idx").on(t.createdAt),
+  index("consultations_disposition_idx").on(t.disposition),
 ]);
 
 export type Consultation = typeof consultationsTable.$inferSelect;

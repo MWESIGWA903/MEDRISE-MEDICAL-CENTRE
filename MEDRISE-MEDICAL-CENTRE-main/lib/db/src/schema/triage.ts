@@ -17,7 +17,20 @@ export const triageTable = pgTable("triage", {
   temperature: text("temperature"),
   weight: text("weight"),
   height: text("height"),
+  bmi: text("bmi"),
   painScale: integer("pain_scale"),
+  
+  // Split blood glucose into separate tests
+  randomBloodSugar: text("random_blood_sugar"),
+  fastingBloodSugar: text("fasting_blood_sugar"),
+  
+  // Demographics that should sync to patient master record
+  bloodType: text("blood_type"),
+  allergies: text("allergies"),
+  pregnancyStatus: text("pregnancy_status"),
+  emergencyContactName: text("emergency_contact_name"),
+  emergencyContactPhone: text("emergency_contact_phone"),
+  emergencyContactRelationship: text("emergency_contact_relationship"),
 
   chiefComplaint: text("chief_complaint").notNull(),
   nursingAssessment: text("nursing_assessment"),

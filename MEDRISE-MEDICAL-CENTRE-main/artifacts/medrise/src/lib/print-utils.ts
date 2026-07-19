@@ -18,7 +18,10 @@ export interface PrintPrescriptionData {
   patientAge?: string | number | null;
   patientSex?: string | null;
   patientId?: string | number | null;
+  bloodType?: string | null;
   department?: string | null;
+  patientPhone?: string | null;
+  patientDob?: string | null;
   visitDate: string;
   visitTime?: string | null;
   staffName?: string | null;
@@ -37,7 +40,10 @@ export interface PrintLabResultData {
   patientAge?: string | number | null;
   patientSex?: string | null;
   patientId?: string | number | null;
+  bloodType?: string | null;
   department?: string | null;
+  patientPhone?: string | null;
+  patientDob?: string | null;
   testName: string;
   orderedAt: string;
   orderedTime?: string | null;
@@ -62,7 +68,9 @@ export interface PrintImagingReportData {
   patientAge?: string | number | null;
   patientSex?: string | null;
   patientId?: string | number | null;
+  bloodType?: string | null;
   department?: string | null;
+  patientPhone?: string | null;
   patientDob?: string | null;
   modality: string;
   bodyPart?: string | null;
@@ -85,6 +93,7 @@ export interface PrintDischargeData {
   patientAge?: string | number | null;
   patientSex?: string | null;
   patientId?: string | number | null;
+  bloodType?: string | null;
   department?: string | null;
   patientPhone?: string | null;
   patientDob?: string | null;
@@ -107,6 +116,7 @@ export interface PrintReferralLetterData {
   patientAge?: string | number | null;
   patientSex?: string | null;
   patientId?: string | number | null;
+  bloodType?: string | null;
   department?: string | null;
   patientPhone?: string | null;
   patientDob?: string | null;
@@ -129,6 +139,7 @@ export interface PrintSickLeaveData {
   patientAge?: string | number | null;
   patientSex?: string | null;
   patientId?: string | number | null;
+  bloodType?: string | null;
   department?: string | null;
   patientPhone?: string | null;
   patientDob?: string | null;
@@ -162,6 +173,11 @@ export interface PrintDeathNotifData {
   patientName: string;
   patientAge?: string | number | null;
   patientSex?: string | null;
+  bloodType?: string | null;
+  patientPhone?: string | null;
+  patientDob?: string | null;
+  patientId?: string | number | null;
+  department?: string | null;
   dateOfAdmission?: string;
   timeOfAdmission?: string;
   dateOfDeath?: string;
@@ -181,6 +197,48 @@ const CLINIC_NAME = "MEDRISE MEDICAL CENTRE";
 const CLINIC_ADDRESS = "Lwadda A, Matugga, Gombe Division, Wakiso District, Uganda";
 const CLINIC_PHONE = "+256 770 775268 / +256 751 527730";
 const CLINIC_EMAIL = "medrisemedicalcentre@gmail.com";
+
+// ── Patient Biodata Helper ─────────────────────────────────────────────────────
+
+/**
+ * Fetches complete patient biodata from Patient Master Record
+ * This ensures all printable documents have consistent, up-to-date patient information
+ */
+export interface PatientBiodata {
+  fullName: string;
+  age?: number | null;
+  gender?: string | null;
+  dateOfBirth?: string | null;
+  bloodType?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  nextOfKinName?: string | null;
+  nextOfKinPhone?: string | null;
+  nextOfKinRelationship?: string | null;
+}
+
+/**
+ * Enriches document data with patient biodata from Patient Master Record
+ * This function should be called before printing to ensure all documents have complete patient information
+ */
+export function enrichWithPatientBiodata<T extends Record<string, any>>(
+  documentData: T,
+  patientBiodata: PatientBiodata
+): T & Required<Pick<PatientBiodata, 'fullName'>> {
+  return {
+    ...documentData,
+    patientName: patientBiodata.fullName || documentData.patientName || '',
+    patientAge: patientBiodata.age || documentData.patientAge || null,
+    patientSex: patientBiodata.gender || documentData.patientSex || null,
+    patientDob: patientBiodata.dateOfBirth || documentData.patientDob || null,
+    bloodType: patientBiodata.bloodType || documentData.bloodType || null,
+    patientPhone: patientBiodata.phone || documentData.patientPhone || null,
+    address: patientBiodata.address || documentData.address || null,
+    nextOfKinName: patientBiodata.nextOfKinName || documentData.nextOfKinName || null,
+    nextOfKinPhone: patientBiodata.nextOfKinPhone || documentData.nextOfKinPhone || null,
+    nextOfKinRelationship: patientBiodata.nextOfKinRelationship || documentData.nextOfKinRelationship || null,
+  };
+}
 
 function getLogoUrl(): string {
   return window.location.origin + "/images/medrise-logo.jpg";
@@ -291,11 +349,12 @@ function vitalsTableHtml(v?: PatientVitals | null): string {
   return `<table class="vitals-table">${pairs.join("")}</table>`;
 }
 
-/** Compact patient demographics bar (name, age, sex, phone, dob, date, time, id, dept). */
+/** Compact patient demographics bar (name, age, sex, blood type, phone, dob, date, time, id, dept). */
 function demogBar(opts: {
   name: string;
   age?: string | number | null;
   sex?: string | null;
+  bloodType?: string | null;
   phone?: string | null;
   dob?: string | null;
   patientId?: string | number | null;
@@ -312,6 +371,7 @@ function demogBar(opts: {
   if (opts.patientId) items.push(["Patient ID", String(opts.patientId)]);
   items.push(["Age", opts.age ? String(opts.age) + " yrs" : "—"]);
   items.push(["Sex", opts.sex ?? "—"]);
+  if (opts.bloodType) items.push(["Blood Group", opts.bloodType]);
   if (opts.department) items.push(["Department", opts.department]);
   if (opts.dob) items.push(["Date of Birth", new Date(opts.dob).toLocaleDateString("en-UG")]);
   if (opts.phone) items.push(["Phone", opts.phone]);
@@ -360,7 +420,7 @@ export function printPrescription(data: PrintPrescriptionData): void {
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Prescription — ${data.patientName}</title>${baseStyles()}</head><body>
     ${clinicHeader()}
     <div class="doc-title">OUTPATIENT PRESCRIPTION</div>
-    ${demogBar({ name: data.patientName, age: data.patientAge, sex: data.patientSex, patientId: data.patientId, department: data.department, dateLabel: "Visit Date", date: data.visitDate, timeLabel: "Visit Time", time: data.visitTime })}
+    ${demogBar({ name: data.patientName, age: data.patientAge, sex: data.patientSex, bloodType: data.bloodType, phone: data.patientPhone, dob: data.patientDob, patientId: data.patientId, department: data.department, dateLabel: "Visit Date", date: data.visitDate, timeLabel: "Visit Time", time: data.visitTime })}
     <div class="meta">
       ${data.staffName ? `<div class="meta-item"><span class="meta-label">Attending:</span><span>Dr. ${data.staffName}</span></div>` : ""}
       ${data.followUpDate ? `<div class="meta-item"><span class="meta-label">Follow-Up:</span><span>${data.followUpDate}</span></div>` : ""}
@@ -404,6 +464,7 @@ export function printDischarge(data: PrintDischargeData): void {
       name: data.patientName,
       age: data.patientAge,
       sex: data.patientSex,
+      bloodType: data.bloodType,
       patientId: data.patientId,
       department: data.department,
       phone: data.patientPhone,
@@ -451,6 +512,7 @@ export function printReferralLetter(data: PrintReferralLetterData): void {
       name: data.patientName,
       age: data.patientAge,
       sex: data.patientSex,
+      bloodType: data.bloodType,
       patientId: data.patientId,
       department: data.department,
       phone: data.patientPhone,
@@ -500,6 +562,7 @@ export function printSickLeave(data: PrintSickLeaveData): void {
       name: data.patientName,
       age: data.patientAge,
       sex: data.patientSex,
+      bloodType: data.bloodType,
       patientId: data.patientId,
       department: data.department,
       phone: data.patientPhone,
@@ -602,6 +665,11 @@ export function printDeathNotification(data: PrintDeathNotifData): void {
           name: data.patientName,
           age: data.patientAge,
           sex: data.patientSex,
+          bloodType: data.bloodType,
+          phone: data.patientPhone,
+          dob: data.patientDob,
+          patientId: data.patientId,
+          department: data.department,
           dateLabel: "Date of Admission",
           date: data.dateOfAdmission,
           timeLabel: "Time of Admission",
@@ -709,6 +777,9 @@ export function printLabResult(data: PrintLabResultData): void {
       name: data.patientName,
       age: data.patientAge,
       sex: data.patientSex,
+      bloodType: data.bloodType,
+      phone: data.patientPhone,
+      dob: data.patientDob,
       patientId: data.patientId,
       department: data.department ?? "Laboratory",
       dateLabel: "Date Ordered",
@@ -769,9 +840,11 @@ export function printImagingReport(data: PrintImagingReportData): void {
       name: data.patientName,
       age: data.patientAge,
       sex: data.patientSex,
+      bloodType: data.bloodType,
+      phone: data.patientPhone,
+      dob: data.patientDob,
       patientId: data.patientId,
       department: data.department ?? "Radiology",
-      dob: data.patientDob,
       dateLabel: "Date Requested",
       date: requestedDateStr,
       timeLabel: "Time Requested",

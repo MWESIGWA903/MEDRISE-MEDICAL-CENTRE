@@ -40,6 +40,10 @@ const ConsultationInputSchema = z.object({
 
   // Admission decision
   admissionDecision: z.enum(['outpatient', 'inpatient']).default('outpatient'),
+  
+  // Disposition options
+  disposition: z.enum(['outpatient', 'admit', 'refer', 'transfer', 'discharge', 'death']).default('outpatient'),
+  dispositionNotes: z.string().optional(),
 });
 
 /* ───────────────────────── MAPPER ───────────────────────── */
@@ -117,6 +121,9 @@ router.post('/consultations', async (req, res): Promise<void> => {
         followUpDate: parsed.data.followUpDate ?? null,
         notes: parsed.data.notes ?? null,
         admissionDecision: parsed.data.admissionDecision ?? 'outpatient',
+        disposition: parsed.data.disposition ?? 'outpatient',
+        dispositionNotes: parsed.data.dispositionNotes ?? null,
+        dispositionDate: parsed.data.disposition === 'admit' ? new Date() : null,
       } as any)
       .returning();
 
@@ -156,20 +163,26 @@ router.post('/consultations', async (req, res): Promise<void> => {
     const studies = safeArray(parsed.data.imagingInvestigations);
 
     for (const study of studies) {
-      const lower = study.toLowerCase();
-
-      // Use the exact study name as modality to ensure consistency
-      // Only map to standard modalities if it's a generic request
+      // Preserve exact study name to ensure correct identity
+      // Only normalize capitalization, don't change the modality type
       let modality = study;
+      const lower = study.toLowerCase();
+      
+      // Only normalize capitalization for standard modalities
       if (lower === 'x-ray' || lower === 'xray') modality = 'X-Ray';
       else if (lower === 'ct' || lower === 'ct scan') modality = 'CT Scan';
       else if (lower === 'mri') modality = 'MRI';
-      else if (lower === 'ultrasound' && !lower.includes('doppler')) modality = 'Ultrasound';
+      else if (lower === 'ultrasound') modality = 'Ultrasound';
       else if (lower.includes('doppler')) modality = 'Doppler Ultrasound';
       else if (lower.includes('mammogram') || lower.includes('mammography')) modality = 'Mammography';
       else if (lower.includes('fluoroscopy')) modality = 'Fluoroscopy';
+      else if (lower.includes('dexa')) modality = 'DEXA';
       else if (lower.includes('echocardiogram') || lower.includes('echo')) modality = 'Echocardiography';
       else if (lower.includes('ecg') || lower.includes('electrocardiogram')) modality = 'ECG';
+      else {
+        // Capitalize first letter for consistency, but preserve the exact modality name
+        modality = study.charAt(0).toUpperCase() + study.slice(1).toLowerCase();
+      }
 
       const [imagingOrder] = await db
         .insert(imagingOrdersTable)
@@ -187,7 +200,7 @@ router.post('/consultations', async (req, res): Promise<void> => {
 
       await createAndBroadcast({
         type: 'imaging_order',
-        title: `Imaging Request: ${study}`,
+        title: `Imaging Request: ${modality}`,
         body: `New imaging ordered for patient ${patientId}`,
         severity: 'info',
         relatedId: imagingOrder.id,
@@ -224,7 +237,8 @@ router.post('/consultations', async (req, res): Promise<void> => {
 
     /* ───────────────────────── ADMISSION CREATION ───────────────────────── */
 
-    if (parsed.data.admissionDecision === 'inpatient') {
+    // Create admission when disposition is "admit" or admissionDecision is "inpatient"
+    if (parsed.data.disposition === 'admit' || parsed.data.admissionDecision === 'inpatient') {
       const [admission] = await db
         .insert(admissionsTable)
         .values({
@@ -235,6 +249,7 @@ router.post('/consultations', async (req, res): Promise<void> => {
           bedNumber: 'TBD', // To be assigned
           admissionType: 'Emergency',
           diagnosis: parsed.data.diagnosis || parsed.data.chiefComplaint || '',
+          notes: parsed.data.dispositionNotes || parsed.data.notes || null,
           status: 'active',
         })
         .returning();

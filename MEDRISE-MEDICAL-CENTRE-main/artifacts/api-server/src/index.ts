@@ -34,6 +34,84 @@ async function runMigrations() {
       ALTER TABLE "growth_records" ADD COLUMN IF NOT EXISTS "age_weeks" integer;
       ALTER TABLE "consultations" ADD COLUMN IF NOT EXISTS "admission_decision" text DEFAULT 'outpatient';
       ALTER TABLE "consultations" ADD COLUMN IF NOT EXISTS "admission_id" integer;
+      ALTER TABLE "consultations" ADD COLUMN IF NOT EXISTS "disposition" text DEFAULT 'outpatient';
+      ALTER TABLE "consultations" ADD COLUMN IF NOT EXISTS "disposition_notes" text;
+      ALTER TABLE "consultations" ADD COLUMN IF NOT EXISTS "disposition_date" timestamp;
+      CREATE INDEX IF NOT EXISTS "consultations_disposition_idx" ON "consultations"("disposition");
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "bmi" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "random_blood_sugar" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "fasting_blood_sugar" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "blood_type" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "allergies" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "pregnancy_status" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "emergency_contact_name" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "emergency_contact_phone" text;
+      ALTER TABLE "triage" ADD COLUMN IF NOT EXISTS "emergency_contact_relationship" text;
+      ALTER TABLE "admissions" ADD COLUMN IF NOT EXISTS "isolation_type" text;
+      ALTER TABLE "admissions" ADD COLUMN IF NOT EXISTS "isolation_ward" text;
+      ALTER TABLE "admissions" ADD COLUMN IF NOT EXISTS "isolation_reason" text;
+      ALTER TABLE "admissions" ADD COLUMN IF NOT EXISTS "isolation_started_at" timestamp;
+      ALTER TABLE "admissions" ADD COLUMN IF NOT EXISTS "isolation_ended_at" timestamp;
+      ALTER TABLE "admissions" ADD COLUMN IF NOT EXISTS "isolation_notes" text;
+      CREATE INDEX IF NOT EXISTS "admissions_isolation_type_idx" ON "admissions"("isolation_type");
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "marital_status" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "occupation" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "religion" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "nationality" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "weight" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "height" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "bmi" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "emergency_contact_name" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "emergency_contact_phone" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "emergency_contact_relationship" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "pregnancy_status" text;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "last_visit_date" timestamp;
+      ALTER TABLE "patients" ADD COLUMN IF NOT EXISTS "last_visit_department" text;
+      CREATE INDEX IF NOT EXISTS "patients_phone_idx" ON "patients"("phone");
+      CREATE INDEX IF NOT EXISTS "patients_full_name_idx" ON "patients"("full_name");
+      CREATE INDEX IF NOT EXISTS "patients_date_of_birth_idx" ON "patients"("date_of_birth");
+      CREATE INDEX IF NOT EXISTS "patients_gender_idx" ON "patients"("gender");
+      CREATE TABLE IF NOT EXISTS "gynae_clinics" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "patient_id" integer NOT NULL,
+        "visit_date" text NOT NULL,
+        "visit_type" text NOT NULL,
+        "chief_complaint" text,
+        "history_of_presenting_illness" text,
+        "menstrual_history" text,
+        "last_menstrual_period" text,
+        "menstrual_cycle" text,
+        "menstrual_duration" text,
+        "menstrual_flow" text,
+        "dysmenorrhea" text,
+        "obstetric_history" text,
+        "contraceptive_history" text,
+        "current_contraceptive" text,
+        "sexual_history" text,
+        "vaginal_discharge" text,
+        "vaginal_itching" text,
+        "vaginal_bleeding" text,
+        "abdominal_pain" text,
+        "pelvic_pain" text,
+        "urinary_symptoms" text,
+        "examination_findings" text,
+        "speculum_examination" text,
+        "bimanual_examination" text,
+        "investigations_ordered" text,
+        "diagnosis" text,
+        "treatment_plan" text,
+        "prescriptions" text,
+        "referral" text,
+        "follow_up_date" text,
+        "notes" text,
+        "attended_by" integer,
+        "attended_by_name" text,
+        "created_at" timestamp DEFAULT now() NOT NULL,
+        "updated_at" timestamp DEFAULT now() NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS "gynae_clinics_patient_id_idx" ON "gynae_clinics"("patient_id");
+      CREATE INDEX IF NOT EXISTS "gynae_clinics_visit_date_idx" ON "gynae_clinics"("visit_date");
+      CREATE INDEX IF NOT EXISTS "gynae_clinics_visit_type_idx" ON "gynae_clinics"("visit_type");
       CREATE TABLE IF NOT EXISTS "pharmacy_orders" (
         "id" serial PRIMARY KEY NOT NULL,
         "patient_id" integer NOT NULL,

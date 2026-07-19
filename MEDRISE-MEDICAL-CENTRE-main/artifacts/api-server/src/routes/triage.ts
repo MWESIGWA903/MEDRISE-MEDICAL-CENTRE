@@ -1,6 +1,6 @@
 import { Router, type IRouter } from 'express';
 import { desc, eq } from 'drizzle-orm';
-import { db, triageTable, labOrdersTable, imagingOrdersTable } from '@workspace/db';
+import { db, triageTable, labOrdersTable, imagingOrdersTable, patientsTable } from '@workspace/db';
 import { z } from 'zod';
 import { getSessionFromRequest } from '../lib/session';
 import { logAudit } from '../lib/audit';
@@ -21,7 +21,21 @@ const TriageInputSchema = z.object({
   temperature: z.string().optional(),
   weight: z.string().optional(),
   height: z.string().optional(),
+  bmi: z.string().optional(),
   painScale: z.number().int().min(0).max(10).optional(),
+  
+  // Split blood glucose tests
+  randomBloodSugar: z.string().optional(),
+  fastingBloodSugar: z.string().optional(),
+  
+  // Demographics that sync to patient master record
+  bloodType: z.string().optional(),
+  allergies: z.string().optional(),
+  pregnancyStatus: z.string().optional(),
+  emergencyContactName: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
+  emergencyContactRelationship: z.string().optional(),
+  
   chiefComplaint: z.string().min(1),
   nursingAssessment: z.string().optional(),
   interventionsPerformed: z.string().optional(),
@@ -114,6 +128,26 @@ router.post('/triage', async (req, res): Promise<void> => {
       })
       .returning();
 
+    /* ───────────────────────── PATIENT DEMOGRAPHIC SYNCHRONIZATION ───────────────────────── */
+    
+    // Sync demographics to Patient Master Record
+    const patientUpdates: any = {};
+    if (rest.bloodType) patientUpdates.bloodType = rest.bloodType;
+    if (rest.allergies) patientUpdates.allergies = rest.allergies;
+    if (rest.emergencyContactName) patientUpdates.nextOfKinName = rest.emergencyContactName;
+    if (rest.emergencyContactPhone) patientUpdates.nextOfKinPhone = rest.emergencyContactPhone;
+    if (rest.emergencyContactRelationship) patientUpdates.nextOfKinRelationship = rest.emergencyContactRelationship;
+    if (rest.weight) patientUpdates.weight = rest.weight;
+    if (rest.height) patientUpdates.height = rest.height;
+    if (rest.bmi) patientUpdates.bmi = rest.bmi;
+    
+    if (Object.keys(patientUpdates).length > 0) {
+      await db
+        .update(patientsTable)
+        .set(patientUpdates)
+        .where(eq(patientsTable.id, parsed.data.patientId));
+    }
+
     /* ───────────────────────── LAB ORDERS + BROADCAST FIX ───────────────────────── */
 
     if (emergencyInvestigationsRequested) {
@@ -136,11 +170,19 @@ router.post('/triage', async (req, res): Promise<void> => {
           lower.includes('lab');
 
         if (isLab) {
+          // Handle split blood glucose tests
+          let testName = investigation;
+          if (lower.includes('rbs') || lower.includes('random blood sugar')) {
+            testName = 'Random Blood Sugar';
+          } else if (lower.includes('fbs') || lower.includes('fasting blood sugar')) {
+            testName = 'Fasting Blood Sugar';
+          }
+
           const [labOrder] = await db
             .insert(labOrdersTable)
             .values({
               patientId: parsed.data.patientId,
-              testName: investigation,
+              testName,
               testCategory: 'routine',
               priority: parsed.data.isEmergency ? 'stat' : 'routine',
               status: 'pending',
@@ -153,7 +195,7 @@ router.post('/triage', async (req, res): Promise<void> => {
           await createAndBroadcast({
             type: 'lab_order',
             title: 'New Lab Request',
-            body: `${parsed.data.patientId} requested ${investigation}`,
+            body: `${parsed.data.patientId} requested ${testName}`,
             severity: 'info',
             relatedId: labOrder.id,
           });

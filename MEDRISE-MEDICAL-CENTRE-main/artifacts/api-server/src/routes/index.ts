@@ -21,6 +21,7 @@ import feedbackRouter from './feedback';
 import schedulesRouter from './schedules';
 import maternityRouter from './maternity';
 import inpatientRouter from './inpatient';
+import gynaeRouter from './gynae';
 import auditLogsRouter from './auditLogs';
 import attendanceRouter from './attendance';
 import admissionsRouter from './admissions';
@@ -29,7 +30,7 @@ import loginHistoryRouter from './loginHistory';
 import consultationsRouter from './consultations';
 import passwordResetRouter from './passwordReset';
 import notificationsRouter from './notifications';
-// import documentVersionsRouter from './documentVersions'; // TODO: Requires build setup for new schema
+import documentVersionsRouter from './documentVersions';
 
 const router = Router();
 
@@ -54,6 +55,7 @@ router.use(feedbackRouter);
 router.use(schedulesRouter);
 router.use(maternityRouter);
 router.use(inpatientRouter);
+router.use(gynaeRouter);
 router.use(auditLogsRouter);
 router.use(attendanceRouter);
 router.use(admissionsRouter);
@@ -62,7 +64,7 @@ router.use(loginHistoryRouter);
 router.use(consultationsRouter);
 router.use(passwordResetRouter);
 router.use(notificationsRouter);
-// router.use(documentVersionsRouter); // TODO: Requires build setup for new schema
+router.use(documentVersionsRouter);
 
 /* ===================== ROUTE DEBUG (SAFE) ===================== */
 /* This only runs once at startup */
@@ -88,6 +90,7 @@ if (process.env.NODE_ENV !== 'production') {
     'schedules',
     'maternity',
     'inpatient',
+    'gynae',
     'auditLogs',
     'attendance',
     'admissions',
@@ -96,7 +99,7 @@ if (process.env.NODE_ENV !== 'production') {
     'consultations',
     'passwordReset',
     'notifications',
-    // 'documentVersions', // TODO: Requires build setup for new schema
+    'documentVersions',
   ];
 
   console.log('🚀 Medrise API Routes Loaded:');

@@ -36,7 +36,64 @@ import { cn } from '@/lib/utils';
 
 const seoMeta = getSeoMeta('appointment');
 
-const CLINICAL_ROLES = ['medical_director', 'doctor', 'clinical_officer', 'nurse', 'midwife'];
+// Clinical roles that can be selected for appointments
+const CLINICAL_ROLES = [
+  'doctor',
+  'clinical_officer',
+  'nurse',
+  'midwife',
+  'dentist',
+  'physiotherapist',
+  'specialist',
+  'medical_director', // Will display as "Dr. Name"
+  'sonographer',
+  'radiographer',
+];
+
+// Non-clinical roles to exclude from appointment selection
+const NON_CLINICAL_ROLES = [
+  'owner',
+  'admin',
+  'administrator',
+  'receptionist',
+  'cashier',
+  'billing_officer',
+  'accounts',
+  'records_officer',
+  'pharmacist',
+  'dispenser',
+  'laboratory_technician',
+  'lab_technician',
+  'staff',
+];
+
+// Format clinician display name based on role
+function formatClinicianName(staff: { name: string; role: string | null; title: string | null }): string {
+  const role = staff.role?.toLowerCase() || '';
+  const title = staff.title || '';
+  
+  // Medical directors display as "Dr. Name"
+  if (role === 'medical_director' || role === 'doctor' || role === 'specialist') {
+    return title ? `${title} ${staff.name}` : `Dr. ${staff.name}`;
+  }
+  
+  // Midwives display as "Name (Midwife)"
+  if (role === 'midwife') {
+    return `${staff.name} (Midwife)`;
+  }
+  
+  // Clinical officers display as "Name (Clinical Officer)"
+  if (role === 'clinical_officer') {
+    return `${staff.name} (Clinical Officer)`;
+  }
+  
+  // Other roles with title
+  if (title) {
+    return `${title} ${staff.name}`;
+  }
+  
+  return staff.name;
+}
 
 const formSchema = z.object({
   patientName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -74,7 +131,11 @@ export default function Appointment() {
     },
     staleTime: 5 * 60 * 1000,
   });
-  const clinicalStaff = staffData.filter((s) => CLINICAL_ROLES.includes(s.role ?? ''));
+  const clinicalStaff = staffData.filter((s) => {
+    const role = s.role?.toLowerCase() || '';
+    // Include only clinical roles and exclude non-clinical roles
+    return CLINICAL_ROLES.includes(role) && !NON_CLINICAL_ROLES.includes(role);
+  });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -384,7 +445,7 @@ export default function Appointment() {
                                     <SelectItem value="no-preference">No preference</SelectItem>
                                     {clinicalStaff.map((s) => (
                                       <SelectItem key={s.id} value={s.name}>
-                                        {s.title ? `${s.title} ${s.name}` : s.name}{s.role ? ` — ${s.role.replace(/_/g, ' ')}` : ''}
+                                        {formatClinicianName(s)}
                                       </SelectItem>
                                     ))}
                                   </>
