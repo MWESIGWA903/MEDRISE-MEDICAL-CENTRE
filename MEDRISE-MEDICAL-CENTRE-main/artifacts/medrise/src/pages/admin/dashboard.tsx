@@ -168,9 +168,11 @@ import SchedulesTab from './schedules-tab';
 import ReportsTab from './reports-tab';
 import QueueTab from './queue-tab';
 import MaternityTab from './maternity-tab';
+import GynaeTab from './gynae-tab';
 import TheatreTab from './theatre-tab';
 import PaediatricsTab from './paediatrics-tab';
 import ProtocolsTab from './protocols-tab';
+import DocumentVersionsTab from './document-versions-tab';
 type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 type DashboardTab =
   | 'appointments'
@@ -190,10 +192,12 @@ type DashboardTab =
   | 'feedback'
   | 'admissions'
   | 'maternity'
+  | 'gynae'
   | 'theatre'
   | 'paediatrics'
   | 'dental'
-  | 'protocols';
+  | 'protocols'
+  | 'document-versions';
 
 const ALL_ROLES = [
   'medical_director',
@@ -257,8 +261,14 @@ const TAB_CONFIG: {
   // --- Admin/Owner-only tabs ---
   {
     id: 'maternity',
-    label: 'OBS & GYN',
+    label: 'Maternity',
     icon: Baby,
+    roles: [...CLINICAL_ROLES, 'records_officer'],
+  },
+  {
+    id: 'gynae',
+    label: 'Gynaecology',
+    icon: Activity,
     roles: [...CLINICAL_ROLES, 'records_officer'],
   },
   {
@@ -276,6 +286,7 @@ const TAB_CONFIG: {
   { id: 'dental', label: 'Dental', icon: Smile, roles: [...CLINICAL_ROLES, 'records_officer'] },
   { id: 'admissions', label: 'Admissions', icon: Umbrella, roles: CLINICAL_ROLES },
   { id: 'protocols', label: 'Protocols', icon: BookOpen, roles: CLINICAL_ROLES },
+  { id: 'document-versions', label: 'Document Versions', icon: FileText, roles: ADMIN_ROLES },
   { id: 'billing', label: 'Billing', icon: Receipt, roles: [...ADMIN_ROLES, 'billing_officer'] },
   { id: 'attendance', label: 'Attendance', icon: ClipboardList, roles: ADMIN_ROLES },
   { id: 'staff', label: 'Staff Accounts', icon: UserCog, roles: ADMIN_ROLES },
@@ -3278,6 +3289,9 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
         {/* ===================== AUDIT LOG TAB ===================== */}
         {mainTab === 'audit-log' && <AuditLogTab />}
 
+        {/* ===================== DOCUMENT VERSIONS TAB ===================== */}
+        {mainTab === 'document-versions' && <DocumentVersionsTab />}
+
         {/* ===================== TRIAGE QUEUE TAB ===================== */}
         {mainTab === 'queue' && <QueueTab staffId={adminMe?.id} />}
 
@@ -3289,6 +3303,7 @@ export default function AdminDashboard({ isStaffPortal = false }: { isStaffPorta
 
         {/* ===================== ADMISSIONS TAB ===================== */}
         {mainTab === 'maternity' && <MaternityTab />}
+        {mainTab === 'gynae' && <GynaeTab />}
         {mainTab === 'theatre' && <TheatreTab />}
         {mainTab === 'paediatrics' && <PaediatricsTab />}
         {mainTab === 'dental' && <DentalTab />}
